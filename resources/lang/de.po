@@ -1,0 +1,165 @@
+# webtrees CLIPPINGS CART.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: hh 2.0.19\n"
+"Report-Msgid-Bugs-To: hermann@hartenthaler.de\n"
+"POT-Creation-Date: 2021-11-21 12:57+0200\n"
+"PO-Revision-Date: 2021-11-21 12:59+0000\n"
+"Last-Translator: Hermann Hartenthaler <hermann@hartenthaler.de>\n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+
+#: ClippingsCartModuleTrait.php:21
+msgid "Replacement for the original 'Clippings Cart' module."
+msgstr "Ersatz für das ursprüngliche \"Sammelbehälter\"-Modul."
+
+msgid "Clippings cart enhanced"
+msgstr "Sammelbehälter"
+
+msgid "Add records from your family tree to the clippings cart and execute an action on them."
+msgstr "Datensätze aus dem Stammbaum dem Sammelbehälter hinzufügen und dann weitere Aktionen damit ausführen."
+
+msgid "Records in clippings cart"
+msgstr "Datensätze im Sammelbehälter"
+
+msgid "Clippings cart is empty."
+msgstr "Sammelbehälter enthält keine Daten."
+
+msgid "Records in %s "
+msgstr "Datensätze im %s "
+
+msgid "Add this record to the clippings cart"
+msgstr "Zum Sammelbehälter hinzufügen"
+
+msgid "%1$s and her ancestors (up to %2$s generations)"
+msgstr "%1$s und ihre Vorfahren (bis zu %2$s Generationen)"
+
+msgid "%1$s and his ancestors (up to %2$s generations)"
+msgstr "%1$s und seine Vorfahren (bis zu %2$s Generationen)"
+
+msgid "%s and her ancestors, up to 4 generations, for H-Tree"
+msgstr "%s und ihre Vorfahren, bis zu 4 Generationen, für H-Tree-Ansicht (TAM-Funktion)"
+
+msgid "%s and his ancestors, up to 4 generations, for H-Tree"
+msgstr "%s und seine Vorfahren, bis zu 4 Generationen, für H-Tree-Ansicht (TAM-Funktion)"
+
+msgid "%1$s, her ancestors and their families (up to %2$s generations)"
+msgstr "%1$s, ihre Vorfahren und deren Familien (bis zu %2$s Generationen)"
+
+msgid "%1$s, his ancestors and their families (up to %2$s generations)"
+msgstr "%1$s, seine Vorfahren und deren Familien (bis zu %2$s Generationen)"
+
+msgid "%1$s, her spouses and descendants (up to %2$s generations)"
+msgstr "%1$s, ihre Ehepartner und Nachkommen (bis zu %2$s Generationen)"
+
+msgid "%1$s, his spouses and descendants (up to %2$s generations)"
+msgstr "%1$s, seine Ehepartner und Nachkommen (bis zu %2$s Generationen)"
+
+msgid "Decrement"
+msgstr "Vermindern"
+
+msgid "Increment"
+msgstr "Hochzählen"
+
+msgid "the partner chains %s belongs to"
+msgstr "Die Partner-Ketten zu denen %s gehört"
+
+msgid "Add global record sets to the clippings cart"
+msgstr "Globale Datensammlungen zum Sammelbehälter hinzufügen"
+
+msgid "all partner chains in this tree"
+msgstr "Alle Partner-Ketten im Stammbaum"
+
+msgid "all circles of individuals in this tree"
+msgstr "Alle Personen-Kreise im Stammbaum"
+
+msgid "all connected persons in this family tree - Caution: probably very high number of persons!"
+msgstr "Alle verbundenen Personen in diesem Stammbaum - Achtung: wahrscheinlich sehr hohe Anzahl von Personen!"
+
+msgid "Delete records in the clippings cart"
+msgstr "Datensätze im Sammelbehälter löschen"
+
+msgid "CCE-Individual"
+msgstr "Personen"
+
+msgid "CCE-Family"
+msgstr "Familien"
+
+msgid "CCE-Media"
+msgstr "Medien-Dateien"
+
+msgid "CCE-Location"
+msgstr "Ortsangaben"
+
+msgid "CCE-Note"
+msgstr "Notizen"
+
+msgid "CCE-Repository"
+msgstr "Datenspeicher"
+
+msgid "CCE-Source"
+msgstr "Quellen-Verzeichnis"
+
+msgid "CCE-Submitter"
+msgstr "Einsender"
+
+msgid "Delete all records, a set of records of the same type, or selected records"
+msgstr "Löschen aller Datensätze insgesamt, oder aller eines Typs, oder nach Auswahl"
+
+msgid "all records"
+msgstr "Alle Datensätze:"
+
+msgid "set of records by type"
+msgstr "Datensätze eines Typs"
+
+msgid "select records to be deleted"
+msgstr "Datensätze zum Löschen auswählen:"
+
+msgid "You have tried '%s' - it is not implemented yet."
+msgstr "Aktion '%s' geht nicht - ist noch nicht eingebaut"
+
+msgid "Execute an action on records in the clippings cart"
+msgstr "Weiterführende Aktionen mit den Datensätzen im Sammelbehälter"
+
+msgid "Download records ..."
+msgstr "Datensätze herunterladen ..."
+
+msgid "... as GEDCOM zip-file (including media files)"
+msgstr "... als GEDCOM-Datei gezippt (clippings.zip) - einschließlich Medien-Dateien"
+
+msgid "... as GEDCOM file (all Tags, no media files)"
+msgstr "... als GEDCOM-Datei (*.ged) - alle Tags, ohne Medien-Dateien"
+
+msgid "... as GEDCOM file (only INDI and FAM)"
+msgstr "... als GEDCOM-Datei (*.ged) - nur INDI und FAM, sonst nichts"
+
+msgid "Visualize records in a diagram ..."
+msgstr "Datensätze graphisch auswerten in einem Diagramm ..."
+
+msgid "... using TAM"
+msgstr "... mittels TAM"
+
+msgid "... using Lineage"
+msgstr "... mittels Lineage"
+
+msgid "Privatize options"
+msgstr "Privatisierungs-Optionen"
+
+msgid "back to show"
+msgstr "Zurück zur Übersicht"
+
+msgid "back"
+msgstr "Zurück"
+
+msgid "Adjust number of generations"
+msgstr "Generationen-Tiefe einstellen:"
+
+msgid "Missing dependency - Install %s!"
+msgstr "Abhängigkeit nicht erfüllt - %s installieren!"
+
+msgid ""
+msgstr ""

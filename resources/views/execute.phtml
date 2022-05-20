@@ -1,0 +1,57 @@
+<?php
+
+use Fisharebest\Webtrees\I18N;
+
+/**
+ * @var array<string,array>  $options
+ * @var string               $title
+ * @var string               $label
+ * @var bool                 $is_manager
+ * @var bool                 $is_member
+ * @var Tree                 $tree
+ */
+
+?>
+
+<h2 class="wt-page-title"><?= $title ?></h2>
+
+<form method="post" class="wt-page-options wt-page-options-clippings d-print-none">
+    <?= csrf_field() ?>
+
+    <?php foreach ($options as $opt => $actions) : ?>
+        <?php $optInfo = I18N::translate($opt) ?>
+        <div class="row form-group">
+            <div class="col-sm-3 col-form-label wt-page-options-label">
+                <?= $optInfo ?>
+            </div>
+            <div class="col-sm-9 wt-page-options-value">
+                <?= view('components/radios', ['name' => 'option', 'options' => $actions, 'selected' => key($actions)]) ?>
+            </div>
+        </div>
+    <?php endforeach ?>
+
+    <?= view($module . '::' . 'privatize-options', ['label' => $label, 'is_manager'=> $is_manager, 'is_member'=> $is_member ]) ?>
+
+    <div class="row form-group">
+        <label class="col-sm-3 col-form-label wt-page-options-label" for="convert">
+            <?= I18N::translate('Convert from UTF-8 to ISO-8859-1') ?>
+        </label>
+        <div class="col-sm-9 wt-page-options-value">
+            <input type="checkbox" name="convert" id="convert">
+        </div>
+    </div>
+
+    <div class="row form-group">
+        <div class="col-sm-3 wt-page-options-label"></div>
+        <div class="col-sm-9 wt-page-options-value">
+            <button type="submit" class="btn btn-primary">
+                <?= view('icons/save') ?>
+                <?= /* I18N: A button label. */ I18N::translate('continue') ?>
+            </button>
+            <a href="<?= e(route('module', ['module' => $module, 'action' => 'Show', 'tree' => $tree->name()])) ?>" class="btn btn-secondary">
+                <?= view('icons/cancel') ?>
+                <?= I18N::translate('back to show') ?>
+            </a>
+        </div>
+    </div>
+</form>

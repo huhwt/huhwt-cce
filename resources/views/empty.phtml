@@ -1,0 +1,56 @@
+<?php
+
+use Fisharebest\Webtrees\I18N;
+
+/**
+ * @var string               $module
+ * @var array<string,string> $options
+ * @var string               $title
+ * @var string               $label
+ * @var string               $labelType
+ * @var array                $recordTypes (string => int)
+ * @var array                $selectedTypes
+ */
+
+?>
+
+<h2 class="wt-page-title"><?= $title ?></h2>
+
+<form method="post" class="wt-page-options wt-page-options-clippings d-print-none">
+    <?= csrf_field() ?>
+
+    <div class="row form-group">
+        <div class="col-sm-3 col-form-label wt-page-options-label">
+            <?= $label ?>
+        </div>
+        <div class="col-sm-9 wt-page-options-value">
+            <?php foreach ($options as $value => $label) : ?>
+                <?= view('components/radio', ['label' => $label, 'name' => 'option', 'value' => (string) $value, 'checked' => $value === key($options)]) ?>
+                <?php if ( $value == 'set of records by type' ) : ?>
+                    <div class="col-sm-9 wt-page-options-value pt-2">
+                        <div id="delete-types">
+                            <?php foreach ($recordTypes as $type => $count) : ?>
+                                <?php $badge = view('components/badge', ['count' => $count]); ?>
+                                <?php $labelBox = I18N::translate($type) . ' ' . $badge . '&nbsp;&nbsp;&nbsp;'; ?>
+                                <?= view('components/checkbox-inline', ['name' => $type, 'id' => 'chkbx-' . $type, 'checked' => $selectedTypes, 'value' => $count, 'label' => $labelBox]) ?>
+                            <?php endforeach ?>
+                        </div>
+                    </div>
+                <?php endif; ?>
+            <?php endforeach; ?>
+        </div>
+    </div>
+
+    <div class="row form-group">
+        <div class="col-sm-9 wt-page-options-value">
+            <button type="submit" class="btn btn-primary">
+                <?= view('icons/save') ?>
+                <?= /* I18N: A button label. */ I18N::translate('delete') ?>
+            </button>
+            <a href="<?= e(route('module', ['module' => $module, 'action' => 'Show', 'tree' => $tree->name()])) ?>" class="btn btn-secondary">
+                <?= view('icons/cancel') ?>
+                <?= I18N::translate('back to show') ?>
+            </a>
+        </div>
+    </div>
+</form>

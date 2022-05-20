@@ -1,0 +1,164 @@
+# webtrees CLIPPINGS CART.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: hh 2.0.19\n"
+"Report-Msgid-Bugs-To: hermann@hartenthaler.de\n"
+"POT-Creation-Date: 2021-11-21 12:57+0200\n"
+"PO-Revision-Date: 2022-02-19 13:38+0100\n"
+"Last-Translator: TheDutchJewel <thedutchjewel@gmail.com>\n"
+"Language-Team: \n"
+"Language: nl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Poedit 3.0.1\n"
+
+#: ClippingsCartModuleTrait.php:21
+msgid "Replacement for the original 'Clippings Cart' module."
+msgstr "Vervanging voor de originele 'Stamboomknipsel'-module."
+
+msgid "Clippings cart enhanced"
+msgstr "Uitgebreide stamboomknipsels"
+
+msgid "Add records from your family tree to the clippings cart and execute an action on them."
+msgstr "Voeg records uit uw stamboom toe aan de knipselverzameling en voer er een actie op uit."
+
+msgid "Records in clippings cart"
+msgstr "Records in knipselverzameling"
+
+msgid "Clippings cart is empty."
+msgstr "Knipselverzameling is leeg."
+
+msgid "Records in %s "
+msgstr "Records in %s "
+
+msgid "Add this record to the clippings cart"
+msgstr "Voeg dit record toe aan de knipselverzameling"
+
+msgid "%1$s and her ancestors (up to %2$s generations)"
+msgstr "%1$s en haar voorouders (tot %2$s generaties)"
+
+msgid "%1$s and his ancestors (up to %2$s generations)"
+msgstr "%1$s en zijn voorouders (tot %2$s generaties)"
+
+msgid "%s and her ancestors, up to 4 generations, for H-Tree"
+msgstr "%s en haar voorouders, tot 4 generaties, voor H-Tree"
+
+msgid "%s and his ancestors, up to 4 generations, for H-Tree"
+msgstr "%s en zijn voorouders, tot 4 generaties, voor H-Tree"
+
+msgid "%1$s, her ancestors and their families (up to %2$s generations)"
+msgstr "%1$s, haar voorouders en hun gezinnen (tot %2$s generaties)"
+
+msgid "%1$s, his ancestors and their families (up to %2$s generations)"
+msgstr "%1$s, zijn voorouders en hun gezinnen (tot %2$s generaties)"
+
+msgid "%1$s, her spouses and descendants (up to %2$s generations)"
+msgstr "%1$s, haar partners en afstammelingen (tot %2$s generaties)"
+
+msgid "%1$s, his spouses and descendants (up to %2$s generations)"
+msgstr "%1$s, zijn partners en afstammelingen (tot %2$s generaties)"
+
+msgid "Decrement"
+msgstr "Verlagen"
+
+msgid "Increment"
+msgstr "Verhogen"
+
+msgid "the partner chains %s belongs to"
+msgstr "de partnerketen waartoe %s behoort"
+
+msgid "Add global record sets to the clippings cart"
+msgstr "Voeg globale recordsets toe aan de knipselverzameling"
+
+msgid "all partner chains in this tree"
+msgstr "alle partnerketens in deze stamboom"
+
+msgid "all circles of individuals in this tree"
+msgstr "alle cirkels van personen in deze stamboom"
+
+msgid "all connected persons in this family tree - Caution: probably very high number of persons!"
+msgstr "alle verbonden personen in deze stamboom - Let op: waarschijnlijk zeer groot aantal personen!"
+
+msgid "Delete records in the clippings cart"
+msgstr "Verwijder records in de knipselverzameling"
+
+msgid "CCE-Individual"
+msgstr "CCE-Persoon"
+
+msgid "CCE-Family"
+msgstr "CCE-Gezin"
+
+msgid "CCE-Media"
+msgstr "CCE-Media"
+
+msgid "CCE-Location"
+msgstr "CCE-Locatie"
+
+msgid "CCE-Note"
+msgstr "CCE-Notitie"
+
+msgid "CCE-Repository"
+msgstr "CCE-Opslagplaats"
+
+msgid "CCE-Source"
+msgstr "CCE-Bron"
+
+msgid "CCE-Submitter"
+msgstr "CCE-Indiener"
+
+msgid "Delete all records, a set of records of the same type, or selected records"
+msgstr "Verwijder alle records, een set van records van hetzelfde type of geselecteerde records"
+
+msgid "all records"
+msgstr "alle records"
+
+msgid "set of records by type"
+msgstr "set van records per type"
+
+msgid "select records to be deleted"
+msgstr "selecteer records om te verwijderen"
+
+msgid "You have tried '%s' - it is not implemented yet."
+msgstr "Actie '%s' werkt niet - dit is nog niet geïmplementeerd."
+
+msgid "Execute an action on records in the clippings cart"
+msgstr "Voer een actie uit op records in de knipselverzameling"
+
+msgid "Download records ..."
+msgstr "Download records ..."
+
+msgid "... as GEDCOM zip-file (including media files)"
+msgstr "... als GEDCOM-zipbestand (clippings.zip) - inclusief mediabestanden"
+
+msgid "... as GEDCOM file (all Tags, no media files)"
+msgstr "... als GEDCOM-bestand (*.ged) - alle labels, geen mediabestanden"
+
+msgid "... as GEDCOM file (only INDI and FAM)"
+msgstr "... als GEDCOM-bestand (*.ged) - alleen INDI en FAM"
+
+msgid "Visualize records in a diagram ..."
+msgstr "Visualiseer records in een diagram ..."
+
+msgid "... using TAM"
+msgstr "... met behulp van TAM"
+
+msgid "... using Lineage"
+msgstr "... met behulp van Lineage"
+
+msgid "Privatize options"
+msgstr "Privacybeperkingen"
+
+msgid "back to show"
+msgstr "terug naar overzicht"
+
+msgid "back"
+msgstr "terug"
+
+msgid "Adjust number of generations"
+msgstr "Aantal generaties aanpassen"
+
+msgid "Missing dependency - Install %s!"
+msgstr "Afhankelijkheid ontbreekt - Installeer %s!"

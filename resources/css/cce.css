@@ -1,0 +1,63 @@
+/**
+* Icon converted via: https://base64.guru/converter/encode/image
+* Zusätzliche Steuerelemente Clippings Cart Enhanced
+*/
+
+.cce-page-options {
+    display: flex;
+}
+
+.cce_buttongroup {
+    display: flex;
+}
+    .cce_buttongroup span {
+        display: inline;
+    }
+    .cce_buttongroup>input[type=number] {
+        -moz-appearance:textfield;
+        height: 26px;
+        width: 46px;
+        margin: 0;
+    }
+    .cce_buttongroup>input[type=number]::-webkit-inner-spin-button, 
+    .cce_buttongroup>input[type=number]::-webkit-outer-spin-button { 
+        -webkit-appearance: none; 
+        margin: 0; 
+        height: 26px;
+        width: 46px;
+    }
+
+    .cce_button {
+    /* display: inline-flex; */
+    /* position: relative; */
+    width: 24px;
+    height: 24px;
+    vertical-align: middle;
+    padding: 0;
+    margin: 0;
+    text-align: center;
+    border: thin solid #efefef;
+    background-color: #efefef;
+    border-radius: 4px;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+    .cce_button:hover {
+        border: thin outset #fdfffd;
+        cursor: pointer;
+    }
+
+.bPlus {
+    content: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABYAAAAWCAYAAADEtGw7AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAEeSURBVEhLY2QgAtRP3/T/9O5VDP///WZQFuFmKC9MYpDVtsGrlwlK4wRnH3z6f/H0IbChIHD3zVeGS8cPgNn4AEGD/4MxiESA//9R+dgAQYPJBaMGwwHNDAanxY7py/8/unkZGN2/wfGPnEC///7H8PLlS4b/fyHJDQRE+DgYeAXFoDxIyoHpEeXlZAj1tmRg7F9/7v+uhd1AoX8QGSoADU5gUHz7/gPIJJwuSQHfvwMN5uLkADKJytlEA06gi2kXxlA+TnAGWFY0NzUy/Hr3BCrCwJDtrcPgk1qLV+9oBoGDYWgwKOoZ0RIPIyPBxETYYGMFPkZ9UzsGRiZWMB9U5+lZOoDZ+ABhq6EAVKaAsj8wpz4oDDRShArjAAwMAHA+ZOlwX6lRAAAAAElFTkSuQmCC');
+    align-content: center;
+}
+.bMinus {
+    content: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABYAAAAWCAYAAADEtGw7AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAACcSURBVEhLYxgFo4B+gBFKM1y7cff///9/oDzyAS8HG4OcoiIj47F77//P6e9j+PLhBQPD/39QafIBByszQ6CVCgNj56qT/w8s6wcK/YfIUAEoszAwMP358xfKpR74AwxRJikJYWBIs0KFqAMkJTkhkbd6x9H/j25dY/j//zdYglwAMkyUl4PB0dYIIjAKRsEQB4zAIg3KpCZgYAAAFx8p8F5SZ9kAAAAASUVORK5CYII=');
+    align-content: center;
+}
+
+.cce_disabled {
+    pointer-events: none;
+    cursor: default;
+    background-color: #efefef52 !important;
+}

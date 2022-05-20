@@ -1,0 +1,72 @@
+<?php
+
+use Fisharebest\Webtrees\GedcomRecord;
+use Fisharebest\Webtrees\I18N;
+use Fisharebest\Webtrees\View;
+use Fisharebest\Webtrees\Tree;
+
+/**
+ * @var string              $module
+ * @var array<GedcomRecord> $types
+ * @var array<>             $recordTypes
+ * @var string              $title
+ * @var string              $description
+ * @var Tree                $tree
+ */
+
+?>
+
+<h2 class="wt-page-title"><?= $title ?></h2>
+
+<p><?= $description ?></p>
+
+<?php if ($recordTypes === []) : ?>
+    <p><?= I18N::translate('Clippings cart is empty.'); ?></p>
+<?php else : ?>
+    <?php foreach ($types as $key => $class) :      // test if there are records for this type ... ?>
+        <?php if (array_key_exists($key, $recordTypes)) : ?>
+            <?php $records = $recordTypes[$key]; ?>
+            <?php $count = count($records); ?>
+            <?php $Theader = 'CCE-' . $key; ?>
+            <table class="table wt-facts-table">
+                <thead>
+                    <tr>
+                        <th name="<?= $Theader ?>" class="CCE_Theader" ><?= I18N::translate('Records') . ' - ' . I18N::translate($Theader) . ' (' . view('components/badge', ['count' => $count]) . ')'; ?></th>
+                        <th><?= I18N::translate('Remove'); ?></th>
+                    </tr>
+                </thead>
+                <tbody name="<?= $Theader ?>" style="visible">
+                    <?php foreach ($records as $record) : ?>
+                        <tr>
+                            <td>
+                                <?= view('icons/record', ['record' => $record]); ?>
+                                <a href="<?= e($record->url()); ?>">
+                                    <?= $record->fullName(); ?>
+                                </a>
+                            </td>
+                            <td>
+                                <form method="post" action="<?= e(route('module', ['module' => $module, 'action' => 'Remove', 'tree' => $tree->name(), 'xref' => $record->xref()])); ?>">
+                                    <?= csrf_field(); ?>
+                                    <button type="submit" class="btn btn-link" title="<?= I18N::translate('Remove'); ?>">
+                                        <?= view('icons/delete'); ?>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        <?php endif; ?>
+    <?php endforeach; ?>
+<?php endif; ?>
+
+<?php View::push('javascript'); ?>
+<script src="<?= e($javascript); ?>"></script>
+<?php View::endpush(); ?>
+
+
+<?= View::push('javascript'); ?>
+<script>
+  prepCollapse();
+</script>
+<?= View::endpush(); ?>

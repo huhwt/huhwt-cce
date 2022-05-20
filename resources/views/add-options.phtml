@@ -1,0 +1,105 @@
+<?php
+
+use Fisharebest\Webtrees\GedcomRecord;
+use Fisharebest\Webtrees\I18N;
+use Fisharebest\Webtrees\View;
+use Fisharebest\Webtrees\Tree;
+
+/**
+ * @var array<string,string> $options
+ * @var GedcomRecord         $record
+ * @var array                $generations with index 'I', 'F', 'D'
+ * @var string               $title
+ * @var Tree                 $tree
+ */
+
+?>
+
+<h2 class="wt-page-title"><?= $title ?></h2>
+
+<form method="post" class="wt-page-options wt-page-options-clippings d-print-none">
+    <?= csrf_field() ?>
+    <input type="hidden" name="xref" value="<?= e($record->xref()) ?>">
+
+    <div class="row form-group">
+        <div class="col-sm-3 col-form-label wt-page-options-label">
+            <?= I18N::translate('Add to the clippings cart') ?>
+        </div>
+        <div class="col-sm-9 wt-page-options-value">
+            <?= view('components/radios', ['name' => 'option', 'options' => $options, 'selected' => key($options)]) ?>
+        </div>
+    </div>
+
+    <div class="row form-group">
+        <div class="col-sm-3 col-form-label wt-page-options-label">
+            <?= I18N::translate('Adjust number of generations') ?>
+        </div>
+        <div class="col-sm-9 wt-page-options-value cce-page-options">
+            <div class="col-sm-3 cce_buttongroup">
+                <span> <?= I18N::translate('Ancestors') ?> &nbsp;</span><span class="cce_genA" ><?= $generations['A']; ?></span><span>&nbsp;</span>
+                <div id="showgensA" class="cce_buttongroup">
+                    <div class="cce_button"><i id="showgensSubA" class="bMinus cce_button" title="<?= I18N::translate('Decrement') ?>"></i></div>
+                    <input
+                        class="form-control"
+                        id="generationsA"
+                        name="generationsA"
+                        min="<?=$generations['Amin'] ?>"
+                        max="<?=$generations['Amax'] ?>"
+                        step="0"
+                        readonly="true"
+                        type="number"
+                        value="<?= e($generations['A']) ?>"
+                    >
+                    <div class="cce_button"><i<i id="showgensAddA" class="bPlus cce_button" title="<?= I18N::translate('Increment') ?>"></i></div>
+                </div>
+            </div>
+            <div class="col-sm-3 cce_buttongroup">
+                <span> <?= I18N::translate('Descendants') ?> &nbsp;</span><span class="cce_genD" ><?= $generations['D']; ?></span><span>&nbsp;</span>
+                <div id="showgensD" class="cce_buttongroup">
+                    <div class="cce_button"><i id="showgensSubD" class="bMinus cce_button" title="<?= I18N::translate('Decrement') ?>"></i></div>
+                    <input
+                        class="form-control"
+                        id="generationsD"
+                        name="generationsD"
+                        min="<?=$generations['Dmin'] ?>"
+                        max="<?=$generations['Dmax'] ?>"
+                        step="0"
+                        readonly="true"
+                        type="number"
+                        value="<?= e($generations['D']) ?>"
+                    >
+                    <div class="cce_button"><i<i id="showgensAddD" class="bPlus cce_button" title="<?= I18N::translate('Increment') ?>"></i></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row form-group">
+        <div class="col-sm-3 wt-page-options-label"></div>
+        <div class="col-sm-9 wt-page-options-value">
+            <button type="submit" class="btn btn-primary">
+                <?= view('icons/save') ?>
+                <?= /* I18N: A button label. */ I18N::translate('continue') ?>
+            </button>
+
+            <a class="btn btn-secondary" href="<?= e($record->url()) ?>">
+                <?= view('icons/cancel') ?>
+                <?= /* I18N: A button label. */ I18N::translate('back') ?>
+            </a>
+        </div>
+    </div>
+</form>
+
+<?php View::push('styles') ?>
+<link rel="stylesheet" href="<?= e($stylesheet) ?>">
+<?php View::endpush(); ?>
+
+<?php View::push('javascript'); ?>
+<script src="<?= e($javascript) ?>"></script>
+<?php View::endpush(); ?>
+
+<?= View::push('javascript') ?>
+<script>
+  showgensPrep();
+</script>
+<?= View::endpush() ?>
