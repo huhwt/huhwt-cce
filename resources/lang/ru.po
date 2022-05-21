@@ -1,0 +1,146 @@
+# webtrees CLIPPINGS CART.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: hh 2.0.19\n"
+"Report-Msgid-Bugs-To: hermann@hartenthaler.de\n"
+"POT-Creation-Date: 2021-11-21 12:57+0200\n"
+"PO-Revision-Date: 2022-03-19 22:50+0300\n"
+"Last-Translator: Hermann Hartenthaler <hermann@hartenthaler.de>\n"
+"Language-Team: Oleg Ushatkin\n"
+"Language: ru\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : 2);\n"
+"X-Generator: Poedit 3.0.1\n"
+
+#: ClippingsCartModuleTrait.php:21
+msgid "Replacement for the original 'Clippings Cart' module."
+msgstr "Замена оригинального модуля 'Корзина вырезок'."
+
+msgid "Clippings cart enhanced"
+msgstr "Корзина вырезок Улучшено"
+
+msgid "Add records from your family tree to the clippings cart and execute an action on them."
+msgstr "Добавьте записи из генеалогического дерева в корзину вырезок и выполните над ними действие."
+
+msgid "Records in clippings cart"
+msgstr "Записи в корзине вырезок"
+
+msgid "Clippings cart is empty."
+msgstr "Корзина вырезок пуста."
+
+msgid "Records in %s "
+msgstr "Записи в %s "
+
+msgid "Add this record to the clippings cart"
+msgstr "Добавить эту запись в корзину вырезок"
+
+msgid "%1$s and her ancestors (up to %2$s generations)"
+msgstr "%1$s и ее предки (до %2$s поколений)"
+
+msgid "%1$s and his ancestors (up to %2$s generations)"
+msgstr "%1$s и его предки (до %2$s поколений)"
+
+msgid "%s and her ancestors, up to 4 generations, for H-Tree"
+msgstr "%s и ее предки, до 4 поколений, для H-Tree"
+
+msgid "%s and his ancestors, up to 4 generations, for H-Tree"
+msgstr "%s и его предки, до 4 поколений, для H-Tree"
+
+msgid "%1$s, her ancestors and their families (up to %2$s generations)"
+msgstr "%1$s, ее предки и их семьи (до %2$s поколений)"
+
+msgid "%1$s, his ancestors and their families (up to %2$s generations)"
+msgstr "%1$s, его предки и их семьи (до %2$s поколений)"
+
+msgid "%1$s, her spouses and descendants (up to %2$s generations)"
+msgstr "%1$s, ее супруги и потомки (до %2$s поколений)"
+
+msgid "%1$s, his spouses and descendants (up to %2$s generations)"
+msgstr "%1$s, его супруги и потомки (до %2$s поколений)"
+
+msgid "Decrement"
+msgstr "Декремент"
+
+msgid "Increment"
+msgstr "Приращение"
+
+msgid "the partner chains %s belongs to"
+msgstr "партнерские цепочки, к которым принадлежит %s"
+
+msgid "Add global record sets to the clippings cart"
+msgstr "Добавление глобальных наборов записей в корзину вырезок"
+
+msgid "all partner chains in this tree"
+msgstr "все партнерские цепочки в этом дереве"
+
+msgid "all circles of individuals in this tree"
+msgstr "все круги особей в этом дереве"
+
+msgid "all connected persons in this family tree - Caution: probably very high number of persons!"
+msgstr "все связанные лица в этом генеалогическом древе - Осторожно: вероятно, очень большое количество людей!"
+
+msgid "Delete records in the clippings cart"
+msgstr "Удаление записей из корзины вырезок"
+
+msgid "CCE-Individual"
+msgstr "Люди"
+
+msgid "CCE-Family"
+msgstr "Семьи"
+
+msgid "Delete all records, a set of records of the same type, or selected records"
+msgstr "Удаление всех записей, набора записей одного типа или выбранных записей"
+
+msgid "all records"
+msgstr "все записи"
+
+msgid "set of records by type"
+msgstr "набор записей по типу"
+
+msgid "select records to be deleted"
+msgstr "Выберите записи для удаления"
+
+msgid "You have tried '%s' - it is not implemented yet."
+msgstr "Вы попробовали «%s» - это еще не реализовано."
+
+msgid "Execute an action on records in the clippings cart"
+msgstr "Выполнение действия над записями в корзине вырезок"
+
+msgid "Download records ..."
+msgstr "Скачать записи ..."
+
+msgid "... as GEDCOM zip-file (including media files)"
+msgstr "... заархивирован как файл GEDCOM (clippings.zip) - включая медиафайлы"
+
+msgid "... as GEDCOM file (all Tags, no media files)"
+msgstr "... как файл GEDCOM (*.ged) - все теги, без медиафайлов"
+
+msgid "... as GEDCOM file (only INDI and FAM)"
+msgstr "... в виде файла GEDCOM (*.ged) - только INDI и FAM, больше ничего"
+
+msgid "Visualize records in a diagram ..."
+msgstr "Визуализация записей на диаграмме ..."
+
+msgid "... using TAM"
+msgstr "... использование TAM"
+
+msgid "... using Lineage"
+msgstr "... использование Lineage"
+
+msgid "Privatize options"
+msgstr "Варианты приватизации"
+
+msgid "back to show"
+msgstr "вернуться к показу"
+
+msgid "back"
+msgstr "Назад"
+
+msgid "Adjust number of generations"
+msgstr "Настройка количества поколений"
+
+msgid "Missing dependency - Install %s!"
+msgstr "Отсутствующая зависимость - Установите %s!"
