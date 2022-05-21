@@ -18,8 +18,7 @@ if (defined("WT_VERSION"))
 // Register our namespace
 require_once __DIR__ . '/autoload.php';
   
-require __DIR__ . '/ClippingsCartModuleEnhanced20.php';
-
+require __DIR__ . '/ClippingsCartEnhanced.php';
 // Create and return instance of the module
 
-return app(ClippingsCartModuleEnhanced20::class);
+return app(ClippingsCartEnhanced::class);

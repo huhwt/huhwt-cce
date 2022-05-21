@@ -4,6 +4,9 @@
  *
  * based on Vesta module "clippings cart extended"
  *
+ * Cart Management and passing on to vizualisation tools added by huhwt.
+ *
+ * Copyright (C) 2022 EW.Heinrich. All rights reserved.
  * Copyright (C) 2021 Hermann Hartenthaler. All rights reserved.
  * Copyright (C) 2021 Richard Cissée. All rights reserved.
  *
@@ -27,9 +30,6 @@
 /*
  * tbd
  * ---
- * code: update GEDCOM export for TAM using webtrees 2.0 environment
- * code: implement deleting of records in cart by type
- * code: when adding descendents or ancestors then allow the specification of the number of generations
  * code: empty cart: show block with "type delete" only if second option is selected
  * code: empty cart: button should be labeled "continue" and not "delete" if third option is selected
  * code: add specific TRAIT module (?)
@@ -42,8 +42,6 @@
  *           add all their ancestors and descendants (???), remove all the leaves(???)
  * issue: new add function for an individual: add chain to most distant ancestor
  * issue: new global add function to add all records of a tree
- * issue: integrate TAM instead of exporting GEDCOM file for external TAM application
- * issue: integrate Lineage
  * issue: use GVExport (GraphViz) code for visualization (?)
  * issue: implement webtrees 1 module "branch export" with a starting person and several stop persons/families (stored as profile)
  * issue: new function to add all circles for an individual or a family
@@ -51,7 +49,6 @@
  * idea: use TAM to visualize the hierarchy of location records
  * test: access rights for members and visitors
  * other module - Vesta clippings cart extension: make this module working together with the Vesta module
- * other module - check conflict with JustLight: jc-theme-justlight\resources\views\modules\clippings\show.phtml
  * other module - test with all other themes: Rural, Argon, ...
  * other module - admin/control panel module "unconnected individuals": add button to each group "send to clippings cart"
  * other module - custom modul extended family: send filtered INDI and FAM records to clippings cart
@@ -87,6 +84,7 @@ use Fisharebest\Webtrees\Note;
 use Fisharebest\Webtrees\Registry;
 use Fisharebest\Webtrees\Repository;
 use Fisharebest\Webtrees\Services\GedcomExportService;
+use Fisharebest\Webtrees\Services\LinkedRecordService;
 use Fisharebest\Webtrees\Services\UserService;
 use Fisharebest\Webtrees\Session;
 use Fisharebest\Webtrees\Source;
@@ -132,6 +130,7 @@ use function redirect;
 use function rewind;
 use function route;
 use function str_replace;
+use function str_starts_with;
 use function stream_get_meta_data;
 use function tmpfile;
 use function uasort;
@@ -142,9 +141,9 @@ use function strtolower;
 use function addcslashes;
 use const PREG_SET_ORDER;
 /**
- * Class ClippingsCartModuleEnhanced20
+ * Class ClippingsCartEnhanced
  */
-class ClippingsCartModuleEnhanced20 extends ClippingsCartModule
+class ClippingsCartEnhanced extends ClippingsCartModule
                                   implements ModuleCustomInterface, ModuleMenuInterface
 {   use ModuleMenuTrait;
     use ModuleCustomTrait;
@@ -152,10 +151,10 @@ class ClippingsCartModuleEnhanced20 extends ClippingsCartModule
     // List of const for module administration
     public const CUSTOM_TITLE       = 'Clippings cart enhanced';
     public const CUSTOM_DESCRIPTION = 'Add records from your family tree to the clippings cart and execute an action on them.';
-    public const CUSTOM_MODULE      = 'huhwt-cce20';
+    public const CUSTOM_MODULE      = 'huhwt-cce';
     public const CUSTOM_AUTHOR      = 'EW.H / Hermann Hartenthaler';
     public const CUSTOM_WEBSITE     = 'https://github.com/huhwt/' . self::CUSTOM_MODULE . '/';
-    public const CUSTOM_VERSION     = '1.0.0';
+    public const CUSTOM_VERSION     = '2.1.0';
     public const CUSTOM_LAST        = 'https://github.com/huhwt/' .
                                       self::CUSTOM_MODULE. '/raw/main/latest-version.txt';
     // What to add to the cart?
@@ -248,10 +247,13 @@ class ClippingsCartModuleEnhanced20 extends ClippingsCartModule
     private string $exportFilenameVIZ;
 
     /** @var int The default access level for this module.  It can be changed in the control panel. */
-    protected $access_level = Auth::PRIV_USER;
+    protected int $access_level = Auth::PRIV_USER;
 
     /** @var GedcomExportService */
-    private $gedcomExportService;
+    private GedcomExportService $gedcomExportService;
+
+    /** @var LinkedRecordService */
+    private LinkedRecordService $linkedRecordService;
 
     /** @var UserService */
     private $user_service;
@@ -266,7 +268,7 @@ class ClippingsCartModuleEnhanced20 extends ClippingsCartModule
     private int $levelDescendant;
 
     // EW.H mod ... Output to TAM
-    private const TAMdir           = Webtrees::DATA_DIR . DIRECTORY_SEPARATOR . '_toTAM';
+    private const VIZdir           = Webtrees::DATA_DIR . DIRECTORY_SEPARATOR . '_toVIZ';
 
     /**
      * @var bool We want to have the GEDCOM-Objects exported as array
@@ -276,13 +278,19 @@ class ClippingsCartModuleEnhanced20 extends ClippingsCartModule
      * The label ...
      * @var string
      */
-    private $huh;
+    private string $huh;
 
     /**
      * Check for huhwt/huhwt-wttam done?
      * @var boolean
      */
-    private $huhwttam_checked;
+    private bool $huhwttam_checked;
+
+    /**
+     * Check for huhwt/huhwt-wttam done?
+     * @var boolean
+     */
+    private bool $huhwtlin_checked;
 
     /**
      * Retrieve all Record-Types
@@ -294,20 +302,21 @@ class ClippingsCartModuleEnhanced20 extends ClippingsCartModule
      * ClippingsCartModule constructor.
      *
      * @param GedcomExportService $gedcomExportService
-     * @param UserService         $user_service
+     * @param LinkedRecordService $linkedRecordService
      */
     public function __construct(
         GedcomExportService $gedcomExportService,
-        UserService $user_service)
+        LinkedRecordService $linkedRecordService)
     {
         $this->gedcomExportService = $gedcomExportService;
         $this->levelAncestor       = PHP_INT_MAX;
         $this->levelDescendant     = PHP_INT_MAX;
         $this->exportFilenameDOWNL = self::FILENAME_DOWNL;
         $this->exportFilenameVIZ   = self::FILENAME_VIZ;
-        $this->user_service        = $user_service;
+        $this->linkedRecordService = $linkedRecordService;
         $this->huh = json_decode('"\u210D"') . "&" . json_decode('"\u210D"') . "wt";
         $this->huhwttam_checked    = false;
+        $this->huhwtlin_checked    = false;
         $this->all_RecTypes        = true;
         // EW.H mod ... read TAM-Filename from Session, otherwise: Initialize
         if (Session::has('FILENAME_VIZ')) {
@@ -323,13 +332,13 @@ class ClippingsCartModuleEnhanced20 extends ClippingsCartModule
             $this->ADD_MAX_GEN        = 4;
             Session::put('TAM_HmaxGen', $this->ADD_MAX_GEN);
         }
-        parent::__construct($gedcomExportService, $user_service);
+        parent::__construct($gedcomExportService, $linkedRecordService);
 
         // EW.H mod ... we want a subdir of Webtrees::DATA_DIR for storing dumps and so on
         // - test for and create it if it not exists
-        if(!is_dir(self::TAMdir)){
+        if(!is_dir(self::VIZdir)){
             //Directory does not exist, so lets create it.
-            mkdir(self::TAMdir, 0755);
+            mkdir(self::VIZdir, 0755);
         }    
     }
 
@@ -820,6 +829,17 @@ class ClippingsCartModuleEnhanced20 extends ClippingsCartModule
             $this->huhwttam_checked = true;
         }
 
+        if (!$this->huhwtlin_checked) {
+            $ok = class_exists("HuHwt\WebtreesMods\LINchart\LINaction", true);
+            if (!$ok) {
+                $wtlin_link = '(https://github.com/huhwt/huhwt-wtlin)';
+                $wtlin_missing = I18N::translate('Missing dependency - Install %s!', 'LIN'); // EW.H - Mod ... make warning
+                $theMessage = $wtlin_missing . ' -> ' . $wtlin_link;
+                FlashMessages::addMessage($theMessage);
+            }
+            $this->huhwtlin_checked = true;
+        }
+
         $tree = $request->getAttribute('tree');
         assert($tree instanceof Tree);
         $user  = $request->getAttribute('user');
@@ -929,8 +949,7 @@ class ClippingsCartModuleEnhanced20 extends ClippingsCartModule
 
         $params = (array) $request->getParsedBody();
         $accessLevel = $this->getAccessLevel($params, $tree);
-        $convert = (bool) ($params['convert'] ?? false);
-        $encoding = $convert ? 'ANSI' : 'UTF-8';
+        $encoding = 'UTF-8';
 
         $recordTypes = $this->collectRecordKeysInCart($tree, self::TYPES_OF_RECORDS);
         // keep only XREFs used by Individual or Family records
@@ -939,7 +958,7 @@ class ClippingsCartModuleEnhanced20 extends ClippingsCartModule
             $recordTexecs = array_intersect_key($recordTypes, $recordFilter);
             $recordTypes = $recordTexecs;
         }
-        // prepare list of remaining xrefs
+        // prepare list of remaining xrefs - unordered but separated by types
         $xrefs = [];
         foreach ($recordTypes as $key => $Txrefs) {
             foreach ($Txrefs as $xref) {
@@ -955,7 +974,7 @@ class ClippingsCartModuleEnhanced20 extends ClippingsCartModule
             throw new RuntimeException('Failed to create temporary stream');
         }
 
-        $this->gedcomExportService->export($tree, $tmp_stream, false, $encoding, $accessLevel, '', $records);
+        $this->gedcomExportService->export($tree, false, $encoding, $accessLevel, '', $records);
         rewind($tmp_stream);
 
         // Use a stream, so that we do not have to load the entire file into memory.
@@ -1019,28 +1038,45 @@ class ClippingsCartModuleEnhanced20 extends ClippingsCartModule
         // We want to have the gedcom as external file too
         $this->dumpArray($arr_string, 'gedcom-items');
 
-        //Encode the array into a JSON string.
+        // Encode the array into a JSON string.
         $encodedString = json_encode($arr_string);
 
         switch ($action) {
 
             case 'VIZ=TAM':
-                //Save the JSON string to SessionStorage.
-                Session::put('wt2TAMgedcom', $encodedString);
-                Session::put('wt2TAMaction', 'wt2TAMgedcom');
-                // Switch over to TAMaction-Module
-                // TODO : 'module' is hardcoded - how to get the name from foreign PHP-class 'TAMaction'?
-                $url = route('module', [
-                    'module' => '_huhwt-wttam_',
-                    'action' => 'TAM',
-                    'actKey' => 'wt2TAMaction',
-                    'tree'   => $tree->name(),
-                ]);
-                return redirect($url);
-                // // return redirect((string) $request->getUri());
+                $ok = class_exists("HuHwt\WebtreesMods\TAMchart\TAMaction", true);
+                if ( $ok ) {
+                    // Save the JSON string to SessionStorage.
+                    Session::put('wt2TAMgedcom', $encodedString);
+                    Session::put('wt2TAMaction', 'wt2TAMgedcom');
+                    // Switch over to TAMaction-Module
+                    // TODO : 'module' is hardcoded - how to get the name from foreign PHP-class 'TAMaction'?
+                    $url = route('module', [
+                        'module' => '_huhwt-wttam_',
+                        'action' => 'TAM',
+                        'actKey' => 'wt2TAMaction',
+                        'tree'   => $tree->name(),
+                    ]);
+                    return redirect($url);
+                }
                 break;
 
             case 'VIZ=LINEAGE':
+                $ok = class_exists("HuHwt\WebtreesMods\LINchart\LINaction", true);
+                if ( $ok ) {
+                    Session::put('wt2LINgedcom', $encodedString);
+                    Session::put('wt2LINaction', 'wt2LINgedcom');
+                    Session::put('wt2LINxrefsI', $recordTypes['Individual']);
+                    // Switch over to TAMaction-Module
+                    // TODO : 'module' is hardcoded - how to get the name from foreign PHP-class 'TAMaction'?
+                    $url = route('module', [
+                        'module' => '_huhwt-wtlin_',
+                        'action' => 'LIN',
+                        'actKey' => 'wt2LINaction',
+                        'tree'   => $tree->name(),
+                    ]);
+                    return redirect($url);
+                }
                 break;
 
         }
@@ -1050,11 +1086,11 @@ class ClippingsCartModuleEnhanced20 extends ClippingsCartModule
     }
 
     /**
-     * hook for calling TAM ...
-     * it would be preferable to switch over to TAM seemlesly, but by now 
-     * the action is managed by some javascript and a href opening the TAM-subsystem
+     * delete all records in the clippings cart or delete a set grouped by type of records
      *
      * @param ServerRequestInterface $request
+     *
+     * @return ResponseInterface
      */
     public function getEmptyAction(ServerRequestInterface $request): ResponseInterface
     {
@@ -1569,7 +1605,7 @@ class ClippingsCartModuleEnhanced20 extends ClippingsCartModule
      * @throws FileExistsException
      * @throws FileNotFoundException
      */
-    private function getRecordsForExport(Tree $tree, array $xrefs, int $access_level, Filesystem $zip_filesystem = null, FilesystemInterface $media_filesystem = null): Collection
+    private function getRecordsForExport(Tree $tree, array $xrefs, int $access_level): Collection
     {
         $records = new Collection();
         foreach ($xrefs as $xref) {
@@ -1579,10 +1615,6 @@ class ClippingsCartModuleEnhanced20 extends ClippingsCartModule
                 $record = $object->privatizeGedcom($access_level);
                 $record = $this->removeLinksToUnusedObjects($record, $xrefs);
                 $records->add($record);
-
-                if (($zip_filesystem !== null) && ($media_filesystem !== null) && ($object instanceof Media)) {
-                    $this->addMediaFilesToArchive($tree, $object, $zip_filesystem, $media_filesystem);
-                }
             }
         }
         return $records;
@@ -1617,30 +1649,6 @@ class ClippingsCartModuleEnhanced20 extends ClippingsCartModule
             }
         }
         return $record;
-    }
-
-    /**
-     * Add the media files to the zip archive.
-     *
-     * @param Tree $tree
-     * @param Media $object
-     * @param Filesystem $zip_filesystem
-     * @param FilesystemInterface|null $media_filesystem
-     *
-     * @throws FileExistsException
-     * @throws FileNotFoundException
-     */
-    private function addMediaFilesToArchive(Tree $tree, Media $object, Filesystem $zip_filesystem, FilesystemInterface $media_filesystem = null): void
-    {
-        $path = $tree->getPreference('MEDIA_DIRECTORY');        // media file prefix
-        foreach ($object->mediaFiles() as $media_file) {
-            $from = $media_file->filename();
-            $to = $path . $media_file->filename();
-            // tbd check replacement for funtion "has"
-            if (!$media_file->isExternal() && $media_filesystem->has($from) && !$zip_filesystem->has($to)) {
-                $zip_filesystem->writeStream($to, $media_filesystem->readStream($from));
-            }
-        }
     }
 
     /**
@@ -1909,7 +1917,7 @@ class ClippingsCartModuleEnhanced20 extends ClippingsCartModule
         $encodedString = json_encode($theArray);
 
         //Save the JSON string to a text file.
-        $_fName = SELF::TAMdir . DIRECTORY_SEPARATOR . $fileName;
+        $_fName = SELF::VIZdir . DIRECTORY_SEPARATOR . $fileName;
         file_put_contents($_fName, $encodedString, LOCK_EX);
 
     }
