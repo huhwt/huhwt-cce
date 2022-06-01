@@ -80,6 +80,9 @@ msgstr "Alle Personen-Kreise im Stammbaum"
 msgid "all connected persons in this family tree - Caution: probably very high number of persons!"
 msgstr "Alle verbundenen Personen in diesem Stammbaum - Achtung: wahrscheinlich sehr hohe Anzahl von Personen!"
 
+msgid "all persons/families in this family tree - Caution: probably very high number of persons!"
+msgstr "Alle Personen/Familien in diesem Stammbaum - Achtung: wahrscheinlich sehr hohe Anzahl von Personen!"
+
 msgid "Delete records in the clippings cart"
 msgstr "Datensätze im Sammelbehälter löschen"
 

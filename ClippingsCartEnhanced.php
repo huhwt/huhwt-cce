@@ -4,9 +4,9 @@
  *
  * based on Vesta module "clippings cart extended"
  *
- * Cart Management and passing on to vizualisation tools added by huhwt.
+ * 
  *
- * Copyright (C) 2022 EW.Heinrich. All rights reserved.
+ * Copyright (C) 2022 huhwt. All rights reserved.
  * Copyright (C) 2021 Hermann Hartenthaler. All rights reserved.
  * Copyright (C) 2021 Richard Cissée. All rights reserved.
  *
@@ -48,7 +48,6 @@
  * issue: new action: enhanced list using webtrees standard lists for each type of records
  * idea: use TAM to visualize the hierarchy of location records
  * test: access rights for members and visitors
- * other module - Vesta clippings cart extension: make this module working together with the Vesta module
  * other module - test with all other themes: Rural, Argon, ...
  * other module - admin/control panel module "unconnected individuals": add button to each group "send to clippings cart"
  * other module - custom modul extended family: send filtered INDI and FAM records to clippings cart
@@ -90,6 +89,7 @@ use Fisharebest\Webtrees\Session;
 use Fisharebest\Webtrees\Source;
 use Fisharebest\Webtrees\Submitter;
 use Fisharebest\Webtrees\Tree;
+use Fisharebest\Webtrees\Validator;
 use Fisharebest\Webtrees\Webtrees;
 use Illuminate\Support\Collection;
 use Illuminate\Database\Capsule\Manager as DB;
@@ -154,7 +154,7 @@ class ClippingsCartEnhanced extends ClippingsCartModule
     public const CUSTOM_MODULE      = 'huhwt-cce';
     public const CUSTOM_AUTHOR      = 'EW.H / Hermann Hartenthaler';
     public const CUSTOM_WEBSITE     = 'https://github.com/huhwt/' . self::CUSTOM_MODULE . '/';
-    public const CUSTOM_VERSION     = '2.1.0';
+    public const CUSTOM_VERSION     = '2.1.4.1';
     public const CUSTOM_LAST        = 'https://github.com/huhwt/' .
                                       self::CUSTOM_MODULE. '/raw/main/latest-version.txt';
     // What to add to the cart?
@@ -172,6 +172,7 @@ class ClippingsCartEnhanced extends ClippingsCartModule
     private const ADD_ALL_PARTNER_CHAINS = 'all partner chains in this tree';
     private const ADD_ALL_CIRCLES        = 'all circles - clean version';
     private const ADD_ALL_LINKED_PERSONS = 'all connected persons in this family tree - Caution: probably very high number of persons!';
+    private const ADD_COMPLETE_GED       = 'all persons in this family tree - Caution: probably very high number of persons!';
 
     // What to execute on records in the clippings cart?
     // EW.H mod ... the second-level-keys are tested for actions in function postExecuteAction()
@@ -541,7 +542,7 @@ class ClippingsCartEnhanced extends ClippingsCartModule
                 self::ADD_PARENT_FAMILIES   => I18N::translate('%s, her parents and siblings', $name),
                 self::ADD_SPOUSE_FAMILIES   => I18N::translate('%s, her spouses and children', $name),
                 self::ADD_ANCESTORS         => $txt_ANC,
-                self::ADD_ANCESTORS_HT      => I18N::translate('%s and her ancestors, up to 4 generations, for H-Tree', $name),
+                // self::ADD_ANCESTORS_HT      => I18N::translate('%s and her ancestors, up to 4 generations, for H-Tree', $name),
                 self::ADD_ANCESTOR_FAMILIES => $txt_ANCF,
                 self::ADD_DESCENDANTS       => $txt_DES,
             ];
@@ -554,7 +555,7 @@ class ClippingsCartEnhanced extends ClippingsCartModule
                 self::ADD_PARENT_FAMILIES   => I18N::translate('%s, his parents and siblings', $name),
                 self::ADD_SPOUSE_FAMILIES   => I18N::translate('%s, his spouses and children', $name),
                 self::ADD_ANCESTORS         => $txt_ANC,
-                self::ADD_ANCESTORS_HT      => I18N::translate('%s and his ancestors, up to 4 generations, for H-Tree', $name),
+                // self::ADD_ANCESTORS_HT      => I18N::translate('%s and his ancestors, up to 4 generations, for H-Tree', $name),
                 self::ADD_ANCESTOR_FAMILIES => $txt_ANCF,
                 self::ADD_DESCENDANTS       => $txt_DES,
             ];
@@ -761,6 +762,7 @@ class ClippingsCartEnhanced extends ClippingsCartModule
         $options[self::ADD_ALL_PARTNER_CHAINS] = I18N::translate('all partner chains in this tree');
         $options[self::ADD_ALL_CIRCLES]        = I18N::translate('all circles of individuals in this tree');
         $options[self::ADD_ALL_LINKED_PERSONS] = I18N::translate('all connected persons in this family tree - Caution: probably very high number of persons!');
+        $options[self::ADD_COMPLETE_GED]       = I18N::translate('all persons/families in this family tree - Caution: probably very high number of persons!');
 
         $title = I18N::translate('Add global record sets to the clippings cart');
         $label = I18N::translate('Add to the clippings cart');
@@ -794,7 +796,11 @@ class ClippingsCartEnhanced extends ClippingsCartModule
                 $this->addPartnerChainsGlobalToCart($tree);
                 break;
 
-            default;
+            case self::ADD_COMPLETE_GED:
+                $this->addCompleteGEDtoCart($tree);
+                break;
+
+                default;
             case self::ADD_ALL_CIRCLES:
                 $this->addAllCirclesToCart($tree);
                 break;
@@ -844,11 +850,15 @@ class ClippingsCartEnhanced extends ClippingsCartModule
         assert($tree instanceof Tree);
         $user  = $request->getAttribute('user');
 
+        $first = ' -> Webtrees Standard action';
         $options_arr = array();
         foreach (self::EXECUTE_ACTIONS as $opt => $actions) {
             $actions_arr = array();
             foreach ($actions as $action => $text) {
-                $actions_arr[$action] = I18N::translate($text);
+                $atxt = I18N::translate($text);
+                $atxt = $atxt . $first;
+                $first = '';
+                $actions_arr[$action] = $atxt;
             }
             $options_arr[$opt] = $actions_arr;
         }
@@ -882,11 +892,11 @@ class ClippingsCartEnhanced extends ClippingsCartModule
         $privatizeExport = $params['privatize_export'] ?? '';
 
         switch ($option) {
-        // We want to download gedcom as is inclusive all associated media information as zip ...
+        // We want to download gedcom as zip ...
             // ... we use the default download-action
             case 'EXECUTE_DOWNLOAD_ZIP':
                 $url = route('module', [
-                    'module' => $this->name(),
+                    'module' => parent::name(),
                     'action' => 'DownloadForm',
                     'tree'   => $tree->name(),
                 ]);
@@ -950,6 +960,19 @@ class ClippingsCartEnhanced extends ClippingsCartModule
         $params = (array) $request->getParsedBody();
         $accessLevel = $this->getAccessLevel($params, $tree);
         $encoding = 'UTF-8';
+        $line_endings = Validator::parsedBody($request)->isInArray(['CRLF', 'LF'])->string('line_endings');
+
+        // there may be the situation that cart is emptied in meanwhile
+        // due to session timeout and setting up a new session or because of
+        // browser go-back after a empty-all action
+        if ($this->isCartEmpty($tree)) {
+            $url = route('module', [
+                'module' => $this->name(),
+                'action' => 'Show',
+                'tree'   => $tree->name(),
+            ]);
+            return redirect($url);
+        }
 
         $recordTypes = $this->collectRecordKeysInCart($tree, self::TYPES_OF_RECORDS);
         // keep only XREFs used by Individual or Family records
@@ -993,18 +1016,9 @@ class ClippingsCartEnhanced extends ClippingsCartModule
                 $download_filename .= '_IF_';
             }
             $download_filename .= '(' . $xrefs[0] . ')';
-            // Force a ".ged" suffix
-            if (strtolower(pathinfo($download_filename, PATHINFO_EXTENSION)) !== 'ged') {
-                $download_filename .= '.ged';
-            }
-            /** @var ResponseFactoryInterface $response_factory */
 
-            $response_factory = app(ResponseFactoryInterface::class);
+            return $this->gedcomExportService->downloadResponse($tree, false, $encoding, 'none', $line_endings, $download_filename, 'gedcom', $records);
 
-            return $response_factory->createResponse()
-                ->withBody($http_stream)
-                ->withHeader('Content-Type', 'text/x-gedcom; charset=' . $encoding)
-                ->withHeader('Content-Disposition', 'attachment; filename="' . addcslashes($download_filename, '"') . '"');
         }
 
         /**
@@ -1305,6 +1319,40 @@ class ClippingsCartEnhanced extends ClippingsCartModule
                 }
             }
         }
+    }
+
+    /**
+     * add all persons and families in this family tree
+     *
+     * @param Tree $tree
+     */
+    protected function addCompleteGEDtoCart(Tree $tree): void
+    {
+        $xrefsIF = new CompleteGED($tree);
+
+        // we want only INDI - switch all_RecTypes temporarly
+
+        $all_RT = $this->all_RecTypes;
+        $this->all_RecTypes = false;
+
+        // put collected xrefs to cart
+
+        foreach ($xrefsIF->getXrefsI() as $xref) {
+            $object = Registry::individualFactory()->make($xref, $tree);
+            if ($object instanceof Individual) {
+                if ($object->canShow()) {
+                    $this->addIndividualToCart($object);
+                }
+            }
+        }
+        foreach ($xrefsIF->getXrefsF() as $xref) {
+            $object = Registry::familyFactory()->make($xref, $tree);
+            if ($object instanceof Family && $object->canShow()) {
+                $this->addFamilyWithoutSpousesToCart($object);
+            }
+        }
+
+        $this->all_RecTypes = $all_RT;
     }
 
     /**
