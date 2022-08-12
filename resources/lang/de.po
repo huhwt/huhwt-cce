@@ -59,6 +59,9 @@ msgstr "%1$s, ihre Ehepartner und Nachkommen (bis zu %2$s Generationen)"
 msgid "%1$s, his spouses and descendants (up to %2$s generations)"
 msgstr "%1$s, seine Ehepartner und Nachkommen (bis zu %2$s Generationen)"
 
+msgid "%s and all linked individuals"
+msgstr "%s und ALLE verbundenen Personen"
+
 msgid "Decrement"
 msgstr "Vermindern"
 
@@ -163,6 +166,18 @@ msgstr "Generationen-Tiefe einstellen:"
 
 msgid "Missing dependency - Install %s!"
 msgstr "Abhängigkeit nicht erfüllt - %s installieren!"
+
+msgid "Records in clippings cart - Execute an action on them."
+msgstr "Datensätze im Sammelbehälter"
+
+msgid "Performed actions fo fill the cart."
+msgstr "Auflistung Sammelaktionen"
+
+msgid "CCE-CartActions"
+msgstr "Sammelaktionen"
+
+msgid "Just a moment"
+msgstr "'nen kleinen Augenblick noch"
 
 msgid ""
 msgstr ""

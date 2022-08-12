@@ -32,15 +32,6 @@ use Fisharebest\Webtrees\I18N;
 
     <?= view($module . '::' . 'privatize-options', ['label' => $label, 'is_manager'=> $is_manager, 'is_member'=> $is_member ]) ?>
 
-    <div class="row form-group">
-        <label class="col-sm-3 col-form-label wt-page-options-label" for="convert">
-            <?= I18N::translate('Convert from UTF-8 to ISO-8859-1') ?>
-        </label>
-        <div class="col-sm-9 wt-page-options-value">
-            <input type="checkbox" name="convert" id="convert">
-        </div>
-    </div>
-
     <div class="row mb-3">
         <label class="col-sm-3" for="line_endings">
             <?= I18N::translate('Line endings') ?>

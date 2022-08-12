@@ -154,17 +154,21 @@ class ClippingsCartEnhanced extends ClippingsCartModule
     public const CUSTOM_MODULE      = 'huhwt-cce';
     public const CUSTOM_AUTHOR      = 'EW.H / Hermann Hartenthaler';
     public const CUSTOM_WEBSITE     = 'https://github.com/huhwt/' . self::CUSTOM_MODULE . '/';
-    public const CUSTOM_VERSION     = '2.1.4.1';
+    public const CUSTOM_VERSION     = '2.1.7';
     public const CUSTOM_LAST        = 'https://github.com/huhwt/' .
                                       self::CUSTOM_MODULE. '/raw/main/latest-version.txt';
-    // What to add to the cart?
+
+    public const SHOW_RECORDS       = 'Records in clippings cart - Execute an action on them.';
+    public const SHOW_ACTIONS       = 'Performed actions fo fill the cart.';
+
+                                      // What to add to the cart?
     private const ADD_RECORD_ONLY        = 'add only this record';
     private const ADD_CHILDREN           = 'add children';
     private const ADD_DESCENDANTS        = 'add descendants';
     private const ADD_PARENT_FAMILIES    = 'add parents';
     private const ADD_SPOUSE_FAMILIES    = 'add spouses';
     private const ADD_ANCESTORS          = 'add ancestors';
-    private const ADD_ANCESTORS_HT       = 'add ancestors, 4 generations for H-Tree';  // EW.H mod ... 
+    // private const ADD_ANCESTORS_HT       = 'add ancestors, 4 generations for H-Tree';  // EW.H mod ... 
     private const ADD_ANCESTOR_FAMILIES  = 'add families';
     private const ADD_LINKED_INDIVIDUALS = 'add linked individuals';
     // HH.mod - additional actions --
@@ -241,6 +245,8 @@ class ClippingsCartEnhanced extends ClippingsCartModule
     private const FILENAME_DOWNL = 'wtcce';
     private const FILENAME_VIZ = 'wt2VIZ.ged';
 
+    private const VIZ_DSNAME = '';
+
     /** @var string */
     private string $exportFilenameDOWNLOAD;
 
@@ -259,8 +265,8 @@ class ClippingsCartEnhanced extends ClippingsCartModule
     /** @var UserService */
     private $user_service;
 
-    /** @var Int */
-    private int $ADD_MAX_GEN;       // EW.H mod ... get only part of tree for TAM-H-Tree
+    // /** @var Int */
+    // private int $ADD_MAX_GEN;       // EW.H mod ... get only part of tree for TAM-H-Tree
 
     /** @var int The number of ancestor generations to be added (0 = proband) */
     private int $levelAncestor;
@@ -323,16 +329,16 @@ class ClippingsCartEnhanced extends ClippingsCartModule
         if (Session::has('FILENAME_VIZ')) {
             $this->FILENAME_VIZ = Session::get('FILENAME_VIZ');
         } else {
-            $this->FILENAME_VIZ        = 'wt2TAM';
+            $this->FILENAME_VIZ        = 'wt2VIZ';
             Session::put('FILENAME_VIZ', $this->FILENAME_VIZ);
         }
-        // EW.H mod ... read TAM-H-Tree's max Gen from Session, otherwise: Initialize
-        if (Session::has('TAM_HmaxGen')) {
-            $this->ADD_MAX_GEN = Session::get('TAM_HmaxGen');
-        } else {
-            $this->ADD_MAX_GEN        = 4;
-            Session::put('TAM_HmaxGen', $this->ADD_MAX_GEN);
-        }
+        // // EW.H mod ... read TAM-H-Tree's max Gen from Session, otherwise: Initialize
+        // if (Session::has('TAM_HmaxGen')) {
+        //     $this->ADD_MAX_GEN = Session::get('TAM_HmaxGen');
+        // } else {
+        //     $this->ADD_MAX_GEN        = 4;
+        //     Session::put('TAM_HmaxGen', $this->ADD_MAX_GEN);
+        // }
         parent::__construct($gedcomExportService, $linkedRecordService);
 
         // EW.H mod ... we want a subdir of Webtrees::DATA_DIR for storing dumps and so on
@@ -375,6 +381,7 @@ class ClippingsCartEnhanced extends ClippingsCartModule
 
         // clippings cart is an array in the session specific for each tree
         $cart  = Session::get('cart', []);
+        $cartAct  = Session::get('cartAct', []);
 
         $submenus = [$this->addMenuClippingsCart($tree, $cart)];
 
@@ -487,18 +494,24 @@ class ClippingsCartEnhanced extends ClippingsCartModule
      */
     public function getShowAction(ServerRequestInterface $request): ResponseInterface
     {
-        $tree = $request->getAttribute('tree');
+        // $tree = $request->getAttribute('tree');
+        $tree = Validator::attributes($request)->tree();
         assert($tree instanceof Tree);
 
         $recordTypes = $this->collectRecordsInCart($tree, self::TYPES_OF_RECORDS);
+
+        $cartActs = $this->getCartActs($tree);
 
         return $this->viewResponse($this->name() . '::' . 'showTypes', [
             'module'      => $this->name(),
             'types'       => self::TYPES_OF_RECORDS,
             'recordTypes' => $recordTypes,
             'title'       => I18N::translate('Family tree clippings cart'),
-            'description' => $this->description(),
+            'header_recs' => I18N::translate(self::SHOW_RECORDS),
+            'header_acts' => I18N::translate(self::SHOW_ACTIONS),
+            'cartActions' => $cartActs,
             'tree'        => $tree,
+            'stylesheet'  => $this->assetUrl('css/cce.css'),
             'javascript'  => $this->assetUrl('js/cce.js'),
         ]);
     }
@@ -513,16 +526,22 @@ class ClippingsCartEnhanced extends ClippingsCartModule
      */
     public function getAddIndividualAction(ServerRequestInterface $request): ResponseInterface
     {
-        $tree = $request->getAttribute('tree');
+        // $tree = $request->getAttribute('tree');
+        $tree = Validator::attributes($request)->tree();
         assert($tree instanceof Tree);
 
-        $xref = $request->getQueryParams()['xref'] ?? '';
-
+        // $xref = $request->getQueryParams()['xref'] ?? '';
+        $xref = Validator::queryParams($request)->isXref()->string('xref');
         $individual = Registry::individualFactory()->make($xref, $tree);
         $individual = Auth::checkIndividualAccess($individual);
         $name       = $individual->fullName();
 
         $generationsParms = $request->getQueryParams()['generations'] ?? null;
+        // generationsParms must be fetched by explicit extraction because it is optional ...   // EW.H
+        // -> (there has been an cce-action with predefined generationParms - it has been abandoned)
+        //    (but it might be useful in the future, therefore this option will be kept)
+        // Validator makes the queried value mandatory.                                         // EW.H 
+        // $generationsParms = Validator::queryParams($request)->integer('generations', null);
         if ($generationsParms) {
             $generations = $generationsParms;
         } else {
@@ -533,6 +552,7 @@ class ClippingsCartEnhanced extends ClippingsCartModule
             $generations['Dmax'] = $generations['D'];
             $generations['Dmin'] = 0;
         }
+
         if ($individual->sex() === 'F') {
             $txt_ANC = $this->substText('%1$s and her ancestors (up to %2$s generations)', $name, '~~', '~~', 'cce_genA', $generations['A']);
             $txt_ANCF = $this->substText('%1$s, her ancestors and their families (up to %2$s generations)', $name, '~~', '~~', 'cce_genA', $generations['A']);
@@ -545,6 +565,7 @@ class ClippingsCartEnhanced extends ClippingsCartModule
                 // self::ADD_ANCESTORS_HT      => I18N::translate('%s and her ancestors, up to 4 generations, for H-Tree', $name),
                 self::ADD_ANCESTOR_FAMILIES => $txt_ANCF,
                 self::ADD_DESCENDANTS       => $txt_DES,
+                self::ADD_LINKED_INDIVIDUALS => I18N::translate('%s and all linked individuals', $name),
             ];
         } else {
             $txt_ANC = $this->substText('%1$s and his ancestors (up to %2$s generations)', $name, '~~', '~~', 'cce_genA', $generations['A']);
@@ -558,6 +579,7 @@ class ClippingsCartEnhanced extends ClippingsCartModule
                 // self::ADD_ANCESTORS_HT      => I18N::translate('%s and his ancestors, up to 4 generations, for H-Tree', $name),
                 self::ADD_ANCESTOR_FAMILIES => $txt_ANCF,
                 self::ADD_DESCENDANTS       => $txt_DES,
+                self::ADD_LINKED_INDIVIDUALS => I18N::translate('%s and all linked individuals', $name),
             ];
         }
         $sp_families = $individual->spouseFamilies();
@@ -604,7 +626,8 @@ class ClippingsCartEnhanced extends ClippingsCartModule
      */
     public function postAddIndividualAction(ServerRequestInterface $request): ResponseInterface
     {
-        $tree = $request->getAttribute('tree');
+        // $tree = $request->getAttribute('tree');
+        $tree = Validator::attributes($request)->tree();
         assert($tree instanceof Tree);
 
         $params = (array) $request->getParsedBody();
@@ -623,52 +646,85 @@ class ClippingsCartEnhanced extends ClippingsCartModule
         $individual = Registry::individualFactory()->make($xref, $tree);
         $individual = Auth::checkIndividualAccess($individual);
 
+        $_dname = 'wtVIZ-DATA~INDI_' . $xref;
+        $this->putVIZdname($_dname);
+
         switch ($option) {
             case self::ADD_RECORD_ONLY:
+                $this->cartAct($tree, 'INDI', $xref);
                 $this->addIndividualToCart($individual);
                 break;
 
             case self::ADD_PARENT_FAMILIES:
+                $this->cartAct($tree, 'INDI_PARENT_FAM', $xref);
                 foreach ($individual->childFamilies() as $family) {
                     $this->addFamilyAndChildrenToCart($family);
                 }
                 break;
 
             case self::ADD_SPOUSE_FAMILIES:
+                $this->cartAct($tree, 'INDI_SPOUSE_FAM', $xref);
                 foreach ($individual->spouseFamilies() as $family) {
                     $this->addFamilyAndChildrenToCart($family);
                 }
                 break;
 
             case self::ADD_ANCESTORS:
+                $caDo = $xref . '|' . $this->levelAncestor;
+                $this->cartAct($tree, 'INDI_ANCESTORS', $caDo);
                 $this->addAncestorsToCart($individual, $this->levelAncestor);
                 break;
 
             case self::ADD_ANCESTOR_FAMILIES:
+                $caDo = $xref . '|' . $this->levelAncestor;
+                $this->cartAct($tree, 'INDI_ANCESTOR_FAMILIES', $caDo);
                 $this->addAncestorFamiliesToCart($individual, $this->levelAncestor);
                 break;
 
             case self::ADD_DESCENDANTS:
+                $caDo = $xref . '|' . $this->levelDescendant;
+                $this->cartAct($tree, 'INDI_DESCENDANTS', $caDo);
                 foreach ($individual->spouseFamilies() as $family) {
                     $this->addFamilyAndDescendantsToCart($family, $this->levelDescendant);
                 }
                 break;
 
             case self::ADD_PARTNER_CHAINS:
+                $this->cartAct($tree, 'INDI_PARTNER_CHAINS', $xref);
                 $this->addPartnerChainsToCartIndividual($individual, $individual->spouseFamilies()[0]);
                 break;
 
-            case self::ADD_ANCESTORS_HT:
-                $this->addAncestorsToCart($individual, $this->ADD_MAX_GEN);
-                $_TAMfile = $this->getTAMfname();
-                if (!str_ends_with($_TAMfile, '_H')) {          // EW.H mod ... set FileName for H-Tree
-                    $this->putTAMfname($_TAMfile .= '_H');
-                }
+            case self::ADD_LINKED_INDIVIDUALS:
+                $this->cartAct($tree, 'INDI_LINKED_INDIVIDUALS', $xref);
+                $_dname = 'wtVIZ-DATA~all linked_' . $xref;
+                $this->putVIZdname($_dname);
+                $this->addAllLinked($tree, $xref);
                 break;
+        
     
         }
 
         return redirect($individual->url());
+    }
+
+    private function cartAct(Tree $tree, $action, $xref)
+    {
+        $cartAct = Session::get('cartAct', []);
+        $caction = $action . "~" . $xref;
+        if (($cartAct[$tree->name()][$caction] ?? false) === false) {
+            $cartAct[$tree->name()][$caction] = true;
+            Session::put('cartAct', $cartAct);
+        }
+
+    }
+
+    private function getCartActs(Tree $tree)
+    {
+        $cartAct = Session::get('cartAct', []);
+        $cartacts = array_keys($cartAct[$tree->name()] ?? []);
+        $cartacts = array_map('strval', $cartacts);           // PHP converts numeric keys to integers.
+        return $cartacts;
+
     }
 
     /**
@@ -678,10 +734,12 @@ class ClippingsCartEnhanced extends ClippingsCartModule
      */
     public function getAddFamilyAction(ServerRequestInterface $request): ResponseInterface
     {
-        $tree = $request->getAttribute('tree');
+        // $tree = $request->getAttribute('tree');
+        $tree = Validator::attributes($request)->tree();
         assert($tree instanceof Tree);
 
-        $xref = $request->getQueryParams()['xref'] ?? '';
+        // $xref = $request->getQueryParams()['xref'] ?? '';
+        $xref = Validator::queryParams($request)->isXref()->string('xref');
 
         $family = Registry::familyFactory()->make($xref, $tree);
         $family = Auth::checkFamilyAccess($family);
@@ -701,10 +759,12 @@ class ClippingsCartEnhanced extends ClippingsCartModule
         $title = I18N::translate('Add %s to the clippings cart', $name);
 
         return $this->viewResponse($this->name() . '::' . 'add-options', [
-            'options' => $options,
-            'record'  => $family,
-            'title'   => $title,
-            'tree'    => $tree,
+            'options'       => $options,
+            'record'        => $family,
+            'title'         => $title,
+            'tree'          => $tree,
+            'stylesheet'    => $this->assetUrl('css/cce.css'),
+            'javascript'    => $this->assetUrl('js/cce.js'),
         ]);
     }
 
@@ -715,7 +775,8 @@ class ClippingsCartEnhanced extends ClippingsCartModule
      */
     public function postAddFamilyAction(ServerRequestInterface $request): ResponseInterface
     {
-        $tree = $request->getAttribute('tree');
+        // $tree = $request->getAttribute('tree');
+        $tree = Validator::attributes($request)->tree();
         assert($tree instanceof Tree);
 
         $params = (array) $request->getParsedBody();
@@ -726,20 +787,27 @@ class ClippingsCartEnhanced extends ClippingsCartModule
         $family = Registry::familyFactory()->make($xref, $tree);
         $family = Auth::checkFamilyAccess($family);
 
+        $_dname = 'wtVIZ-DATA~FAM_' . $xref;
+        $this->putVIZdname($_dname);
+
         switch ($option) {
             case self::ADD_RECORD_ONLY:
+                $this->cartAct($tree, 'FAM', $xref);
                 $this->addFamilyToCart($family);
                 break;
 
             case self::ADD_CHILDREN:
+                $this->cartAct($tree, 'FAM_AND_CHILDREN', $xref);
                 $this->addFamilyAndChildrenToCart($family);
                 break;
 
             case self::ADD_DESCENDANTS:
+                $this->cartAct($tree, 'FAM_AND_DESCENDANTS', $xref);
                 $this->addFamilyAndDescendantsToCart($family);
                 break;
 
             case self::ADD_PARTNER_CHAINS:
+                $this->cartAct($tree, 'FAM_PARTNER_CHAINS', $xref);
                 $this->addPartnerChainsToCartFamily($family);
                 break;
         }
@@ -751,17 +819,164 @@ class ClippingsCartEnhanced extends ClippingsCartModule
      * @param ServerRequestInterface $request
      *
      * @return ResponseInterface
+     */
+    public function postAddLocationAction(ServerRequestInterface $request): ResponseInterface
+    {
+        $tree = Validator::attributes($request)->tree();
+
+        $xref = $request->getQueryParams()['xref'] ?? '';
+
+        $location = Registry::locationFactory()->make($xref, $tree);
+        $location = Auth::checkLocationAccess($location);
+
+        $this->cartAct($tree, 'LOC', $xref);
+
+        $this->addLocationToCart($location);
+
+        return redirect($location->url());
+    }
+
+
+    /**
+     * @param ServerRequestInterface $request
+     *
+     * @return ResponseInterface
+     */
+    public function postAddMediaAction(ServerRequestInterface $request): ResponseInterface
+    {
+        $tree = Validator::attributes($request)->tree();
+
+        $xref = $request->getQueryParams()['xref'] ?? '';
+
+        $media = Registry::mediaFactory()->make($xref, $tree);
+        $media = Auth::checkMediaAccess($media);
+
+        $this->cartAct($tree, 'MEDIA', $xref);
+
+        $this->addMediaToCart($media);
+
+        return redirect($media->url());
+    }
+
+    /**
+     * @param ServerRequestInterface $request
+     *
+     * @return ResponseInterface
+     */
+    public function postAddNoteAction(ServerRequestInterface $request): ResponseInterface
+    {
+        $tree = Validator::attributes($request)->tree();
+
+        $xref = $request->getQueryParams()['xref'] ?? '';
+
+        $note = Registry::noteFactory()->make($xref, $tree);
+        $note = Auth::checkNoteAccess($note);
+
+        $this->cartAct($tree, 'NOTE', $xref);
+
+        $this->addNoteToCart($note);
+
+        return redirect($note->url());
+    }
+
+    /**
+     * @param ServerRequestInterface $request
+     *
+     * @return ResponseInterface
+     */
+    public function postAddRepositoryAction(ServerRequestInterface $request): ResponseInterface
+    {
+        $tree = Validator::attributes($request)->tree();
+
+        $xref = $request->getQueryParams()['xref'] ?? '';
+
+        $repository = Registry::repositoryFactory()->make($xref, $tree);
+        $repository = Auth::checkRepositoryAccess($repository);
+
+        $this->cartAct($tree, 'REPO', $xref);
+
+        $this->addRepositoryToCart($repository);
+
+        foreach ($this->linked_record_service->linkedSources($repository) as $source) {
+            $this->addSourceToCart($source);
+        }
+
+        return redirect($repository->url());
+    }
+
+    /**
+     * @param ServerRequestInterface $request
+     *
+     * @return ResponseInterface
+     */
+    public function postAddSourceAction(ServerRequestInterface $request): ResponseInterface
+    {
+        $tree = Validator::attributes($request)->tree();
+
+        $params = (array) $request->getParsedBody();
+
+        $xref   = $params['xref'] ?? '';
+        $option = $params['option'] ?? '';
+
+        $source = Registry::sourceFactory()->make($xref, $tree);
+        $source = Auth::checkSourceAccess($source);
+
+        $caDo = $xref;
+        if ($option === self::ADD_LINKED_INDIVIDUALS) {
+            $caDo = $caDo . '|ali';
+        }
+        $this->cartAct($tree, 'SOUR', $caDo);
+
+        $this->addSourceToCart($source);
+
+        if ($option === self::ADD_LINKED_INDIVIDUALS) {
+            foreach ($this->linked_record_service->linkedIndividuals($source) as $individual) {
+                $this->addIndividualToCart($individual);
+            }
+            foreach ($this->linked_record_service->linkedFamilies($source) as $family) {
+                $this->addFamilyToCart($family);
+            }
+        }
+
+        return redirect($source->url());
+    }
+
+    /**
+     * @param ServerRequestInterface $request
+     *
+     * @return ResponseInterface
+     */
+    public function postAddSubmitterAction(ServerRequestInterface $request): ResponseInterface
+    {
+        $tree = Validator::attributes($request)->tree();
+
+        $xref = $request->getQueryParams()['xref'] ?? '';
+
+        $submitter = Registry::submitterFactory()->make($xref, $tree);
+        $submitter = Auth::checkSubmitterAccess($submitter);
+
+        $this->cartAct($tree, 'SUBM', $xref);
+
+        $this->addSubmitterToCart($submitter);
+
+        return redirect($submitter->url());
+    }
+    /**
+     * @param ServerRequestInterface $request
+     *
+     * @return ResponseInterface
 	 *
 	 * HH.mod - additional action
      */
     public function getGlobalAction(ServerRequestInterface $request): ResponseInterface
     {
-        $tree = $request->getAttribute('tree');
+        // $tree = $request->getAttribute('tree');
+        $tree = Validator::attributes($request)->tree();
         assert($tree instanceof Tree);
 
         $options[self::ADD_ALL_PARTNER_CHAINS] = I18N::translate('all partner chains in this tree');
         $options[self::ADD_ALL_CIRCLES]        = I18N::translate('all circles of individuals in this tree');
-        $options[self::ADD_ALL_LINKED_PERSONS] = I18N::translate('all connected persons in this family tree - Caution: probably very high number of persons!');
+        // $options[self::ADD_ALL_LINKED_PERSONS] = I18N::translate('all connected persons in this family tree - Caution: probably very high number of persons!');
         $options[self::ADD_COMPLETE_GED]       = I18N::translate('all persons/families in this family tree - Caution: probably very high number of persons!');
 
         $title = I18N::translate('Add global record sets to the clippings cart');
@@ -785,7 +1000,8 @@ class ClippingsCartEnhanced extends ClippingsCartModule
 
     public function postGlobalAction(ServerRequestInterface $request): ResponseInterface
     {
-        $tree = $request->getAttribute('tree');
+        // $tree = $request->getAttribute('tree');
+        $tree = Validator::attributes($request)->tree();
         assert($tree instanceof Tree);
 
         $params = (array) $request->getParsedBody();
@@ -793,15 +1009,28 @@ class ClippingsCartEnhanced extends ClippingsCartModule
 
         switch ($option) {
             case self::ADD_ALL_PARTNER_CHAINS:
+                $this->cartAct($tree, 'ALL_PARTNER_CHAINS', 'all');
+                $_dname = 'wtVIZ-DATA~all partner chains';
+                $this->putVIZdname($_dname);
                 $this->addPartnerChainsGlobalToCart($tree);
                 break;
 
             case self::ADD_COMPLETE_GED:
+                $this->cartAct($tree, 'COMPLETE', 'GED');
+                $_dname = 'wtVIZ-DATA~complete GED';
+                $this->putVIZdname($_dname);
                 $this->addCompleteGEDtoCart($tree);
                 break;
 
-                default;
+            // case self::ADD_ALL_LINKED_PERSONS:
+            //     $this->addAllLinked($tree);
+            //     break;
+    
+            default;
             case self::ADD_ALL_CIRCLES:
+                $this->cartAct($tree, 'ALL_CIRCLES', 'all');
+                $_dname = 'wtVIZ-DATA~all circles';
+                $this->putVIZdname($_dname);
                 $this->addAllCirclesToCart($tree);
                 break;
         }
@@ -846,7 +1075,8 @@ class ClippingsCartEnhanced extends ClippingsCartModule
             $this->huhwtlin_checked = true;
         }
 
-        $tree = $request->getAttribute('tree');
+        // $tree = $request->getAttribute('tree');
+        $tree = Validator::attributes($request)->tree();
         assert($tree instanceof Tree);
         $user  = $request->getAttribute('user');
 
@@ -884,7 +1114,8 @@ class ClippingsCartEnhanced extends ClippingsCartModule
      */
     public function postExecuteAction(ServerRequestInterface $request): ResponseInterface
     {
-        $tree = $request->getAttribute('tree');
+        // $tree = $request->getAttribute('tree');
+        $tree = Validator::attributes($request)->tree();
         assert($tree instanceof Tree);
 
         $params = (array) $request->getParsedBody();
@@ -954,7 +1185,8 @@ class ClippingsCartEnhanced extends ClippingsCartModule
      */
     public function cceDownloadAction(ServerRequestInterface $request, string $todo, string $action): ResponseInterface
     {
-        $tree = $request->getAttribute('tree');
+        // $tree = $request->getAttribute('tree');
+        $tree = Validator::attributes($request)->tree();
         assert($tree instanceof Tree);
 
         $params = (array) $request->getParsedBody();
@@ -1042,7 +1274,7 @@ class ClippingsCartEnhanced extends ClippingsCartModule
                 $xrefi = $xrefs[$i];
                 $arr_items[$xrefi] = $r_items[$i];
             }
-            $this->dumpArray($arr_items, 'records-items');
+            $this->dumpArray($arr_items, $action . 'records');
         }
 
         $r_string = implode("\n", $r_items);
@@ -1050,7 +1282,7 @@ class ClippingsCartEnhanced extends ClippingsCartModule
         $arr_string["gedcom"] = $r_string;
 
         // We want to have the gedcom as external file too
-        $this->dumpArray($arr_string, 'gedcom-items');
+        $this->dumpArray($arr_string,  $action . 'gedcom');
 
         // Encode the array into a JSON string.
         $encodedString = json_encode($arr_string);
@@ -1108,7 +1340,8 @@ class ClippingsCartEnhanced extends ClippingsCartModule
      */
     public function getEmptyAction(ServerRequestInterface $request): ResponseInterface
     {
-        $tree = $request->getAttribute('tree');
+        // $tree = $request->getAttribute('tree');
+        $tree = Validator::attributes($request)->tree();
         assert($tree instanceof Tree);
 
         $title = I18N::translate('Delete all records, a set of records of the same type, or selected records');
@@ -1153,7 +1386,8 @@ class ClippingsCartEnhanced extends ClippingsCartModule
      */
     public function postEmptyAction(ServerRequestInterface $request): ResponseInterface
     {
-        $tree = $request->getAttribute('tree');
+        // $tree = $request->getAttribute('tree');
+        $tree = Validator::attributes($request)->tree();
         assert($tree instanceof Tree);
 
         $params = (array) $request->getParsedBody();
@@ -1164,6 +1398,9 @@ class ClippingsCartEnhanced extends ClippingsCartModule
                 $cart = Session::get('cart', []);
                 $cart[$tree->name()] = [];
                 Session::put('cart', $cart);
+                $cartAct = Session::get('cartAct', []);
+                $cartAct[$tree->name()] = [];
+                Session::put('cartAct', $cartAct);
                 $url = route('module', [
                     'module'      => $this->name(),
                     'action'      => 'Show',
@@ -1238,15 +1475,49 @@ class ClippingsCartEnhanced extends ClippingsCartModule
      */
     public function postRemoveAction(ServerRequestInterface $request): ResponseInterface
     {
-        $tree = $request->getAttribute('tree');
+        // $tree = $request->getAttribute('tree');
+        $tree = Validator::attributes($request)->tree();
         assert($tree instanceof Tree);
 
-        $xref = $request->getQueryParams()['xref'] ?? '';
+        // $xref = $request->getQueryParams()['xref'] ?? '';
+        $xref = Validator::queryParams($request)->isXref()->string('xref');
 
         $cart = Session::get('cart', []);
         unset($cart[$tree->name()][$xref]);
         Session::put('cart', $cart);
 
+        $url = route('module', [
+            'module'      => $this->name(),
+            'action'      => 'Show',
+            'description' => $this->description(),
+            'tree'        => $tree->name(),
+        ]);
+
+        return redirect($url);
+    }
+
+    /**
+     * delete one record from the clippings cart
+     *
+     * @param ServerRequestInterface $request
+     *
+     * @return ResponseInterface
+     */
+    public function postCartActRemoveAction(ServerRequestInterface $request): ResponseInterface
+    {
+        // $tree = $request->getAttribute('tree');
+        $tree = Validator::attributes($request)->tree();
+        assert($tree instanceof Tree);
+
+        $cact = $request->getQueryParams()['cartact'] ?? '';
+
+        $cartAct = Session::get('cartAct', []);
+        unset($cartAct[$tree->name()][$cact]);
+        Session::put('cartAct', $cartAct);
+
+        $doRebuild = new RebuildCart($tree, $cartAct[$tree->name()]);
+        $doRebuild->rebuild();
+        
         $url = route('module', [
             'module'      => $this->name(),
             'action'      => 'Show',
@@ -1266,8 +1537,15 @@ class ClippingsCartEnhanced extends ClippingsCartModule
     {
         $cart     = Session::get('cart', []);
         $contents = $cart[$tree->name()] ?? [];
+        $isEmpty  = ($contents === []);
 
-        return $contents === [];
+        if ( $isEmpty ) {
+            $cartAct = Session::get('cartAct', []);
+            $cartAct[$tree->name()] = [];
+            Session::put('cartAct', $cartAct);
+        }
+
+        return $isEmpty;
     }
 
     /**
@@ -1427,14 +1705,44 @@ class ClippingsCartEnhanced extends ClippingsCartModule
     }
 
     /**
+     * add all linked individuals in a tree to the clippings cart
+     * by adding individuals and their families without spouses to the clippings cart
+     *
+     * @param Tree $tree
+     */
+    protected function addAllLinked(Tree $tree, $xref = null): void
+    {
+        $allconns = new AllConnected($tree, ['FAMS', 'FAMC', 'ALIA', 'ASSO', '_ASSO'], $xref);
+        foreach ($allconns->getXrefs() as $xref) {
+            $object = Registry::individualFactory()->make($xref, $tree);
+            if ($object instanceof Individual) {
+                if ($object->canShow()) {
+                    $this->addIndividualToCart($object);
+                }
+            } else {
+                $object = Registry::familyFactory()->make($xref, $tree);
+                if ($object instanceof Family && $object->canShow()) {
+                    $this->addFamilyWithoutSpousesToCart($object);
+                }
+            }
+        }
+    }
+
+    /**
      * @param Family $family
      */
     protected function addFamilyToCart(Family $family): void
     {
+        // if ($addAct) 
+            // $this-cartAct($family->tree(),"ADD_FAM~",  $family->xref());
+
         foreach ($family->spouses() as $spouse) {
             $this->addIndividualToCart($spouse);
         }
         $this->addFamilyWithoutSpousesToCart($family);
+
+        $this->addMediaLinksToCart($family);
+
         if ( $this->all_RecTypes) {                                // EW.H mod ...
             $this->addFamilyOtherRecordsToCart($family);
         }
@@ -1454,9 +1762,10 @@ class ClippingsCartEnhanced extends ClippingsCartModule
 
             Session::put('cart', $cart);
 
+            $this->addMediaLinksToCart($individual);
+
             if ( $this->all_RecTypes) {                                // EW.H mod ...
                 $this->addLocationLinksToCart($individual);
-                $this->addMediaLinksToCart($individual);
                 $this->addNoteLinksToCart($individual);
                 $this->addSourceLinksToCart($individual);
             }
@@ -1483,7 +1792,6 @@ class ClippingsCartEnhanced extends ClippingsCartModule
      */
     protected function addFamilyOtherRecordsToCart(Family $family): void
     {
-        $this->addMediaLinksToCart($family);
         $this->addLocationLinksToCart($family);
         $this->addNoteLinksToCart($family);
         $this->addSourceLinksToCart($family);
@@ -1715,7 +2023,7 @@ class ClippingsCartEnhanced extends ClippingsCartModule
             $this->addFamilyToCart($family);
 
             foreach ($family->spouses() as $parent) {
-                if ($level > 0) {
+                if ($level > 1) {
                     $this->addAncestorsToCart($parent, $level - 1);
                 }
             }
@@ -1736,7 +2044,7 @@ class ClippingsCartEnhanced extends ClippingsCartModule
             $this->addFamilyAndChildrenToCart($family);
 
             foreach ($family->spouses() as $parent) {
-                if ($level > 0) {
+                if ($level > 1) {
                     $this->addAncestorFamiliesToCart($parent, $level - 1);
                 }
             }
@@ -1757,7 +2065,7 @@ class ClippingsCartEnhanced extends ClippingsCartModule
 
         foreach ($family->children() as $child) {
             foreach ($child->spouseFamilies() as $child_family) {
-                if ($level > 0) {
+                if ($level > 1) {
                     $this->addFamilyAndDescendantsToCart($child_family, $level - 1);
                 }
             }
@@ -1933,25 +2241,47 @@ class ClippingsCartEnhanced extends ClippingsCartModule
     }
 
     /**
-     * The name of Output to TAM-Extension
+     * The name of Output to VIZ-Extension
      *
      * @return string
      */
-    private function getTAMfname(): string
+    private function getVIZfname(): string
     {
         return $this->FILENAME_VIZ;
     }
 
     /**
-     * The name of Output to TAM-Extension
+     * The name of Output to VIZ-Extension
      *
      * @return string
      */
-    private function putTAMfname(String $_fname): string
+    private function putVIZfname(String $_fname): string
     {
         $this->FILENAME_VIZ = $_fname;
         Session::put('FILENAME_VIZ', $this->FILENAME_VIZ);          // EW.H mod ... save it to Session
         return $this->FILENAME_VIZ;
+    }
+
+    /**
+     * The name of Output to VIZ-Extension
+     *
+     * @return string
+     */
+    private function getVIZdname(): string
+    {
+        return $this->VIZ_DSNAME;
+    }
+
+    /**
+     * The name of Output to VIZ-Extension
+     *
+     * @return string
+     */
+    private function putVIZdname(String $_dname): string
+    {
+        $this->VIZ_DSNAME = $_dname;
+        Session::put('VIZ_DSname', $this->VIZ_DSNAME);          // EW.H mod ... save it to Session
+        return $this->VIZ_DSNAME;
     }
 
     /**

@@ -1,0 +1,50 @@
+<?php
+
+use Fisharebest\Webtrees\GedcomRecord;
+use Fisharebest\Webtrees\I18N;
+use Fisharebest\Webtrees\View;
+use Fisharebest\Webtrees\Tree;
+
+/**
+ * @var string              $module
+ * @var array<>             $cartActions
+ * @var string              $header_acts
+ * @var Tree                $tree
+ */
+
+?>
+
+<h4><?= $header_acts ?></h4>
+
+<?php if ($cartActions === []) : ?>
+    <p><?= I18N::translate('No actions executed.'); ?></p>
+<?php else : ?>
+    <?php $count = count($cartActions); ?>
+    <?php $Theader = 'CCE-CartActions' ?>
+    <table class="table wt-facts-table">
+        <thead>
+            <tr>
+                <th name="<?= $Theader ?>" class="CCE_Theader" ><?= I18N::translate('Records') . ' - ' . I18N::translate($Theader) . ' (' . view('components/badge', ['count' => $count]) . ')'; ?></th>
+                <th><?= I18N::translate('Action'); ?></th>
+            </tr>
+        </thead>
+        <tbody name="<?= $Theader ?>" style="visible">
+            <?php foreach ($cartActions as $cartact) : ?>
+                <tr>
+                    <td>
+                        <span class="wt-icon-basket"><i class="fas fa-shopping-basket fa-fw" aria-hidden="true"></i></span>
+                        <span><?= $cartact ?></span>
+                    </td>
+                    <td>
+                        <form method="post" action="<?= e(route('module', ['module' => $module, 'action' => 'CartActRemove', 'tree' => $tree->name(), 'cartact' => $cartact])); ?>">
+                            <?= csrf_field(); ?>
+                            <button type="submit" class="btn btn-link" title="<?= I18N::translate('Remove'); ?>">
+                                <?= view('icons/delete'); ?>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
+<?php endif; ?>

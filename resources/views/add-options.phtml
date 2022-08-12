@@ -30,13 +30,14 @@ use Fisharebest\Webtrees\Tree;
         </div>
     </div>
 
+    <?php if (isset($generations)) : ?>
     <div class="row form-group">
         <div class="col-sm-3 col-form-label wt-page-options-label">
             <?= I18N::translate('Adjust number of generations') ?>
         </div>
         <div class="col-sm-9 wt-page-options-value cce-page-options">
             <div class="col-sm-3 cce_buttongroup">
-                <span> <?= I18N::translate('Ancestors') ?> &nbsp;</span><span class="cce_genA" ><?= $generations['A']; ?></span><span>&nbsp;</span>
+                <span> <?= I18N::translate('Ancestors') ?> &nbsp;</span><span>&nbsp;</span>
                 <div id="showgensA" class="cce_buttongroup">
                     <div class="cce_button"><i id="showgensSubA" class="bMinus cce_button" title="<?= I18N::translate('Decrement') ?>"></i></div>
                     <input
@@ -54,7 +55,8 @@ use Fisharebest\Webtrees\Tree;
                 </div>
             </div>
             <div class="col-sm-3 cce_buttongroup">
-                <span> <?= I18N::translate('Descendants') ?> &nbsp;</span><span class="cce_genD" ><?= $generations['D']; ?></span><span>&nbsp;</span>
+                <!-- <span> <?= I18N::translate('Descendants') ?> &nbsp;</span><span class="cce_genD" ><?= $generations['D']; ?></span><span>&nbsp;</span> -->
+                <span> <?= I18N::translate('Descendants') ?> &nbsp;</span><span>&nbsp;</span>
                 <div id="showgensD" class="cce_buttongroup">
                     <div class="cce_button"><i id="showgensSubD" class="bMinus cce_button" title="<?= I18N::translate('Decrement') ?>"></i></div>
                     <input
@@ -73,6 +75,7 @@ use Fisharebest\Webtrees\Tree;
             </div>
         </div>
     </div>
+    <?php endif ?>
 
     <div class="row form-group">
         <div class="col-sm-3 wt-page-options-label"></div>
