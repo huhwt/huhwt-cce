@@ -18,8 +18,8 @@ function showgensMinus(forID, forClass) {
     let esgVmin = parseInt(esgV.getAttribute("min"));
     let esgVmax = parseInt(esgV.getAttribute("max"));
     vsgV -= 1;
-    if (esgVmin > 0 && vsgV < esgVmin ) { vsgV = esgVmin; }
-    if (esgVmax > 0 && vsgV > esgVmax ) { vsgV = esgVmax; }
+    if (vsgV < esgVmin ) { vsgV = esgVmin; }
+    if (vsgV > esgVmax ) { vsgV = esgVmax; }
     esgV.value = vsgV.toString();
     let elems = document.querySelectorAll(forClass);
     for (let i = 0; i < elems.length; i++) {
@@ -33,8 +33,8 @@ function showgensPlus(forID, forClass) {
     let esgVmin = parseInt(esgV.getAttribute("min"));
     let esgVmax = parseInt(esgV.getAttribute("max"));
     vsgV += 1;
-    if (esgVmin > 0 && vsgV < esgVmin ) { vsgV = esgVmin; }
-    if (esgVmax > 0 && vsgV > esgVmax ) { vsgV = esgVmax; }
+    if (vsgV < esgVmin ) { vsgV = esgVmin; }
+    if (vsgV > esgVmax ) { vsgV = esgVmax; }
     esgV.value = vsgV.toString();
     let elems = document.querySelectorAll(forClass);
     for (let i = 0; i < elems.length; i++) {
@@ -66,4 +66,15 @@ function togglevis(helem) {
             }
         }
     }
+}
+
+function showTables() {
+    let elems = document.getElementsByClassName("wt-facts-table");
+    for ( const elem of elems ) {
+        let hevis = elem.getAttribute("style");
+        if (hevis == "display:none")
+            elem.setAttribute("style", "display:visible");
+    }
+    let elem = document.getElementById("prepInfo");
+    elem.setAttribute("style", "display:none");;
 }

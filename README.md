@@ -37,6 +37,7 @@ An action initiated by the user then takes place on the records in the clippings
 * the export to a GEDCOM zip file, as in the actual clippings cart module
 * the export to file in plain textual GEDCOM
 * the display of the objects in list form with the possibility of sorting and filtering this list (tbd)
+* the executed collection actions are displayed in a supplementary overview and can be selectively undone - 'Undo' option. However, there is no 'Redo' option (yet).
 * the transfer of the records in the clippings cart to new functions that visualize this data or analyze it statistically.
 Such a function could be for example a link-node-diagram like [TAM](https://github.com/huhwt/huhwt-wttam) 
 (Topographic Attribute Map) or [Lineage](https://github.com/huhwt/huhwt-wtlin).

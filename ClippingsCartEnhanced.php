@@ -154,7 +154,7 @@ class ClippingsCartEnhanced extends ClippingsCartModule
     public const CUSTOM_MODULE      = 'huhwt-cce';
     public const CUSTOM_AUTHOR      = 'EW.H / Hermann Hartenthaler';
     public const CUSTOM_WEBSITE     = 'https://github.com/huhwt/' . self::CUSTOM_MODULE . '/';
-    public const CUSTOM_VERSION     = '2.1.7';
+    public const CUSTOM_VERSION     = '2.1.7.1';
     public const CUSTOM_LAST        = 'https://github.com/huhwt/' .
                                       self::CUSTOM_MODULE. '/raw/main/latest-version.txt';
 
