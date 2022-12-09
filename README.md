@@ -31,7 +31,7 @@ This Readme contains the following main sections
 <a name="description"></a>
 ## Description
 
-Functions and actions for records are described in detail in the Hartenthaler module referenced above.
+Functions and actions for records are described in detail in the [Hartenthaler module description](/README-CCE.md).
 
 An action initiated by the user then takes place on the records in the clippings cart, such as
 * the export to a GEDCOM zip file, as in the actual clippings cart module
