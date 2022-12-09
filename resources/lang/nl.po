@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: hh 2.0.19\n"
 "Report-Msgid-Bugs-To: hermann@hartenthaler.de\n"
 "POT-Creation-Date: 2021-11-21 12:57+0200\n"
-"PO-Revision-Date: 2022-02-19 13:38+0100\n"
+"PO-Revision-Date: 2022-12-02 10:04+0100\n"
 "Last-Translator: TheDutchJewel <thedutchjewel@gmail.com>\n"
 "Language-Team: \n"
 "Language: nl\n"
@@ -13,7 +13,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Poedit 3.0.1\n"
+"X-Generator: Poedit 3.2.2\n"
 
 #: ClippingsCartModuleTrait.php:21
 msgid "Replacement for the original 'Clippings Cart' module."
@@ -61,6 +61,9 @@ msgstr "%1$s, haar partners en afstammelingen (tot %2$s generaties)"
 msgid "%1$s, his spouses and descendants (up to %2$s generations)"
 msgstr "%1$s, zijn partners en afstammelingen (tot %2$s generaties)"
 
+msgid "%s and all linked individuals"
+msgstr "%s en alle verbonden personen"
+
 msgid "Decrement"
 msgstr "Verlagen"
 
@@ -79,8 +82,8 @@ msgstr "alle partnerketens in deze stamboom"
 msgid "all circles of individuals in this tree"
 msgstr "alle cirkels van personen in deze stamboom"
 
-msgid "all connected persons in this family tree - Caution: probably very high number of persons!"
-msgstr "alle verbonden personen in deze stamboom - Let op: waarschijnlijk zeer groot aantal personen!"
+msgid "all persons/families in this family tree - Caution: probably very high number of persons!"
+msgstr "alle personen/gezinnen in deze stamboom - Let op: waarschijnlijk zeer groot aantal personen!"
 
 msgid "Delete records in the clippings cart"
 msgstr "Verwijder records in de knipselverzameling"
@@ -162,3 +165,15 @@ msgstr "Aantal generaties aanpassen"
 
 msgid "Missing dependency - Install %s!"
 msgstr "Afhankelijkheid ontbreekt - Installeer %s!"
+
+msgid "Records in clippings cart - Execute an action on them."
+msgstr "Records in knipselverzameling - Voer er een actie op uit."
+
+msgid "Performed actions fo fill the cart."
+msgstr "Uitgevoerde acties om de knipselverzameling te vullen."
+
+msgid "CCE-CartActions"
+msgstr "CCE-Knipselverzamelingacties"
+
+msgid "Just a moment"
+msgstr "Een ogenblik geduld"
