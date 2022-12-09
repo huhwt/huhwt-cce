@@ -74,7 +74,7 @@ It uses the po/mo system.
 You can contribute via a pull request (if you know how) or by e-mail.
 Updated translations will be included in the next release of this module.
 
-There are now, beside English and German, no other translations available.
+There are now, beside English, Dutch and German, no other translations available.
 
 <a name="support"></a>
 ## Support
@@ -98,7 +98,7 @@ This module was originally derived from the [Vesta clippings cart](https://githu
 * Copyright (C) 2022 huhwt - EW.H
 * Copyright (C) 2021 Hermann Hartenthaler
 * Copyright (C) 2021 Richard Cissée. All rights reserved.
-* Derived from **webtrees** - Copyright 2021 webtrees development team.
+* Derived from **webtrees** - Copyright 2022 webtrees development team.
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
