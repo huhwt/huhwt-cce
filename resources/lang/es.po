@@ -1,0 +1,181 @@
+# webtrees CLIPPINGS CART.
+#
+"Project-Id-Version: hh 2.0.19\n"
+"Report-Msgid-Bugs-To: hermann@hartenthaler.de\n"
+"POT-Creation-Date: 2021-11-21 12:57+0200\n"
+"PO-Revision-Date: 2021-11-21 12:59+0000\n"
+"Last-Translator: Hermann Hartenthaler <hermann@hartenthaler.de>\n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+
+#: ClippingsCartModuleTrait.php:21
+msgid "Replacement for the original 'Clippings Cart' module."
+msgstr "Sustituye al módulo original de 'Cesta de recortes'."
+
+msgid "Clippings cart enhanced"
+msgstr "Cesta de recortes"
+
+msgid "Add records from your family tree to the clippings cart and execute an action on them."
+msgstr "Añade registros de tu árbol genealógico a la cesta de recortes y ejecuta acciones sobre ellos."
+
+msgid "Records in clippings cart"
+msgstr "Registros en la cesta de recortes"
+
+msgid "Clippings cart is empty."
+msgstr "La cesta de recortes está vacía."
+
+msgid "Records in %s "
+msgstr "Registros en %s "
+
+msgid "Add this record to the clippings cart"
+msgstr "Añadir este registro a la cesta de recortes"
+
+msgid "%1$s and her ancestors (up to %2$s generations)"
+msgstr "%1$s y sus antepasados (hasta %2$s generaciones)"
+
+msgid "%1$s and his ancestors (up to %2$s generations)"
+msgstr "%1$s y sus antepasados (hasta %2$s generaciones)"
+
+msgid "%s and her ancestors, up to 4 generations, for H-Tree"
+msgstr "%s y sus antepasados hasta 4ª generación, para H-Tree (Función TAM)"
+
+msgid "%s and his ancestors, up to 4 generations, for H-Tree"
+msgstr "%s y sus antepasados hasta 4ª generación, para H-Tree (Función-TAM)"
+
+msgid "%1$s, her ancestors and their families (up to %2$s generations)"
+msgstr "%1$s, sus antepasados y familia (hasta %2$s generaciones)"
+
+msgid "%1$s, his ancestors and their families (up to %2$s generations)"
+msgstr "%1$s, sus antepasados y sus familias (hasta %2$s generaciones)"
+
+msgid "%1$s, her spouses and descendants (up to %2$s generations)"
+msgstr "%1$s, sus cónyuges y descendientes (hasta %2$s generaciones)"
+
+msgid "%1$s, his spouses and descendants (up to %2$s generations)"
+msgstr "%1$s, sus cónyuges y descendientes (hasta %2$s generaciones)"
+
+msgid "%s and all linked individuals"
+msgstr "%s y TODAS las personas vinculadas"
+
+msgid "Decrement"
+msgstr "Disminución"
+
+msgid "Increment"
+msgstr "Incremento"
+
+msgid "the partner chains %s belongs to"
+msgstr "las cadenas asociadas %s pertenecen a"
+
+msgid "Add global record sets to the clippings cart"
+msgstr "Añadir conjuntos de registros globales a la cesta de recortes"
+
+msgid "all partner chains in this tree"
+msgstr "todas las cadenas asociadas de este árbol"
+
+msgid "all circles of individuals in this tree"
+msgstr "todos los círculos de individuos correspondientes a este árbol"
+
+msgid "all connected persons in this family tree - Caution: probably very high number of persons!"
+msgstr "todas las personas conectadas en este árbol genealógico. -Precaución: ¡es probable que se encuentre un gran número de registros!"
+
+msgid "all persons/families in this family tree - Caution: probably very high number of persons!"
+msgstr "todas las personas/familias de este árbol genealógico. -Precaución: ¡es probable que se encuentre un gran número de registros!"
+
+msgid "Delete records in the clippings cart"
+msgstr "Borrar registros guardados en la cesta de recortes"
+
+msgid "CCE-Individual"
+msgstr "CCE - Personas"
+
+msgid "CCE-Family"
+msgstr "CCE - Familias"
+
+msgid "CCE-Media"
+msgstr "CCE -Archivos multimedia"
+
+msgid "CCE-Location"
+msgstr "CCE - Ubicación"
+
+msgid "CCE-Note"
+msgstr "CCE - Nota"
+
+msgid "CCE-Repository"
+msgstr "CCE - Contenedor de ficheros"
+
+msgid "CCE-Source"
+msgstr "CCE - Fuente"
+
+msgid "CCE-Submitter"
+msgstr "CCE - Remitente"
+
+msgid "Delete all records, a set of records of the same type, or selected records"
+msgstr "Eliminar todos los registros, un conjunto de ellos del mismo tipo o los registros seleccionados"
+
+msgid "all records"
+msgstr "todos los registros"
+
+msgid "set of records by type"
+msgstr "Conjunto de registros por tipo"
+
+msgid "select records to be deleted"
+msgstr "Seleccione los registros que desea eliminar"
+
+msgid "You have tried '%s' - it is not implemented yet."
+msgstr "La acción '%s' no funciona - Aún no se ha implementado."
+
+msgid "Execute an action on records in the clippings cart"
+msgstr "Ejecutar una acción sobre los registros de la cesta de recortes"
+
+msgid "Download records ..."
+msgstr "Descargar archivos ..."
+
+msgid "... as GEDCOM zip-file (including media files)"
+msgstr "... como archivo comprimido (zip) GEDCOM (INCLUIDOS los archivos multimedia)"
+
+msgid "... as GEDCOM file (all Tags, no media files)"
+msgstr "... como archivo (ged) GEDCOM (Sólo etiquetas, SIN archivos multimedia)"
+
+msgid "... as GEDCOM file (only INDI and FAM)"
+msgstr "... como archivo (ged) GEDCOM (Sólo etiquetas INDI y FAM, nada más)"
+
+msgid "Visualize records in a diagram ..."
+msgstr "Visualizar registros en un diagrama ..."
+
+msgid "... using TAM"
+msgstr "... utilizando TAM"
+
+msgid "... using Lineage"
+msgstr "... utilizando LINEAGE"
+
+msgid "Privatize options"
+msgstr "Opciones de privacidad"
+
+msgid "back to show"
+msgstr "volver al programa"
+
+msgid "back"
+msgstr "volver"
+
+msgid "Adjust number of generations"
+msgstr "Ajustar el número de generaciones"
+
+msgid "Missing dependency - Install %s!"
+msgstr "Falta una dependencia - Instalar %s!"
+
+msgid "Records in clippings cart - Execute an action on them."
+msgstr "Registros actuales en la cesta de recortes. Ejecute una acción sobre ellos."
+
+msgid "Performed actions fo fill the cart."
+msgstr "Acciones realizadas para la cesta de recortes."
+
+msgid "CCE-CartActions"
+msgstr "CCE - Acciones de la cesta de recortes"
+
+msgid "Just a moment"
+msgstr "espere un momento"
+
+msgid ""
+msgstr ""

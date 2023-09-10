@@ -9,4 +9,6 @@ mix.js.map
 /node_modules/
 /vendor/
 # others
+/_assets/
 /src/sass/images/
+*.bak

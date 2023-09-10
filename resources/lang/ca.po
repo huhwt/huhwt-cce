@@ -1,0 +1,182 @@
+# webtrees CLIPPINGS CART.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: hh 2.0.19\n"
+"Report-Msgid-Bugs-To: hermann@hartenthaler.de\n"
+"POT-Creation-Date: 2021-11-21 12:57+0200\n"
+"PO-Revision-Date: 2021-11-21 12:59+0000\n"
+"Last-Translator: Hermann Hartenthaler <hermann@hartenthaler.de>\n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+
+#: ClippingsCartModuleTrait.php:21
+msgid "Replacement for the original 'Clippings Cart' module."
+msgstr "Substitueix al mòdul original de 'Cistella de retallades'."
+
+msgid "Clippings cart enhanced"
+msgstr "Cistella de retallades"
+
+msgid "Add records from your family tree to the clippings cart and execute an action on them."
+msgstr "Afig registres del teu arbre genealògic a la cistella de retallades i executa accions sobre ells."
+
+msgid "Records in clippings cart"
+msgstr "Registres en la cistella de retallades"
+
+msgid "Clippings cart is empty."
+msgstr "La cistella de retallades està buida."
+
+msgid "Records in %s "
+msgstr "Registres en %s "
+
+msgid "Add this record to the clippings cart"
+msgstr "Afegir aquest registre a la cistella de retallades"
+
+msgid "%1$s and her ancestors (up to %2$s generations)"
+msgstr "%1$s i els seus avantpassats (fins a %2$s generacions)"
+
+msgid "%1$s and his ancestors (up to %2$s generations)"
+msgstr "%1$s i els seus avantpassats (fins a %2$s generacions)"
+
+msgid "%s and her ancestors, up to 4 generations, for H-Tree"
+msgstr "%s i els seus avantpassats fins a 4a generació, per a H-Tree (Funció TAM)"
+
+msgid "%s and his ancestors, up to 4 generations, for H-Tree"
+msgstr "%s i els seus avantpassats fins a 4a generació, per a H-Tree (Funció-TAM)"
+
+msgid "%1$s, her ancestors and their families (up to %2$s generations)"
+msgstr "%1$s, els seus avantpassats i família (fins a %2$s generacions)"
+
+msgid "%1$s, his ancestors and their families (up to %2$s generations)"
+msgstr "%1$s, els seus avantpassats i famílies (fins a %2$s generacions)"
+
+msgid "%1$s, her spouses and descendants (up to %2$s generations)"
+msgstr "%1$s, els seus cònjuges i descendents (fins a %2$s generacions)"
+
+msgid "%1$s, his spouses and descendants (up to %2$s generations)"
+msgstr "%1$s, els seus cònjuges i descendents (fins a %2$s generacions)"
+
+msgid "%s and all linked individuals"
+msgstr "%s i TOTES les persones vinculades"
+
+msgid "Decrement"
+msgstr "Disminució"
+
+msgid "Increment"
+msgstr "Increment"
+
+msgid "the partner chains %s belongs to"
+msgstr "les cadenes associades %s pertanyen a"
+
+msgid "Add global record sets to the clippings cart"
+msgstr "Afegir conjunts de registres globals a la cistella de retallades"
+
+msgid "all partner chains in this tree"
+msgstr "totes les cadenes associades d'aquest arbre"
+
+msgid "all circles of individuals in this tree"
+msgstr "tots els cercles d'individus corresponents a aquest arbre"
+
+msgid "all connected persons in this family tree - Caution: probably very high number of persons!"
+msgstr "totes les persones connectades en aquest arbre genealògic. -PRECAUCIÓ: és probable que es trobe un gran nombre de registres!"
+
+msgid "all persons/families in this family tree - Caution: probably very high number of persons!"
+msgstr "totes les persones/famílies d'aquest arbre genealògic. -PRECAUCIÓ: és probable que es troben un gran nombre de registres!"
+
+msgid "Delete records in the clippings cart"
+msgstr "Esborrar registres guardats en la cistella de retallades"
+
+msgid "CCE-Individual"
+msgstr "CCE - Persones"
+
+msgid "CCE-Family"
+msgstr "CCE - Famílies"
+
+msgid "CCE-Media"
+msgstr "CCE -Arxius multimédia"
+
+msgid "CCE-Location"
+msgstr "CCE - Ubicació"
+
+msgid "CCE-Note"
+msgstr "CCE - Nota"
+
+msgid "CCE-Repository"
+msgstr "CCE - Contenidor de fitxers"
+
+msgid "CCE-Source"
+msgstr "CCE - Font"
+msgid "CCE-Submitter"
+msgstr "CCE - Remitent"
+
+msgid "Delete all records, a set of records of the same type, or selected records"
+msgstr "Eliminar tots els registres, un conjunt d'ells del mateix tipus o els registres seleccionats"
+
+msgid "all records"
+msgstr "Tots els registres"
+
+msgid "set of records by type"
+msgstr "Conjunt de registres per tipus"
+
+msgid "select records to be deleted"
+msgstr "Seleccione els registres que desitja eliminar"
+
+msgid "You have tried '%s' - it is not implemented yet."
+msgstr "L'acció '%s' no funciona - Encara no s'ha implementat."
+
+msgid "Execute an action on records in the clippings cart"
+msgstr "Executar una acció sobre els registres de la cistella de retallades"
+
+msgid "Download records ..."
+msgstr "Descarregar arxius ..."
+
+msgid "... as GEDCOM zip-file (including media files)"
+msgstr "... com a arxiu comprimit (zip) GEDCOM (INCLOSOS els arxius multimèdia)"
+
+msgid "... as GEDCOM file (all Tags, no media files)"
+msgstr "... com a arxiu (ged) GEDCOM (Només etiquetes, SENSE arxius multimèdia)"
+
+msgid "... as GEDCOM file (only INDI and FAM)"
+msgstr "... com a arxiu (ged) GEDCOM (Només etiquetes INDI i FAM, res més)"
+
+msgid "Visualize records in a diagram ..."
+msgstr "Visualitzar registres en un diagrama ..."
+
+msgid "... using TAM"
+msgstr "... utilitzant TAM"
+
+msgid "... using Lineage"
+msgstr "... utilitzant LINEAGE"
+
+msgid "Privatize options"
+msgstr "Opcions de privacitat"
+
+msgid "back to show"
+msgstr "tornar al programa"
+
+msgid "back"
+msgstr "tornar"
+
+msgid "Adjust number of generations"
+msgstr "Ajustar el nombre de generacions"
+
+msgid "Missing dependency - Install %s!"
+msgstr "Falta una dependència - Instal·lar %s!"
+
+msgid "Records in clippings cart - Execute an action on them."
+msgstr "Registres actuals en la cistella de retallades. Execute una acció sobre ells."
+
+msgid "Performed actions fo fill the cart."
+msgstr "Accions realitzades per a la cistella de retallades."
+
+msgid "CCE-CartActions"
+msgstr "CCE - Accions de la cistella de retallades"
+
+msgid "Just a moment"
+msgstr "espere un moment"
+
+msgid "-"
+msgstr "-"

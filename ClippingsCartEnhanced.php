@@ -154,9 +154,9 @@ class ClippingsCartEnhanced extends ClippingsCartModule
     public const CUSTOM_MODULE      = 'huhwt-cce';
     public const CUSTOM_AUTHOR      = 'EW.H / Hermann Hartenthaler';
     public const CUSTOM_WEBSITE     = 'https://github.com/huhwt/' . self::CUSTOM_MODULE . '/';
-    public const CUSTOM_VERSION     = '2.1.12.1';
+    public const CUSTOM_VERSION     = '2.1.17.0';
     public const CUSTOM_LAST        = 'https://github.com/huhwt/' .
-                                      self::CUSTOM_MODULE. '/raw/main/latest-version.txt';
+                                      self::CUSTOM_MODULE. '/blob/master/latest-version.txt';
 
     public const SHOW_RECORDS       = 'Records in clippings cart - Execute an action on them.';
     public const SHOW_ACTIONS       = 'Performed actions fo fill the cart.';
@@ -247,7 +247,7 @@ class ClippingsCartEnhanced extends ClippingsCartModule
     private const VIZ_DSNAME = '';
 
     /** @var string */
-    private string $exportFilenameDOWNLOAD;
+    private string $exportFilenameDOWNL;
 
     /** @var string */
     private string $exportFilenameVIZ;
@@ -327,10 +327,10 @@ class ClippingsCartEnhanced extends ClippingsCartModule
         $this->all_RecTypes        = true;
         // EW.H mod ... read TAM-Filename from Session, otherwise: Initialize
         if (Session::has('FILENAME_VIZ')) {
-            $this->FILENAME_VIZ = Session::get('FILENAME_VIZ');
+            $this->exportFilenameVIZ = Session::get('FILENAME_VIZ');
         } else {
-            $this->FILENAME_VIZ        = 'wt2VIZ';
-            Session::put('FILENAME_VIZ', $this->FILENAME_VIZ);
+            $this->exportFilenameVIZ        = 'wt2VIZ';
+            Session::put('FILENAME_VIZ', $this->exportFilenameVIZ);
         }
 
         parent::__construct($gedcomExportService, $linkedRecordService);
@@ -489,6 +489,7 @@ class ClippingsCartEnhanced extends ClippingsCartModule
     public function getShowAction(ServerRequestInterface $request): ResponseInterface
     {
         $tree = Validator::attributes($request)->tree();
+        assert($tree instanceof Tree);
 
         $recordTypes = $this->collectRecordsInCart($tree, self::TYPES_OF_RECORDS);
 
@@ -616,6 +617,7 @@ class ClippingsCartEnhanced extends ClippingsCartModule
     public function postAddIndividualAction(ServerRequestInterface $request): ResponseInterface
     {
         $tree = Validator::attributes($request)->tree();
+        assert($tree instanceof Tree);
 
         $xref        = Validator::parsedBody($request)->string('xref');
         $option      = Validator::parsedBody($request)->string('option');
@@ -720,6 +722,7 @@ class ClippingsCartEnhanced extends ClippingsCartModule
     public function getAddFamilyAction(ServerRequestInterface $request): ResponseInterface
     {
         $tree = Validator::attributes($request)->tree();
+        assert($tree instanceof Tree);
 
         $xref = Validator::queryParams($request)->isXref()->string('xref');
 
@@ -947,6 +950,7 @@ class ClippingsCartEnhanced extends ClippingsCartModule
     public function getGlobalAction(ServerRequestInterface $request): ResponseInterface
     {
         $tree = Validator::attributes($request)->tree();
+        assert($tree instanceof Tree);
 
         $options[self::ADD_ALL_PARTNER_CHAINS] = I18N::translate('all partner chains in this tree');
         $options[self::ADD_ALL_CIRCLES]        = I18N::translate('all circles of individuals in this tree');

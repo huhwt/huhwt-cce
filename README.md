@@ -74,7 +74,11 @@ It uses the po/mo system.
 You can contribute via a pull request (if you know how) or by e-mail.
 Updated translations will be included in the next release of this module.
 
-There are now, beside English and German, no other translations available.
+There are now translations in English, German, Netherlands, Catalan, Spanish and Russian available.
+
+* Netherlands - many thanks to TheDutchJewel
+* Catalan, Spanish - many thanks to BernatBanyuls
+* Russian - many thanks to ol810
 
 <a name="support"></a>
 ## Support
