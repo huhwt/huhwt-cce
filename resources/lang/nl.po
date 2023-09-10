@@ -1,5 +1,3 @@
-# webtrees CLIPPINGS CART.
-#
 msgid ""
 msgstr ""
 "Project-Id-Version: hh 2.0.19\n"
@@ -15,7 +13,6 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 "X-Generator: Poedit 3.2.2\n"
 
-#: ClippingsCartModuleTrait.php:21
 msgid "Replacement for the original 'Clippings Cart' module."
 msgstr "Vervanging voor de originele 'Stamboomknipsel'-module."
 

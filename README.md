@@ -102,7 +102,7 @@ This module was originally derived from the [Vesta clippings cart](https://githu
 * Copyright (C) 2022 huhwt - EW.H
 * Copyright (C) 2021 Hermann Hartenthaler
 * Copyright (C) 2021 Richard Cissée. All rights reserved.
-* Derived from **webtrees** - Copyright 2021 webtrees development team.
+* Derived from **webtrees** - Copyright 2022 webtrees development team.
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
