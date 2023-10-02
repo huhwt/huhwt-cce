@@ -30,7 +30,8 @@ This includes for a person for example their ancestors or descendants,
 possibly with their families. For a location it includes for example all persons with reference to this place.
 * the search in the control panel for unconnected persons in a tree (with a new button "send to clippings cart") (tbd)
 * the normal webtrees search (also with a button "send to clippings cart"), so that you can search for anything you want and with the option of using all the filter functions that are currently offered (tbd)
-* the list display modules "Families" and "Family branches", so that you can send all persons with the same family name or all persons from a clan to the clippings cart (tbd)
+* the list display modules "Families" and "Family branches", so that you can send all persons with the same family name or all persons from a clan to the clippings cart, this can be optionally done with including they parent families. 
+** Feature is realized for module "List/Families".
 * new functions in this module searching for marriage chains or ancestor circles in the tree.
 
 The user can then delete selected records or groups of records of the same type

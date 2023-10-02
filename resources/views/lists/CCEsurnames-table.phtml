@@ -1,0 +1,95 @@
+<?php
+
+declare(strict_types=1);
+
+use Fisharebest\Webtrees\I18N;
+use Fisharebest\Webtrees\Individual;
+use Fisharebest\Webtrees\Module\IndividualListModule;
+use Fisharebest\Webtrees\Tree;
+
+/**
+ * @var bool                      $families
+ * @var IndividualListModule|null $module
+ * @var array<array<int,string>>  $order
+ * @var array<string,string>      $params
+ * @var array<array<int>>         $surnames
+ * @var Tree                      $tree
+ */
+
+?>
+
+<table
+    class="table table-bordered table-sm wt-table-surname datatables d-none"
+    <?= view('lists/datatables-attributes') ?>
+    data-info="false"
+    data-paging="false"
+    data-searching="false"
+    data-order="<?= e(json_encode($order, JSON_THROW_ON_ERROR)) ?>"
+>
+    <caption class="visually-hidden">
+        <?= I18N::translate('Surnames') ?>
+    </caption>
+    <thead>
+        <tr>
+            <th>
+                <?= I18N::translate('Surname') ?> -  ( <?= I18N::translate('count') . ' ' . I18N::number(count($surnames)) ?> )    <!-- EW.H - MOD ...  -->
+            </th>
+            <th>
+                <?php if ($families) :?>
+                    <?= I18N::translate('Spouses') ?>
+                <?php else : ?>
+                    <?= I18N::translate('Individuals') ?>
+                <?php endif ?>
+            </th>
+        </tr>
+    </thead>
+
+    <tbody>
+        <?php foreach ($surnames as $surn => $surns) : ?>
+            <tr>
+                <td data-sort="<?= $n = 1 + ($n ?? 0) ?>">
+                    <!-- Multiple surname variants, e.g. von Groot, van Groot, van der Groot, etc. -->
+                    <?php foreach (array_keys($surns) as $surname) : ?>
+                        <?php if ($module instanceof IndividualListModule) : ?>
+                            <?php if ($surname === Individual::NOMEN_NESCIO) : ?>
+                                <a href="<?= e($module->listUrl($tree, ['surname' => $surname] + $params)) ?>"><?= I18N::translateContext('Unknown surname', '…') ?></a>
+                            <?php elseif ($surname === '') : ?>
+                                <?php if ($surn === '') : ?>
+                                    <a href="<?= e($module->listUrl($tree, ['surname' => $surname] + $params)) ?>"><?= I18N::translate('No surname') ?></a>
+                                <?php else : ?>
+                                    <a href="<?= e($module->listUrl($tree, ['surname' => $surn] + $params)) ?>" class="ut"><?= e($surn) ?></a>
+                                <?php endif ?>
+                            <?php else : ?>
+                                <a href="<?= e($module->listUrl($tree, ['surname' => $surname] + $params)) ?>" class="ut"><?= e($surname) ?></a>
+                            <?php endif ?>
+                        <?php else : ?>
+                            <?php if ($surname === Individual::NOMEN_NESCIO) : ?>
+                                <span class="ut"><?= I18N::translateContext('Unknown surname', '…') ?></span>
+                            <?php elseif ($surname === '') : ?>
+                                <?php if ($surn === '') : ?>
+                                    <?= I18N::translate('No surname') ?>
+                                <?php else : ?>
+                                    <span class="ut"><?= e($surn) ?></span>
+                                <?php endif ?>
+                            <?php else : ?>
+                                <span class="ut"><?= e($surname) ?></span>
+                            <?php endif ?>
+                        <?php endif ?>
+                        <br>
+                    <?php endforeach ?>
+                </td>
+
+                <td class="text-center" data-sort="<?= array_sum($surns) ?>">
+                    <?php foreach ($surns as $count) : ?>
+                        <?= I18N::number($count) ?>
+                        <br>
+                    <?php endforeach ?>
+
+                    <?php if (count($surns) > 1) : ?>
+                        <?= I18N::number(array_sum($surns)) ?>
+                    <?php endif ?>
+                </td>
+            </tr>
+        <?php endforeach ?>
+    </tbody>
+</table>

@@ -86,8 +86,17 @@ msgstr "Alle verbundenen Personen in diesem Stammbaum - Achtung: wahrscheinlich 
 msgid "all persons/families in this family tree - Caution: probably very high number of persons!"
 msgstr "Alle Personen/Familien in diesem Stammbaum - Achtung: wahrscheinlich sehr hohe Anzahl von Personen!"
 
-msgid "Delete records in the clippings cart"
-msgstr "Datensätze im Sammelbehälter löschen"
+msgid "Delete records in the clippings cart entirely"
+msgstr "Datensätze im Sammelbehälter in Gänze löschen"
+
+msgid "Delete records in the clippings cart with selection option"
+msgstr "Datensätze im Sammelbehälter mit Auswahloption löschen"
+
+msgid "add families and individuals to the clippings cart"
+msgstr "Familien und Personen zum Sammelbehälter hinzufügen"
+
+msgid "add families and individuals with parents to the clippings cart"
+msgstr "Familien und Personen mit Eltern zum Sammelbehälter hinzufügen"
 
 msgid "CCE-Individual"
 msgstr "Personen"

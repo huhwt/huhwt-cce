@@ -76,5 +76,6 @@ function showTables() {
             elem.setAttribute("style", "display:visible");
     }
     let elem = document.getElementById("prepInfo");
-    elem.setAttribute("style", "display:none");;
+    if ( elem )
+        elem.setAttribute("style", "display:none");;
 }

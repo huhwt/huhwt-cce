@@ -34,6 +34,8 @@ This Readme contains the following main sections
 
 Functions and actions for records are described in detail in the [Hartenthaler module description](/README-CCE.md).
 
+The entries in the clippings cart may be cleaned up by undoing specific collection actions, too.
+
 An action initiated by the user then takes place on the records in the clippings cart, such as
 * the export to a GEDCOM zip file, as in the actual clippings cart module
 * the export to file in plain textual GEDCOM
@@ -46,6 +48,45 @@ Such a function could be for example a link-node-diagram like [TAM](https://gith
 The [TAM] and [Lineage] functions are provided as their own independent modules.
 
 This module can be operated in addition to the other 'Clippings Cart' functions or replace them completely.
+
+---
+
+  Note: The module 'lists/family-page' currently (webtrees-2.1.17) has some problems. The corresponding function in the clippings cart tries to avoid these problems. To make the actions in the clippings cart fully available as well as to fix the existing problems for now some modifications have to be done in the webtrees core module 'app/Module/IndividualListModule.php' ...
+
+line 393 - old:
+~~~
+echo view('lists/surnames-table', [
+~~~
+line 393 - new:
+~~~
+echo view('lists/surnames-tableCCE', [
+~~~
+line 452 - old:
+~~~
+'families' => $this->families($tree, $surname, array_keys($all_surnames[$surname] ?? []), $falpha, $show_marnm === 'yes'),
+~~~
+line 452 - new:
+~~~
+'families' => $this->families($tree, $surname, array_keys($surns), $falpha, $show_marnm === 'yes'),
+~~~
+line 457 - old:
+~~~
+'individuals' => $this->individuals($tree, $surname, array_keys($all_surnames[$surname] ?? []), $falpha, $show_marnm === 'yes', false),
+~~~
+line 457 - new:
+~~~
+'individuals' => $this->individuals($tree, $surname, array_keys($surns), $falpha, $show_marnm === 'yes', false),
+~~~
+line 711 - old:
+~~~
+$query->whereIn($this->binaryColumn('n_surname'), $surnames);
+~~~
+line 711 - new:
+~~~
+$query->whereIn('n_surname', $surnames);
+~~~
+
+---
 
 <a name="requirements"></a>
 ## Requirements
@@ -100,7 +141,7 @@ Special thanks to [hartenthaler](https://github.com/hartenthaler/) for providing
 
 This module was originally derived from the [Vesta clippings cart](https://github.com/vesta-webtrees-2-custom-modules/vesta_clippings_cart) module.
 
-* Copyright (C) 2022 huhwt - EW.H
+* Copyright (C) 2022/2023 huhwt - EW.H
 * Copyright (C) 2021 Hermann Hartenthaler
 * Copyright (C) 2021 Richard Cissée. All rights reserved.
 * Derived from **webtrees** - Copyright 2022 webtrees development team.
