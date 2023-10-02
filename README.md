@@ -57,15 +57,27 @@ line 393 - old:
 ~~~
 echo view('lists/surnames-table', [
 ~~~
-line 393 - new:
+line 393 - new ( this mod will give you an information on the count of names in the table in the table's header )
 ~~~
 echo view('lists/surnames-tableCCE', [
+~~~
+line 412-414 old:
+~~~
+$surns         = array_values(array_map(static fn ($x): array => array_keys($x), $surns));
+$surns         = array_merge(...$surns);
+$givn_initials = $this->givenNameInitials($tree, $surns, $show_marnm === 'yes', $this->families);
+~~~
+line 412-414 new ( this mod will keep the array of surns untouched in the case that the number of persons recorded under an initial letter is > 200 )
+~~~
+$_surns         = array_values(array_map(static fn ($x): array => array_keys($x), $surns));                 // EW.H - MOD ... don't overwrite surns!
+$_surns         = array_merge(...$_surns);                                                                  // EW.H - MOD ...
+$givn_initials = $this->givenNameInitials($tree, $_surns, $show_marnm === 'yes', $this->families);          // EW.H - MOD ...
 ~~~
 line 452 - old:
 ~~~
 'families' => $this->families($tree, $surname, array_keys($all_surnames[$surname] ?? []), $falpha, $show_marnm === 'yes'),
 ~~~
-line 452 - new:
+line 452 - new ( this mod will transfer the complete array of surns )
 ~~~
 'families' => $this->families($tree, $surname, array_keys($surns), $falpha, $show_marnm === 'yes'),
 ~~~
@@ -73,7 +85,7 @@ line 457 - old:
 ~~~
 'individuals' => $this->individuals($tree, $surname, array_keys($all_surnames[$surname] ?? []), $falpha, $show_marnm === 'yes', false),
 ~~~
-line 457 - new:
+line 457 - new ( this mod will transfer the complete array of surns )
 ~~~
 'individuals' => $this->individuals($tree, $surname, array_keys($surns), $falpha, $show_marnm === 'yes', false),
 ~~~
@@ -81,7 +93,7 @@ line 711 - old:
 ~~~
 $query->whereIn($this->binaryColumn('n_surname'), $surnames);
 ~~~
-line 711 - new:
+line 711 - new ( this mod will straightly use the array of surns )
 ~~~
 $query->whereIn('n_surname', $surnames);
 ~~~
