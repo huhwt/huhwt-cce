@@ -134,6 +134,9 @@ msgstr "Datensätze eines Typs"
 msgid "select records to be deleted"
 msgstr "Datensätze zum Löschen auswählen:"
 
+msgid "records created by action"
+msgstr "Datensätze verursacht durch Aktion:"
+
 msgid "You have tried '%s' - it is not implemented yet."
 msgstr "Aktion '%s' geht nicht - ist noch nicht eingebaut"
 

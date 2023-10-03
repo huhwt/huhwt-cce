@@ -10,6 +10,7 @@ use Fisharebest\Webtrees\I18N;
  * @var string               $labelType
  * @var array                $recordTypes (string => int)
  * @var array                $selectedTypes
+ * @var array                $selectedActions
  */
 
 ?>
@@ -24,8 +25,8 @@ use Fisharebest\Webtrees\I18N;
             <?= $label ?>
         </div>
         <div class="col-sm-9 wt-page-options-value">
-            <?php foreach ($options as $value => $label) : ?>
-                <?= view('components/radio', ['label' => $label, 'name' => 'option', 'value' => (string) $value, 'checked' => $value === key($options)]) ?>
+            <?php foreach ($options as $value => $vlabel) : ?>
+                <?= view('components/radio', ['label' => $vlabel, 'name' => 'option', 'value' => (string) $value, 'checked' => $value === key($options)]) ?>
                 <?php if ( $value == 'set of records by type' ) : ?>
                     <div class="col-sm-9 wt-page-options-value pt-2">
                         <div id="delete-types">
@@ -36,7 +37,16 @@ use Fisharebest\Webtrees\I18N;
                             <?php endforeach ?>
                         </div>
                     </div>
+                <?php elseif ( $value == 'records created by action' ) : ?>
+                    <div class="col-sm-9 wt-page-options-value pt-2">
+                        <div id="delete-actions">
+                            <?php foreach ($selectedActions as $sAction) : ?>
+                                <?= view('components/checkbox', ['name' => $sAction, 'id' => 'chkbx-' . $sAction, 'checked' => true, 'value' => $sAction, 'label' => $sAction]) ?>
+                            <?php endforeach ?>
+                        </div>
+                    </div>
                 <?php endif; ?>
+                <hr>
             <?php endforeach; ?>
         </div>
     </div>

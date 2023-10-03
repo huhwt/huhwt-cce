@@ -220,10 +220,10 @@ class ClippingsCartEnhanced extends ClippingsCartModule
     ];
 
     // What are the options to delete records in the clippings cart?
-    private const EMPTY_FORCE    = 'Deleta all records';
-    private const EMPTY_ALL      = 'all records';
-    private const EMPTY_SET      = 'set of records by type';
-    private const EMPTY_SELECTED = 'select records to be deleted';
+    private const EMPTY_FORCE     = 'Deleta all records';
+    private const EMPTY_ALL       = 'all records';
+    private const EMPTY_SET       = 'set of records by type';
+    private const EMPTY_CREATED   = 'records created by action';
 
     // Routes that have a record which can be added to the clipboard
     private const ROUTES_WITH_RECORDS = [
@@ -450,7 +450,6 @@ class ClippingsCartEnhanced extends ClippingsCartModule
         assert($request instanceof ServerRequestInterface);
 
         $route = Validator::attributes($request)->route();
-        // $Qparams = Validator::queryParams($request);
         $params = $_GET;
 
 
@@ -481,9 +480,7 @@ class ClippingsCartEnhanced extends ClippingsCartModule
         $submenus[] = $this->addMenuAddGlobalRecordSets($tree);
 
         if (!$this->isCartEmpty($tree)) {
-            if (!array_key_exists('xref', $route->attributes))
-                if ($action !== false)
-                    $submenus[] = $this->addMenuEmptyForce($tree, $action, $params);
+            $submenus[] = $this->addMenuEmptyForce($tree);
             $submenus[] = $this->addMenuDeleteRecords($tree);
             $submenus[] = $this->addMenuExecuteAction($tree);
         }
@@ -563,9 +560,9 @@ class ClippingsCartEnhanced extends ClippingsCartModule
      *
      * @return Menu|null
      */
-    private function addMenuEmptyForce (Tree $tree, string $action, array $params): ?Menu    {
-        if ($params) {
-            $params['called_by'] = $action;
+    private function addMenuEmptyForce (Tree $tree): ?Menu    {
+        // if ($params) {
+            $params['called_by'] = $_SERVER["REQUEST_URI"];
             return new Menu(I18N::translate('Delete records in the clippings cart entirely'),
             route('module', [
                 'module' => $this->name(),
@@ -573,9 +570,9 @@ class ClippingsCartEnhanced extends ClippingsCartModule
                 'tree'   => $tree->name(),
                 'params' => $params,
             ]), 'menu-clippings-add', ['rel' => 'nofollow']);
-        } else {
-            return null;
-        }
+        // } else {
+        //     return null;
+        // }
 }
     /**
      * @param Tree $tree
@@ -1507,7 +1504,7 @@ class ClippingsCartEnhanced extends ClippingsCartModule
         if (count($recordTypes) > 1) {
             // $recordTypesList = implode(', ', array_keys($recordTypes));
             $options[self::EMPTY_SET] = I18N::translate(self::EMPTY_SET) . ':'; // . $recordTypesList;
-            $options[self::EMPTY_SELECTED] = I18N::translate(self::EMPTY_SELECTED);
+            $options[self::EMPTY_CREATED] = I18N::translate(self::EMPTY_CREATED);
             $i = 0;
             foreach ($recordTypes as $type => $count) {
                 $selectedTypes[$i] = 0;
@@ -1517,6 +1514,8 @@ class ClippingsCartEnhanced extends ClippingsCartModule
             $headingTypes = '';
         }
 
+        $selectedActions = $this->getCartActs($tree);
+
         return $this->viewResponse($this->name() . '::' . 'empty', [
             'module'         => $this->name(),
             'options'        => $options,
@@ -1525,6 +1524,7 @@ class ClippingsCartEnhanced extends ClippingsCartModule
             'labelType'      => $labelType,
             'recordTypes'    => $recordTypes,
             'selectedTypes'  => $selectedTypes,
+            'selectedActions'=> $selectedActions,
             'tree'           => $tree,
         ]);
     }
@@ -1542,8 +1542,7 @@ class ClippingsCartEnhanced extends ClippingsCartModule
         assert($tree instanceof Tree);
 
         $params = $_GET['params'];
-        $action = $params['called_by'];
-        unset($params['called_by']);
+        $retRoute = $params['called_by'];
 
         $cart = Session::get('cart', []);
         $cart[$tree->name()] = [];
@@ -1552,11 +1551,6 @@ class ClippingsCartEnhanced extends ClippingsCartModule
         $cartAct[$tree->name()] = [];
         Session::put('cartAct', $cartAct);
 
-
-        $callingURI = self::ROUTES_WITH_RECORDS[$action];
-        $trKey = $tree->name();
-        $retRoute = route($callingURI, $params);
-        $retRoute = str_replace('{tree}', $trKey, $retRoute);
         return redirect($retRoute);
     }
     /**
@@ -1596,15 +1590,46 @@ class ClippingsCartEnhanced extends ClippingsCartModule
                 ]);
                 break;
 
+            case self::EMPTY_CREATED:
+                $this->doEmpty_CreatedAction($tree, $request);
+                $url = route('module', [
+                    'module'      => $this->name(),
+                    'action'      => 'Show',
+                    'description' => $this->description(),
+                    'tree'        => $tree->name(),
+                ]);
+                break;
+    
             default;
-            case self::EMPTY_SELECTED:
                 $txt_option = I18N::translate($option);
                 FlashMessages::addMessage(I18N::translate("You have tried '%s' - it is not implemented yet.", e($txt_option)));
                 return redirect((string) $request->getUri());
-                break;
         }
 
         return redirect($url);
+    }
+
+    /**
+     * delete selected types of record from the clippings cart
+     *
+     * @param Tree  $tree
+     * @param ServerRequestInterface $request
+     *
+     */
+    public function doEmpty_CreatedAction(Tree $tree, ServerRequestInterface $request): void
+    {
+        $cartAct = Session::get('cartAct', []);
+        $cartactions = $cartAct[$tree->name()];
+        foreach ($cartactions as $cact => $cval) {
+            $delKey = Validator::parsedBody($request)->string($cact, 'none');  // ... are listed in request
+            if ($delKey !== 'none') 
+                unset($cartAct[$tree->name()][$cact]);
+        }
+        Session::put('cartAct', $cartAct);
+
+        $doRebuild = new RebuildCart($tree, $cartAct[$tree->name()]);
+        $doRebuild->rebuild();
+        
     }
 
     /**
@@ -2071,8 +2096,8 @@ class ClippingsCartEnhanced extends ClippingsCartModule
     {
         $cart = Session::get('cart', []);
         $xrefs = array_keys($cart[$tree->name()] ?? []);
-        $xrefs = array_map('strval', $xrefs);           // PHP converts numeric keys to integers.
-        return $xrefs;
+        $_xrefs = array_map('strval', $xrefs);           // PHP converts numeric keys to integers.
+        return $_xrefs;
     }
 
     /**
