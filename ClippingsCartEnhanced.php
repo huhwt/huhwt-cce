@@ -181,7 +181,7 @@ class ClippingsCartEnhanced extends ClippingsCartModule
     public const CUSTOM_MODULE      = 'huhwt-cce';
     public const CUSTOM_AUTHOR      = 'EW.H / Hermann Hartenthaler';
     public const CUSTOM_WEBSITE     = 'https://github.com/huhwt/' . self::CUSTOM_MODULE . '/';
-    public const CUSTOM_VERSION     = '2.1.17.0';
+    public const CUSTOM_VERSION     = '2.1.17.1-dev';
     public const CUSTOM_LAST        = 'https://github.com/huhwt/' .
                                       self::CUSTOM_MODULE. '/blob/master/latest-version.txt';
 
@@ -1279,34 +1279,28 @@ class ClippingsCartEnhanced extends ClippingsCartModule
                 ]);
                 $redobj = redirect($url);
                 return redirect($url);
-                break;
 
         // From hereon we are dealing with plain textual gedcom 
 
             // all kinds of records in CCE - download as file
             case 'EXECUTE_DOWNLOAD_PLAIN':
                 return $this->cceDownloadAction($request, 'PLAIN', 'DOWNLOAD');
-                break;
 
             // only INDI and FAM records from CCE - download as file
             case 'EXECUTE_DOWNLOAD_IF':
                 return $this->cceDownloadAction($request, 'ONLY_IF', 'DOWNLOAD');
-                break;
 
             // only INDI and FAM records - postprocessing in TAM
             case 'EXECUTE_VISUALIZE_TAM':
                 return $this->cceDownloadAction($request, 'ONLY_IF', 'VIZ=TAM');
-                break;
 
             // only INDI and FAM records - postprocessing in LINEAGE
             case 'EXECUTE_VISUALIZE_LINEAGE':
                 return $this->cceDownloadAction($request, 'ONLY_IF', 'VIZ=LINEAGE');
-                break;
             
             // only INDI and FAM records - postprocessing in LINEAGE
             case 'EXECUTE_VIZ_LINEAGE_OPTNS':
                 return $this->cceDownloadAction($request, 'ONLY_IFS', 'VIZ=LINEAGE');
-                break;
             
             default;
                 break;
