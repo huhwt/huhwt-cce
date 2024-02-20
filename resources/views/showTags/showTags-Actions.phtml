@@ -1,0 +1,57 @@
+<?php
+
+use Fisharebest\Webtrees\GedcomRecord;
+use Fisharebest\Webtrees\I18N;
+use Fisharebest\Webtrees\View;
+use Fisharebest\Webtrees\Tree;
+
+/**
+ * @var string              $module
+ * @var array<>             $tagsLabels
+ * @var string              $tLrouteAjax
+ * @var string              $header_acts
+ * @var Tree                $tree
+ */
+
+?>
+
+<?php asort($tagsLabels); ?>
+
+<h4><?= $header_acts ?></h4>
+
+<?php if ($tagsLabels === []) : ?>
+    <p><?= I18N::translate('No actions executed.'); ?></p>
+<?php else : ?>
+    <?php $count = count($tagsLabels); ?>
+    <?php $Theader = 'CCE-CartActions' ?>
+    <?php $Ttitle = I18N::translate('Click here to toggle highlighting of relevant records on or off'); ?>
+    <table class="table wt-facts-table">
+        <colgroup>
+            <col span="1" style="width: 90%;">
+            <col span="1" style="width: 10%;">
+        </colgroup>
+        <thead>
+            <tr>
+                <th name="<?= $Theader ?>" class="CCE_Theader" ><?= I18N::translate('Records') . ' - ' . I18N::translate($Theader) . ' (' . view('components/badge', ['count' => $count]) . ')'; ?></th>
+                <th class="CCE_Theader"><?= I18N::translate('Action'); ?></th>
+            </tr>
+        </thead>
+        <tbody name="<?= $Theader ?>" style="display:visible" colorsOn="" colorsOff="_;color1;color2;color3;color4;color5;color6">
+            <?php foreach ($tagsLabels as $cartact) : ?>
+                <tr color="">
+                    <td>
+                        <span class="wt-icon-basket"><i class="fas fa-shopping-basket fa-fw" aria-hidden="true"></i></span>
+                        <span title="<?= $Ttitle ?>"><?= $cartact ?></span>
+                    </td>
+                    <td>
+                        <a href="#" rel="nofollow" data-url="<?= $tLrouteAjax ?>" action="CartActRemove" tree="<?= $tree->name() ?>", cartact ="<?= $cartact ?>">
+                            <button type="submit" class="btn btn-link" title="<?= I18N::translate('Remove'); ?>">
+                                <?= view('icons/delete'); ?>
+                            </button>
+                        </a>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
+<?php endif; ?>

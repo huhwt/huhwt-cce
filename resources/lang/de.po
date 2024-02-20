@@ -89,6 +89,15 @@ msgstr "Alle Personen/Familien in diesem Stammbaum - Achtung: wahrscheinlich seh
 msgid "Delete records in the clippings cart"
 msgstr "Datensätze im Sammelbehälter löschen"
 
+msgid "add individuals to the clippings cart"
+msgstr "Personen zum Sammelbehälter hinzufügen"
+
+msgid "add individuals with parents to the clippings cart"
+msgstr "Personen mit Eltern zum Sammelbehälter hinzufügen"
+
+msgid "add individuals and spouses to the clippings cart"
+msgstr "Personen mit Partnern zum Sammelbehälter hinzufügen"
+
 msgid "CCE-Individual"
 msgstr "Personen"
 
@@ -176,8 +185,32 @@ msgstr "Auflistung Sammelaktionen"
 msgid "CCE-CartActions"
 msgstr "Sammelaktionen"
 
+msgid "No actions executed."
+msgstr "Es wurden keine Aktionen ausgeführt."
+
 msgid "Just a moment"
 msgstr "'nen kleinen Augenblick noch"
 
+<<<<<<< Updated upstream
+=======
+msgid "Click here to toggle highlighting of relevant records on or off"
+msgstr "Klicken Sie hier, um die Hervorhebung der entsprechenden Datensätze ein- oder auszuschalten"
+
+msgid "Total number of entries: %s"
+msgstr "Anzahl Einträge gesamt: %s"
+
+msgid "of which new entries: %s"
+msgstr "davon Einträge neu: %s"
+
+msgid "all persons to whom '%s' is linked"
+msgstr "Alle Personen welchen '%s' zugeordnet ist"
+
+msgid "all families to whom '%s' is linked"
+msgstr "Alle Familien welchen '%s' zugeordnet ist"
+
+msgid "Add '%s' to the clippings cart"
+msgstr "'%s' zum Sammelkorb hinzufügen"
+
+>>>>>>> Stashed changes
 msgid ""
 msgstr ""

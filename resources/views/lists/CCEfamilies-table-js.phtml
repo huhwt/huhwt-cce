@@ -1,0 +1,37 @@
+<?php
+
+declare(strict_types=1);
+
+use Fisharebest\Webtrees\Age;
+use Fisharebest\Webtrees\Date;
+use Fisharebest\Webtrees\Individual;
+use Fisharebest\Webtrees\Registry;
+use Fisharebest\Webtrees\Family;
+use Fisharebest\Webtrees\I18N;
+use Fisharebest\Webtrees\Tree;
+use Fisharebest\Webtrees\View;
+use Illuminate\Support\Collection;
+
+
+echo '
+<!--CCE-Javascript goes here -->
+<script>
+if (typeof CCEmen === "undefined") {
+    var CCEmen = document.querySelector(".CCE_Menue");
+    var CCEmenBadge = CCEmen.querySelector("span.badge.bg-secondary");
+}
+    /* collect families and persons */
+const CCEmen_FL = CCEmen.querySelector("#CCE-FAM_LIST");
+if (CCEmen_FL)
+    CCEmen_FL.addEventListener("click", (event) => {
+        exec_Request(event, "", "family", "clipFamilies");
+        });
+
+    /* collect families and persons with their parents */
+const CCEmen_FLwp = CCEmen.querySelector("#CCE-FAM_LISTwp");
+if (CCEmen_FLwp)
+    CCEmen_FLwp.addEventListener("click", (event) => {
+        exec_Request(event, "yes", "family", "clipFamilies");
+        });
+</script>
+';

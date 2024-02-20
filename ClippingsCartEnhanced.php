@@ -6,7 +6,7 @@
  *
  * 
  *
- * Copyright (C) 2022 huhwt. All rights reserved.
+ * Copyright (C) 2022-2024 huhwt. All rights reserved.
  * Copyright (C) 2021 Hermann Hartenthaler. All rights reserved.
  * Copyright (C) 2021 Richard Cissée. All rights reserved.
  *
@@ -106,10 +106,33 @@ use Fisharebest\Webtrees\Module\ModuleMenuTrait;
 use Fisharebest\Webtrees\Module\ClippingsCartModule;
 use Fisharebest\Webtrees\Module\ModuleCustomInterface;
 use Fisharebest\Webtrees\Module\ModuleCustomTrait;
+use Fisharebest\Webtrees\Module\ModuleConfigInterface;
+use Fisharebest\Webtrees\Module\ModuleConfigTrait;
 use Fisharebest\Webtrees\Module\ModuleMenuInterface;
 use Fisharebest\Webtrees\View;
 use SebastianBergmann\Type\VoidType;
+<<<<<<< Updated upstream
 // use HuHwt\WebtreesMods\TAMchart\TAMaction;
+=======
+
+use Fisharebest\Webtrees\Module\ModuleInterface;
+use Fisharebest\Webtrees\Module\ModuleListInterface;
+use HuHwt\WebtreesMods\ClippingsCartEnhanced\ListProcessor;
+use HuHwt\WebtreesMods\ClippingsCartEnhanced\ClippingsCartEnhancedModule;
+
+use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCEmodulesTrait;
+use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCEconfigTrait;
+use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CC_addActions;
+use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCEaddActions;
+use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCEcartActions;
+use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCEdatabaseActions;
+use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCEtagsActions;
+use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCEvizActions;
+use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCElistModulesTrait;
+>>>>>>> Stashed changes
+
+use HuHwt\WebtreesMods\TaggingServiceManager\TaggingServiceManager;
+use HuHwt\WebtreesMods\TaggingServiceManager\TaggingServiceManagerAdapter;
 
 // control functions
 use function app;
@@ -144,10 +167,15 @@ use const PREG_SET_ORDER;
  * Class ClippingsCartEnhanced
  */
 class ClippingsCartEnhanced extends ClippingsCartModule
-                                  implements ModuleCustomInterface, ModuleMenuInterface
+                         implements ModuleCustomInterface, ModuleMenuInterface, ModuleConfigInterface
 {   use ModuleMenuTrait;
+
+    use ModuleConfigTrait;
+    use CCEconfigTrait;
+
     use ModuleCustomTrait;
 
+<<<<<<< Updated upstream
     // List of const for module administration
     public const CUSTOM_TITLE       = 'Clippings cart enhanced';
     public const CUSTOM_DESCRIPTION = 'Add records from your family tree to the clippings cart and execute an action on them.';
@@ -157,6 +185,29 @@ class ClippingsCartEnhanced extends ClippingsCartModule
     public const CUSTOM_VERSION     = '2.1.17.0';
     public const CUSTOM_LAST        = 'https://github.com/huhwt/' .
                                       self::CUSTOM_MODULE. '/blob/master/latest-version.txt';
+=======
+        CCEmodulesTrait::resourcesFolder insteadof ModuleCustomTrait;
+    }
+    /** All constants and functions related to default ClippingsCartModule  */
+    use CC_addActions;
+    /** All constants and functions related to enhancements  */
+    use CCEaddActions {
+        CCEaddActions::addFamilyToCart insteadof CC_addActions;
+        CCEaddActions::addIndividualToCart insteadof CC_addActions;
+    }
+    /** All constants and functions related to handling the Cart  */
+    use CCEcartActions;
+
+    use CCEdatabaseActions;
+    /** All constants and functions related to handling the Tags  */
+    use CCEtagsActions;
+    /** All constants and functions related to connecting vizualizations  */
+    use CCEvizActions;
+
+    use CCElistModulesTrait;
+
+    protected const ROUTE_URL = '/tree/{tree}/CCE';
+>>>>>>> Stashed changes
 
     public const SHOW_RECORDS       = 'Records in clippings cart - Execute an action on them.';
     public const SHOW_ACTIONS       = 'Performed actions fo fill the cart.';
@@ -192,9 +243,16 @@ class ClippingsCartEnhanced extends ClippingsCartModule
     ];
 
     // What are the options to delete records in the clippings cart?
+<<<<<<< Updated upstream
     private const EMPTY_ALL      = 'all records';
     private const EMPTY_SET      = 'set of records by type';
     private const EMPTY_SELECTED = 'select records to be deleted';
+=======
+    private const EMPTY_FORCE   = 'Deleta all records';
+    private const EMPTY_ALL     = 'all records';
+    private const EMPTY_SET     = 'set of records by type';
+    private const EMPTY_CREATED = 'records created by action';
+>>>>>>> Stashed changes
 
     // Routes that have a record which can be added to the clipboard
     private const ROUTES_WITH_RECORDS = [
@@ -206,6 +264,11 @@ class ClippingsCartEnhanced extends ClippingsCartModule
         'Repository' => RepositoryPage::class,
         'Source'     => SourcePage::class,
         'Submitter'  => SubmitterPage::class,
+<<<<<<< Updated upstream
+=======
+        'FamilyListModule'      => FamilyListModule::class,
+        'IndividualListModule'  => IndividualListModule::class,
+>>>>>>> Stashed changes
     ];
 
     // Types of records
@@ -215,7 +278,7 @@ class ClippingsCartEnhanced extends ClippingsCartModule
     // This can cause problems when passing to interfaces and functions that 
     // expect a defined sequence of tags.
     // This structure determines the order of the categories in which the 
-    // records are displayed or output for further actions ( function getEmptyAction() and showTypes.phtml )
+    // records are displayed or output for further actions ( function getEmptyAction() and showCart.phtml )
     private const TYPES_OF_RECORDS = [
         'Individual' => Individual::class,
         'Family'     => Family::class,
@@ -239,6 +302,7 @@ class ClippingsCartEnhanced extends ClippingsCartModule
                 'Individual' => Individual::class,
                 'Family'     => Family::class,
                 ],
+<<<<<<< Updated upstream
         ];
 
     private const FILENAME_DOWNL = 'wtcce';
@@ -251,6 +315,24 @@ class ClippingsCartEnhanced extends ClippingsCartModule
 
     /** @var string */
     private string $exportFilenameVIZ;
+=======
+        'ONLY_IFN' => [
+                'Individual' => Individual::class,
+                'Family'     => Family::class,
+                'Note'       => Note::class,
+            ],
+        'ONLY_IFS' => [
+                'Individual' => Individual::class,
+                'Family'     => Family::class,
+                'Source'     => Source::class,
+                ],
+        'ONLY_IFL' => [
+                'Individual' => Individual::class,
+                'Family'     => Family::class,
+                'Location'   => Location::class,
+                ],
+    ];
+>>>>>>> Stashed changes
 
     /** @var int The default access level for this module.  It can be changed in the control panel. */
     protected int $access_level = Auth::PRIV_USER;
@@ -264,8 +346,13 @@ class ClippingsCartEnhanced extends ClippingsCartModule
     /** @var UserService */
     private $user_service;
 
+<<<<<<< Updated upstream
     // /** @var Int */
     // private int $ADD_MAX_GEN;       // EW.H mod ... get only part of tree for TAM-H-Tree
+=======
+    /** @var Tree */
+    private Tree $tree;
+>>>>>>> Stashed changes
 
     /** @var int The number of ancestor generations to be added (0 = proband) */
     private int $levelAncestor;
@@ -273,13 +360,22 @@ class ClippingsCartEnhanced extends ClippingsCartModule
     /** @var int The number of descendant generations to add (0 = proband) */
     private int $levelDescendant;
 
-    // EW.H mod ... Output to TAM
+    // Output to Vizualisation tools
     private const VIZdir           = Webtrees::DATA_DIR . DIRECTORY_SEPARATOR . '_toVIZ';
+
+    // directory for storing CART-structure
+    private string $userDir;
 
     /**
      * @var bool We want to have the GEDCOM-Objects exported as array
      */
     private const DO_DUMP_Ritems   = true;
+
+    /**
+     * Store the cart
+     */
+    private const CARTdir          = Webtrees::DATA_DIR . DIRECTORY_SEPARATOR . '_CART';
+
     /**
      * The label ...
      * @var string
@@ -299,11 +395,54 @@ class ClippingsCartEnhanced extends ClippingsCartModule
     private bool $huhwtlin_checked;
 
     /**
-     * Retrieve all Record-Types
+     * Retrieve all Record-Types - casually we want only a subset of R-T
      * @var boolean
      */
     private bool $all_RecTypes;
 
+<<<<<<< Updated upstream
+=======
+    /**
+     * Retrieve shared notes associated with actual item
+     * @var boolean
+     */
+    private bool $add_sNOTE;
+
+    /**
+     * stub for repeating Webtrees-List-Actions in CCE-compliant manner
+     * @var ListProcessor $listProcessor
+     */
+    private ListProcessor $listProcessor;
+
+    /**
+     * where 'this' is not $this ...
+     * @var ClippingsCartEnhanced $instance
+     */
+    private ClippingsCartEnhanced $instance;
+
+    /**
+     * check if this->instance is set
+     * @var bool $lPdone
+     */
+    private bool $lPdone = false;
+
+    /**
+     * if call is coming from lists we need the origin uri
+     * @var string $callingURI
+     */
+    private string $callingURI = '';
+
+    /**
+     * the active tag descriptor
+     * @var string $activeTAG
+     */
+    private string $activeTAG = '';
+
+    private ModuleService $module_service;
+
+    private bool $TSMok = false;
+
+>>>>>>> Stashed changes
     /** 
      * ClippingsCartModule constructor.
      *
@@ -317,14 +456,18 @@ class ClippingsCartEnhanced extends ClippingsCartModule
         $this->gedcomExportService = $gedcomExportService;
         $this->linkedRecordService = $linkedRecordService;
 
-        $this->levelAncestor       = PHP_INT_MAX;
-        $this->levelDescendant     = PHP_INT_MAX;
-        $this->exportFilenameDOWNL = self::FILENAME_DOWNL;
-        $this->exportFilenameVIZ   = self::FILENAME_VIZ;
+        $this->levelAncestor        = PHP_INT_MAX;
+        $this->levelDescendant      = PHP_INT_MAX;
+        $this->exportFilenameDOWNL  = self::FILENAME_DOWNL;
+        $this->exportFilenameVIZ    = self::FILENAME_VIZ;
         $this->huh = json_decode('"\u210D"') . "&" . json_decode('"\u210D"') . "wt";
-        $this->huhwttam_checked    = false;
-        $this->huhwtlin_checked    = false;
-        $this->all_RecTypes        = true;
+        $this->huhwttam_checked     = false;
+        $this->huhwtlin_checked     = false;
+        $this->all_RecTypes         = true;
+        $this->add_sNOTE            = false;
+        $tagOptions                 = $this->TAGconfigOptions();
+        $this->activeTAG            = $tagOptions[(int) $this->getPreference('TAG_Option', '0')];
+
         // EW.H mod ... read TAM-Filename from Session, otherwise: Initialize
         if (Session::has('FILENAME_VIZ')) {
             $this->exportFilenameVIZ = Session::get('FILENAME_VIZ');
@@ -333,14 +476,28 @@ class ClippingsCartEnhanced extends ClippingsCartModule
             Session::put('FILENAME_VIZ', $this->exportFilenameVIZ);
         }
 
+<<<<<<< Updated upstream
         parent::__construct($gedcomExportService, $linkedRecordService);
 
+=======
+>>>>>>> Stashed changes
         // EW.H mod ... we want a subdir of Webtrees::DATA_DIR for storing dumps and so on
         // - test for and create it if it not exists
         if(!is_dir(self::VIZdir)){
             //Directory does not exist, so lets create it.
             mkdir(self::VIZdir, 0755);
+<<<<<<< Updated upstream
         }    
+=======
+        }
+
+        // A subdir of Webtrees::DATA_DIR for storing Session::cart-structure
+        if(!is_dir(self::CARTdir)){
+            //Directory does not exist, so lets create it.
+            mkdir(self::CARTdir, 0755);
+        }
+
+>>>>>>> Stashed changes
     }
 
 
@@ -357,6 +514,11 @@ class ClippingsCartEnhanced extends ClippingsCartModule
      *      AddRepository:   add repository record
      *      AddSource:       add source record
      *      AddSubmitter:    add submitter record
+<<<<<<< Updated upstream
+=======
+     *      FamilyList:      add collected XREFs                                              -> ClippingsCartEnhancedModule.php
+     *      IndividualList:  add collected XREFs                                              -> ClippingsCartEnhancedModule.php
+>>>>>>> Stashed changes
      * Global:          add global sets of records (partner chains, circles)
      * Empty:           delete records in clippings cart
      * Execute:         execute an action on records in the clippings cart (export to GEDCOM file, visualize)
@@ -372,12 +534,39 @@ class ClippingsCartEnhanced extends ClippingsCartModule
         assert($request instanceof ServerRequestInterface);
 
         $route = Validator::attributes($request)->route();
+<<<<<<< Updated upstream
+=======
+        $params = $_GET;
+
+        $this->tree = $tree;
+>>>>>>> Stashed changes
+
+        // we need a subdir for each tree ...
+        $treeDir = self::CARTdir . DIRECTORY_SEPARATOR . $tree->name();
+        if(!is_dir($treeDir)){
+            mkdir($treeDir, 0755);
+        }
+        // ... and also for each user
+        $user = Validator::attributes($request)->user();
+        $userDir = $treeDir . DIRECTORY_SEPARATOR . $user->userName();
+        if(!is_dir($userDir)){
+            mkdir($userDir, 0755);
+        }
+        Session::put('userDir', $userDir);
 
         // clippings cart is an array in the session specific for each tree
+<<<<<<< Updated upstream
         $cart  = Session::get('cart', []);
         $cart  = is_array($cart) ? $cart : [];
+=======
+        $cart  = $this->get_Cart();
+>>>>>>> Stashed changes
 
         $submenus = [$this->addMenuClippingsCart($tree, $cart)];
+
+        $TSMok = ($this->TSMok && str_contains($_SERVER['REQUEST_URI'], '/ShowCart/'));
+        if ($TSMok)
+            $submenus[] = $this->addMenuTaggingService($tree);
 
         $action = array_search($route->name, self::ROUTES_WITH_RECORDS, true);
         if ($action !== false) {
@@ -405,12 +594,28 @@ class ClippingsCartEnhanced extends ClippingsCartModule
         $count = count($cart[$tree->name()] ?? []);
         $badge = view('components/badge', ['count' => $count]);
 
-        // return new Menu(I18N::translate('Records in %s ', $this->title()) . $badge,
         return new Menu(I18N::translate('Records in clippings cart') . $badge,
             route('module', [
                 'module'      => $this->name(),
-                'action'      => 'Show',
-                'description' => $this->description(),
+                'action'      => 'ShowCart',
+                'tree'        => $tree->name(),
+            ]), 'menu-clippings-cart', ['rel' => 'nofollow', 'id' => 'CCEbadge']);
+    }
+
+    /**
+     * @param Tree $tree
+     * @param array $cart
+     *
+     * @return Menu
+     */
+    private function addMenuTaggingService (Tree $tree): Menu
+    {
+        $TSMname = "_huhwt-tsm_"; // app(TaggingServiceManagerModule::class)->name();
+
+        return new Menu(I18N::translate('Transfer to tagging service'),
+            route('module', [
+                'module'      => $TSMname,
+                'action'      => 'TaggingService',
                 'tree'        => $tree->name(),
             ]), 'menu-clippings-cart', ['rel' => 'nofollow']);
     }
@@ -427,6 +632,7 @@ class ClippingsCartEnhanced extends ClippingsCartModule
         $xref = $route->attributes['xref'];
         assert(is_string($xref));
 
+<<<<<<< Updated upstream
         return new Menu(I18N::translate('Add this record to the clippings cart'),
             route('module', [
                 'module' => $this->name(),
@@ -434,6 +640,87 @@ class ClippingsCartEnhanced extends ClippingsCartModule
                 'xref'   => $xref,
                 'tree'   => $tree->name(),
             ]), 'menu-clippings-add', ['rel' => 'nofollow']);
+=======
+            return new Menu(I18N::translate('Add this record to the clippings cart'),
+                route('module', [
+                    'module' => $this->name(),
+                    'action' => 'Add' . $action,
+                    'xref'   => $xref,
+                    'tree'   => $tree->name(),
+                ]), 'menu-clippings-add', ['rel' => 'nofollow']);
+        } elseif ($params) {
+            return $this->addMenuAddOthers($tree, $route, $action, $params);
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * @param Tree $tree
+     * @param Route $route
+     * @param string $action
+     *
+     * @return Menu|null
+     */
+    private function addMenuAddOthers (Tree $tree, Route $route, string $action, array $params): ?Menu    {
+        if ($action === 'FamilyListModule') {
+            if (array_key_exists('show', $params)) {
+                if ($params['show'] == 'indi') {
+                    // EW.H - MOD ... 
+                    $route_ajax = e(route(ClippingsCartEnhancedModule::class, ['module' => $this->name(), 'tree' => $tree->name()]), false);
+                    $_menu = new Menu(I18N::translate('add families and individuals to the clippings cart'),
+                        '#',
+                        'menu-clippings-add', ['rel' => 'nofollow', 'id' => 'CCE-FAM_LIST', 'data-url' => $route_ajax]);
+                    $route_ajax = e(route(ClippingsCartEnhancedModule::class, ['module' => $this->name(), 'tree' => $tree->name()]));
+                    $_menu_sm = new Menu(I18N::translate('add families and individuals with parents to the clippings cart'),
+                        '#',
+                        'menu-clippings-add', ['rel' => 'nofollow', 'id' => 'CCE-FAM_LISTwp', 'data-url' => $route_ajax]);
+                    $_menu = $_menu->addSubmenu($_menu_sm);
+                    return $_menu;
+                }
+            }
+        }
+        if ($action === 'IndividualListModule') {
+            if (array_key_exists('show', $params)) {
+                if ($params['show'] == 'indi') {
+                    // EW.H - MOD ... 
+                    $route_ajax = e(route(ClippingsCartEnhancedModule::class, ['module' => $this->name(), 'tree' => $tree->name()]), false);
+                    $_menu = new Menu(I18N::translate('add individuals to the clippings cart'),
+                        '#',
+                        'menu-clippings-add', ['rel' => 'nofollow', 'id' => 'CCE-INDI_LIST', 'data-url' => $route_ajax]);
+                    $route_ajax = e(route(ClippingsCartEnhancedModule::class, ['module' => $this->name(), 'tree' => $tree->name()]));
+                    $_menu_sm = new Menu(I18N::translate('add individuals with parents to the clippings cart'),
+                        '#',
+                        'menu-clippings-add', ['rel' => 'nofollow', 'id' => 'CCE-INDI_LISTwp', 'data-url' => $route_ajax]);
+                    $_menu = $_menu->addSubmenu($_menu_sm);
+                    $route_ajax = e(route(ClippingsCartEnhancedModule::class, ['module' => $this->name(), 'tree' => $tree->name()]));
+                    $_menu_sm = new Menu(I18N::translate('add individuals and spouses to the clippings cart'),
+                        '#',
+                        'menu-clippings-add', ['rel' => 'nofollow', 'id' => 'CCE-INDI_LISTws', 'data-url' => $route_ajax]);
+                    $_menu = $_menu->addSubmenu($_menu_sm);
+                    return $_menu;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * @param Tree $tree
+     * @param Route $route
+     *
+     * @return Menu|null
+     */
+    private function addMenuEmptyForce (Tree $tree): ?Menu    {
+        $params['called_by'] = $_SERVER["REQUEST_URI"];
+        return new Menu(I18N::translate('Delete records in the clippings cart entirely'),
+        route('module', [
+            'module' => $this->name(),
+            'action' => 'EmptyForce',
+            'tree'   => $tree->name(),
+            'params' => $params,
+        ]), 'menu-clippings-empty', ['rel' => 'nofollow']);
+>>>>>>> Stashed changes
     }
 
     /**
@@ -486,16 +773,26 @@ class ClippingsCartEnhanced extends ClippingsCartModule
      *
      * @return ResponseInterface
      */
-    public function getShowAction(ServerRequestInterface $request): ResponseInterface
+    public function getShowCartAction(ServerRequestInterface $request): ResponseInterface
     {
         $tree = Validator::attributes($request)->tree();
         assert($tree instanceof Tree);
 
-        $recordTypes = $this->collectRecordsInCart($tree, self::TYPES_OF_RECORDS);
+        $recordTypes      = $this->collectRecordsInCart($tree, self::TYPES_OF_RECORDS);
 
+<<<<<<< Updated upstream
         $cartActs = $this->getCartActs($tree);
 
         return $this->viewResponse($this->name() . '::' . 'showTypes', [
+=======
+        $this->cartXREFs  = $this->getXREFstruct($tree);
+
+        $cartActs         = $this->get_CartActs($tree);
+
+        $cAroute_ajax     = e(route(ClippingsCartEnhancedModule::class, ['module' => $this->name(), 'tree' => $tree->name()]));
+
+        return $this->viewResponse($this->name() . '::' . 'showCart/showCart', [
+>>>>>>> Stashed changes
             'module'      => $this->name(),
             'types'       => self::TYPES_OF_RECORDS,
             'recordTypes' => $recordTypes,
@@ -984,14 +1281,22 @@ class ClippingsCartEnhanced extends ClippingsCartModule
 
         switch ($option) {
             case self::ADD_ALL_PARTNER_CHAINS:
+<<<<<<< Updated upstream
                 $this->cartAct($tree, 'ALL_PARTNER_CHAINS', 'all');
+=======
+                $this->put_CartActs($tree, 'ALL_PARTNER_CHAINS', 'all');
+>>>>>>> Stashed changes
                 $_dname = 'wtVIZ-DATA~all partner chains';
                 $this->putVIZdname($_dname);
                 $this->addPartnerChainsGlobalToCart($tree);
                 break;
 
             case self::ADD_COMPLETE_GED:
+<<<<<<< Updated upstream
                 $this->cartAct($tree, 'COMPLETE', 'GED');
+=======
+                $this->put_CartActs($tree, 'COMPLETE', 'GED');
+>>>>>>> Stashed changes
                 $_dname = 'wtVIZ-DATA~complete GED';
                 $this->putVIZdname($_dname);
                 $this->addCompleteGEDtoCart($tree);
@@ -1003,7 +1308,11 @@ class ClippingsCartEnhanced extends ClippingsCartModule
     
             default;
             case self::ADD_ALL_CIRCLES:
+<<<<<<< Updated upstream
                 $this->cartAct($tree, 'ALL_CIRCLES', 'all');
+=======
+                $this->put_CartActs($tree, 'ALL_CIRCLES', 'all');
+>>>>>>> Stashed changes
                 $_dname = 'wtVIZ-DATA~all circles';
                 $this->putVIZdname($_dname);
                 $this->addAllCirclesToCart($tree);
@@ -1012,7 +1321,7 @@ class ClippingsCartEnhanced extends ClippingsCartModule
 
         $url = route('module', [
             'module'      => $this->name(),
-            'action'      => 'Show',
+            'action'      => 'ShowCart',
             'description' => $this->description(),
             'tree'        => $tree->name(),
         ]);
@@ -1091,6 +1400,15 @@ class ClippingsCartEnhanced extends ClippingsCartModule
 
         $option = Validator::parsedBody($request)->string('option', 'none');
 
+        $viz_filter = 'ONLY_IF';
+
+        switch (true) {
+            case $this->add_sNOTE:
+                $viz_filter = 'ONLY_IFN';
+                break;
+            default:
+        }
+
         switch ($option) {
         // We want to download gedcom as zip ...
             // ... we use the default download-action
@@ -1118,6 +1436,7 @@ class ClippingsCartEnhanced extends ClippingsCartModule
 
             // only INDI and FAM records - postprocessing in TAM
             case 'EXECUTE_VISUALIZE_TAM':
+<<<<<<< Updated upstream
                 return $this->cceDownloadAction($request, 'ONLY_IF', 'VIZ=TAM');
                 break;
 
@@ -1126,13 +1445,21 @@ class ClippingsCartEnhanced extends ClippingsCartModule
                 return $this->cceDownloadAction($request, 'ONLY_IF', 'VIZ=LINEAGE');
                 break;
             
+=======
+                return $this->cceDownloadAction($request, $viz_filter, 'VIZ=TAM');
+
+            // only INDI and FAM records - postprocessing in LINEAGE
+            case 'EXECUTE_VISUALIZE_LINEAGE':
+                return $this->cceDownloadAction($request, $viz_filter, 'VIZ=LINEAGE');
+
+>>>>>>> Stashed changes
             default;
                 break;
 
         }
         $url = route('module', [
             'module' => $this->name(),
-            'action' => 'Show',
+            'action' => 'ShowCart',
             'tree'   => $tree->name(),
         ]);
         return redirect($url);
@@ -1167,7 +1494,7 @@ class ClippingsCartEnhanced extends ClippingsCartModule
         if ($this->isCartEmpty($tree)) {
             $url = route('module', [
                 'module' => $this->name(),
-                'action' => 'Show',
+                'action' => 'ShowCart',
                 'tree'   => $tree->name(),
             ]);
             return redirect($url);
@@ -1188,6 +1515,7 @@ class ClippingsCartEnhanced extends ClippingsCartModule
             }
         }
 
+<<<<<<< Updated upstream
         $records = $this->getRecordsForExport($tree, $xrefs, $accessLevel);
 
         $tmp_stream = fopen('php://temp', 'wb+');
@@ -1203,12 +1531,18 @@ class ClippingsCartEnhanced extends ClippingsCartModule
         $stream_factory = app(StreamFactoryInterface::class);
         assert($stream_factory instanceof StreamFactoryInterface);
 
+=======
+>>>>>>> Stashed changes
         /**
          *  We want to download the plain gedcom ...
          */
 
         if ( $action == 'DOWNLOAD' ) {
+<<<<<<< Updated upstream
             $http_stream = $stream_factory->createStreamFromResource($tmp_stream);
+=======
+            $records = $this->getRecordsForDownload($tree, $xrefs, $accessLevel);
+>>>>>>> Stashed changes
 
             $download_filename = $this->exportFilenameDOWNL;
             if ( $todo == 'ONLY_IF' ) {
@@ -1221,12 +1555,36 @@ class ClippingsCartEnhanced extends ClippingsCartModule
         }
 
         /**
-         *  We want to postprocess the gedcom in a Vizualising-Tool ...
+         * We want to postprocess the gedcom in a Vizualising-Tool ...
          * 
-         *  ... the record objects must be transformed to json
+         * ... and there we want to have additional information in the gedcom ...
+         * ... which has to be protected from filtering 
          */
 
-        // Transform record-Objects to simple php-Array-Items
+        $v_xrefs = [];                                      // xrefs for additional information we want to keep in gedcom
+
+         // we have tagged xrefs 
+        // - so we have to add the regarding note-xref
+        $tags = $this->get_TreeTags($tree);
+        if (count($tags)>0) {
+            $TSMadapter = app(TaggingServiceManagerAdapter::class);
+            $INFOdata = $TSMadapter->getNotes_All($tree);
+        } else {
+            $INFOdata = $this->getNotes_All($tree);
+        }
+        if ($INFOdata) {
+            $_nxrefsk   = array_keys($INFOdata['Nxrefs']);
+            $_nxrefs    = array_map('strval', $_nxrefsk);
+            $v_xrefs    = array_merge($v_xrefs, $_nxrefs);
+        } else {
+            $INFOdata = [];
+        }
+
+        Session::put('INFOdata', json_encode($INFOdata));
+
+        $records = $this->getRecordsForVizualisation($tree, $xrefs, $v_xrefs, $accessLevel);
+
+         // Transform record-Objects to simple php-Array-Items
         $o_items = [];
         foreach ($records as $ritem) {
             $o_items[] = $ritem;
@@ -1251,7 +1609,10 @@ class ClippingsCartEnhanced extends ClippingsCartModule
         // We want to have the gedcom as external file too
         $this->dumpArray($arr_string,  $action . 'gedcom');
 
-        // Encode the array into a JSON string.
+        /**
+         *  ... the record objects must be transformed to json
+         */
+
         $encodedString = json_encode($arr_string);
 
         switch ($action) {
@@ -1280,7 +1641,7 @@ class ClippingsCartEnhanced extends ClippingsCartModule
                     Session::put('wt2LINgedcom', $encodedString);
                     Session::put('wt2LINaction', 'wt2LINgedcom');
                     Session::put('wt2LINxrefsI', $recordTypes['Individual']);
-                    // Switch over to TAMaction-Module
+                    // Switch over to LINaction-Module
                     // TODO : 'module' is hardcoded - how to get the name from foreign PHP-class 'LINaction'?
                     $url = route('module', [
                         'module' => '_huhwt-wtlin_',
@@ -1332,6 +1693,11 @@ class ClippingsCartEnhanced extends ClippingsCartModule
             $headingTypes = '';
         }
 
+<<<<<<< Updated upstream
+=======
+        $selectedActions = $this->get_CartActs($tree);
+
+>>>>>>> Stashed changes
         return $this->viewResponse($this->name() . '::' . 'empty', [
             'module'         => $this->name(),
             'options'        => $options,
@@ -1345,6 +1711,59 @@ class ClippingsCartEnhanced extends ClippingsCartModule
     }
 
     /**
+<<<<<<< Updated upstream
+=======
+     * save the cart-xrefs to file
+     *
+     * @param ServerRequestInterface $request
+     *
+     * @return ResponseInterface
+     */
+    private function getCartSave(ServerRequestInterface $request): ResponseInterface
+    {
+        $tree = Validator::attributes($request)->tree();
+
+        $t_cartAct      = $this->get_CartActs($tree);
+
+        $t_xrefs        = $this->get_CartXrefs($tree);
+
+        $title = I18N::translate('Save Cart');
+        $label = I18N::translate('File name');
+
+        $CartDname      = Session::get('userDir');
+        $CartFname      = date("Ymd His") . '-Cart.txt';
+
+        $url = route('module', [
+            'module'      => $this->name(),
+            'action'      => 'ShowCart',
+            'description' => $this->description(),
+            'tree'        => $tree->name(),
+        ]);
+
+        return redirect($url);
+    }
+
+    /**
+     * delete all records in the clippings cart or delete a set grouped by type of records
+     *
+     * @param ServerRequestInterface $request
+     *
+     * @return ResponseInterface
+     */
+    public function getEmptyForceAction(ServerRequestInterface $request): ResponseInterface
+    {
+        $tree = Validator::attributes($request)->tree();
+        assert($tree instanceof Tree);
+
+        $params = $_GET['params'];
+        $retRoute = $params['called_by'];
+
+        $this->clean_Cart($tree);
+
+        return redirect($retRoute);
+    }
+    /**
+>>>>>>> Stashed changes
      * @param ServerRequestInterface $request
      *
      * @return ResponseInterface
@@ -1356,6 +1775,7 @@ class ClippingsCartEnhanced extends ClippingsCartModule
         $option = Validator::parsedBody($request)->string('option');
 
         switch ($option) {
+<<<<<<< Updated upstream
             case self::EMPTY_ALL:
                 $cart = Session::get('cart', []);
                 $cart[$tree->name()] = [];
@@ -1363,9 +1783,13 @@ class ClippingsCartEnhanced extends ClippingsCartModule
                 $cartAct = Session::get('cartAct', []);
                 $cartAct[$tree->name()] = [];
                 Session::put('cartAct', $cartAct);
+=======
+            case self::EMPTY_ALL: 
+                $this->clean_Cart($tree);
+>>>>>>> Stashed changes
                 $url = route('module', [
                     'module'      => $this->name(),
-                    'action'      => 'Show',
+                    'action'      => 'ShowCart',
                     'description' => $this->description(),
                     'tree'        => $tree->name(),
                 ]);
@@ -1375,12 +1799,25 @@ class ClippingsCartEnhanced extends ClippingsCartModule
                 $this->doEmpty_SetAction($tree, $request);
                 $url = route('module', [
                     'module'      => $this->name(),
-                    'action'      => 'Show',
+                    'action'      => 'ShowCart',
                     'description' => $this->description(),
                     'tree'        => $tree->name(),
                 ]);
                 break;
 
+<<<<<<< Updated upstream
+=======
+            case self::EMPTY_CREATED:
+                $this->doEmpty_CreatedAction($tree, $request);
+                $url = route('module', [
+                    'module'      => $this->name(),
+                    'action'      => 'ShowCart',
+                    'description' => $this->description(),
+                    'tree'        => $tree->name(),
+                ]);
+                break;
+    
+>>>>>>> Stashed changes
             default;
             case self::EMPTY_SELECTED:
                 $txt_option = I18N::translate($option);
@@ -1427,6 +1864,54 @@ class ClippingsCartEnhanced extends ClippingsCartModule
     }
 
     /**
+     * delete selected types of record from the clippings cart
+     *
+     * @param ServerRequestInterface $request
+     *
+     */
+    private function doEmpty_CreatedAction(Tree $tree, ServerRequestInterface $request): string
+    {
+        $_tree = $tree->name();
+
+        // the actual cartActs
+        $cartAct_s = Session::get('cartActs', []);
+        if (empty($cartAct_s)) 
+            return (string) $this->count_CartTreeXrefs($tree);
+        $cartAct_T = $cartAct_s[$_tree] ?? [];
+        if (empty($cartAct_T)) 
+            return (string) $this->count_CartTreeXrefs($tree);
+
+        $cart = Session::get('cart', []);
+        $cartT = $cart[$_tree] ?? [];
+        if (!empty($cartT)) {
+            foreach ($cartAct_T as $cartAct => $val) {                                        // test if any cartAct ...
+                $delKey = Validator::parsedBody($request)->string($cartAct, 'none');  // ... is listed in request
+                if ($delKey !== 'none') {
+                    $cAct = str_contains($cartAct,'|') ? substr($cartAct,0,stripos($cartAct,'|')) : $cartAct;
+                    foreach ($cartT as $xref => $xref_action) {
+                        $xref_actions = explode(';', $xref_action);
+                        $ica = array_search($cAct, $xref_actions);
+                        if (!is_bool($ica)) {
+                            array_splice($xref_actions, $ica,1);
+                            if (count($xref_actions) > 0) {
+                                $xref_action = $xref_actions[0];
+                                if (count($xref_actions) > 1)
+                                    $xref_action = implode(';', $xref_actions);
+                                $cart[$_tree][$xref] = $xref_action;
+                            } else {
+                                unset($cart[$_tree][$xref]);
+                            }
+                        }
+                    }
+                    Session::put('cart', $cart);
+                    $this->clean_CartActs_cact($tree, $cartAct);
+                }
+            }
+        }
+        return (string) $this->count_CartTreeXrefs($tree);
+    }
+
+    /**
      * delete one record from the clippings cart
      *
      * @param ServerRequestInterface $request
@@ -1445,7 +1930,7 @@ class ClippingsCartEnhanced extends ClippingsCartModule
 
         $url = route('module', [
             'module'      => $this->name(),
-            'action'      => 'Show',
+            'action'      => 'ShowCart',
             'description' => $this->description(),
             'tree'        => $tree->name(),
         ]);
@@ -1454,6 +1939,7 @@ class ClippingsCartEnhanced extends ClippingsCartModule
     }
 
     /**
+<<<<<<< Updated upstream
      * delete one record from the clippings cart
      *
      * @param ServerRequestInterface $request
@@ -1506,6 +1992,8 @@ class ClippingsCartEnhanced extends ClippingsCartModule
     }
 
     /**
+=======
+>>>>>>> Stashed changes
      * get access level based on selected option and user level
      *
      * @param string $privatizeExport
@@ -1845,6 +2333,7 @@ class ClippingsCartEnhanced extends ClippingsCartModule
     }
 
     /**
+<<<<<<< Updated upstream
      * Get the Xrefs in the clippings cart.
      *
      * @param Tree $tree
@@ -1860,6 +2349,8 @@ class ClippingsCartEnhanced extends ClippingsCartModule
     }
 
     /**
+=======
+>>>>>>> Stashed changes
      * Get the records in the clippings cart. 
      * There may be use cases where it makes sense to output the records sorted
      * by their Xrefs, but for our purposes it is rather disadvantageous,
@@ -1872,7 +2363,7 @@ class ClippingsCartEnhanced extends ClippingsCartModule
      */
     private function getRecordsInCart(Tree $tree, bool $do_sort=false): array
     {
-        $xrefs = $this->getXrefsInCart($tree);
+        $xrefs = $this->get_CartXrefs($tree);
         $records = array_map(static function (string $xref) use ($tree): ?GedcomRecord {
             return Registry::gedcomRecordFactory()->make($xref, $tree);
         }, $xrefs);
@@ -1917,7 +2408,7 @@ class ClippingsCartEnhanced extends ClippingsCartModule
      * @throws FileExistsException
      * @throws FileNotFoundException
      */
-    private function getRecordsForExport(Tree $tree, array $xrefs, int $access_level): Collection
+    private function getRecordsForDownload(Tree $tree, array $xrefs, int $access_level): Collection
     {
         $records = new Collection();
         foreach ($xrefs as $xref) {
@@ -1934,6 +2425,8 @@ class ClippingsCartEnhanced extends ClippingsCartModule
 
     /**
      * remove links to objects that aren't in the cart
+     * - the resulting gedcom shall not contain any references that are not also included in the cart
+     *   so that the gedcom is well formed as a continuum including all referenced informations
      *
      * @param string $record
      * @param array $xrefs
@@ -1964,6 +2457,7 @@ class ClippingsCartEnhanced extends ClippingsCartModule
     }
 
     /**
+<<<<<<< Updated upstream
      * Recursive function to traverse the tree and add the ancestors
      *
      * @param Individual $individual
@@ -2026,6 +2520,70 @@ class ClippingsCartEnhanced extends ClippingsCartModule
                 }
             }
         }
+=======
+     * get GEDCOM records from array with XREFs ready to export them
+     * to Vizualisation-Modules - we want some references to be kept as 
+     * informations in graphs
+     *
+     * @param Tree $tree
+     * @param array $xrefs
+     * @param array $v_xrefs
+     * @param int $access_level
+     *
+     * @return Collection
+     */
+    private function getRecordsForVizualisation(Tree $tree, array $xrefs, array $v_xrefs, int $access_level): Collection
+    {
+        $records = new Collection();
+        foreach ($xrefs as $xref) {
+            $object = Registry::gedcomRecordFactory()->make($xref, $tree);
+            // The object may have been deleted since we added it to the cart ...
+            if ($object instanceof GedcomRecord) {
+                $record = $object->privatizeGedcom($access_level);
+                $record = $this->removeLinksToUnusedObjectsL23($record, $xrefs, $v_xrefs);
+                $records->add($record);
+            }
+        }
+        return $records;
+    }
+
+    /**
+     * remove links to objects that aren't in the cart
+     * - the resulting gedcom shall not contain any references that are not also included in the cart
+     *   so that the gedcom is well formed as a continuum including all referenced informations
+     * - BUT we want some informations to be holded so we have added the regarding xrefs to a second array
+     *   we have to check for too
+     *
+     * @param string $record
+     * @param array $xrefs
+     * @param array $v_xrefs
+     *
+     * @return string
+     */
+    private function removeLinksToUnusedObjectsL23(string $record, array $xrefs, array $v_xrefs): string
+    {
+        preg_match_all('/\n1 ' . Gedcom::REGEX_TAG . ' @(' . Gedcom::REGEX_XREF . ')@(\n[2-9].*)*/', $record, $matches, PREG_SET_ORDER);
+        foreach ($matches as $match) {
+            if (!in_array($match[1], $xrefs, true)) {
+                if( !in_array($match[1], $v_xrefs, true)) {
+                    $record = str_replace($match[0], '', $record);
+                }
+            }
+        }
+        preg_match_all('/\n2 ' . Gedcom::REGEX_TAG . ' @(' . Gedcom::REGEX_XREF . ')@(\n[3-9].*)*/', $record, $matches, PREG_SET_ORDER);
+        foreach ($matches as $match) {
+            if (!in_array($match[1], $xrefs, true)) {
+                $record = str_replace($match[0], '', $record);
+            }
+        }
+        preg_match_all('/\n3 ' . Gedcom::REGEX_TAG . ' @(' . Gedcom::REGEX_XREF . ')@(\n[4-9].*)*/', $record, $matches, PREG_SET_ORDER);
+        foreach ($matches as $match) {
+            if (!in_array($match[1], $xrefs, true)) {
+                $record = str_replace($match[0], '', $record);
+            }
+        }
+        return $record;
+>>>>>>> Stashed changes
     }
 
     /**
@@ -2189,6 +2747,21 @@ class ClippingsCartEnhanced extends ClippingsCartModule
      */
     public function boot(): void
     {
+<<<<<<< Updated upstream
+=======
+
+        $router = Registry::routeFactory()->routeMap();
+
+        $router->attach('', '/tree/{tree}', static function (Map $router) {
+
+            $router->get(ClippingsCartEnhancedModule::class, '/CCE')
+                ->allows(RequestMethodInterface::METHOD_POST);
+
+            $router->get(ClippingsCartEnhanced::class, '');
+
+        });
+
+>>>>>>> Stashed changes
         // Here is also a good place to register any views (templates) used by the module.
         // This command allows the module to use: view($this->name() . '::', 'fish')
         // to access the file ./resources/views/fish.phtml
@@ -2218,6 +2791,7 @@ class ClippingsCartEnhanced extends ClippingsCartModule
         return $this->FILENAME_VIZ;
     }
 
+<<<<<<< Updated upstream
     /**
      * The name of Output to VIZ-Extension
      *
@@ -2238,6 +2812,28 @@ class ClippingsCartEnhanced extends ClippingsCartModule
         $this->VIZ_DSNAME = $_dname;
         Session::put('VIZ_DSname', $this->VIZ_DSNAME);          // EW.H mod ... save it to Session
         return $this->VIZ_DSNAME;
+=======
+        View::registerCustomView('::lists/individuals-table', $this->name() . '::lists/CCEindividuals-table');
+        View::registerCustomView('::lists/CCEindividuals-table-js', $this->name() . '::lists/CCEindividuals-table-js');
+
+        View::registerCustomView('::save-cart', $this->name() . '::save-cart');
+        View::registerCustomView('::modals/saveCart', $this->name() . '::modals/CCEsaveCart');
+        View::registerCustomView('::modals/footer-save-cancelCCE', $this->name() . '::modals/CCEfooter-save-cancel');
+        View::registerCustomView('::modals/footer-checkedCCE', $this->name(). '::modals/CCEfooter-checked');
+        View::registerCustomView('::icons/file-import', $this->name(). '::icons/file-import');
+        View::registerCustomView('::icons/file-export', $this->name(). '::icons/file-export');
+        View::registerCustomView('::icons/redoCCE', $this->name(). '::icons/redo');
+        View::registerCustomView('::modals/CartSavedCCE', $this->name() . '::modals/CCE-CartSaved');
+        View::registerCustomView('::modals/loadCart', $this->name() . '::modals/CCEloadCart');
+        View::registerCustomView('::modals/CartLoadedCCE', $this->name() . '::modals/CCE-CartLoaded');
+
+        $CCEjs = $this->resourcesFolder() . 'js/CCEtable-actions.js';
+        Session::put('CCEtable-actions.js', $CCEjs);
+        $CCEcss = $this->resourcesFolder() . 'css/CCEtable-actions.css';
+        Session::put('CCEtable-actions.css', $CCEcss);
+
+        $this->TSMok = class_exists(TaggingServiceManager::class, true);
+>>>>>>> Stashed changes
     }
 
     /**

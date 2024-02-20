@@ -1,0 +1,72 @@
+<?php
+
+use Fisharebest\Webtrees\GedcomRecord;
+use Fisharebest\Webtrees\I18N;
+use Fisharebest\Webtrees\View;
+use Fisharebest\Webtrees\Tree;
+
+/**
+ * @var string              $module
+ * @var array<GedcomRecord> $types
+ * @var array<>             $recordTypes
+ * @var string              $title
+ * @var string              $header_recs
+ * @var string              $header_acts
+ * @var array<>             $cartActions
+ * @var string              $cArouteAjax
+ * @var array<>             $cartXREFs
+ * @var Tree                $tree
+ */
+
+?>
+
+<?php foreach ($types as $key => $class) :      // test if there are records for this type ... ?>
+    <?php if (array_key_exists($key, $recordTypes)) : ?>
+        <?php $records = $recordTypes[$key]; ?>
+        <?php $count = count($records); ?>
+        <?php $Theader = 'CCE-' . $key; ?>
+        <table class="table wt-facts-table CCE-facts-table" style="display:none">
+            <colgroup>
+                <col span="1" style="width: 30%;">
+                <col span="1" style="width: 60%;">
+                <col span="1" style="width: 10%;">
+            </colgroup>
+            <thead>
+                <tr>
+                    <th name="<?= $Theader ?>"  class="CCE_Theader CCE_Rheader"><?= I18N::translate('Records') . ' - ' . I18N::translate($Theader) . ' (' . view('components/CCEbadge', ['count' => $count, 'total' => $count]) . ')'; ?></th>
+                    <th class="dontShow">...</th>
+                    <th class="CCE_Theader"><?= I18N::translate('Action'); ?></th>
+                </tr>
+            </thead>
+            <tbody name="<?= $Theader ?>" style="display:visible">
+                <?php foreach ($records as $record) : ?>
+                    <tr xref="<?= $record->xref() ?>" class="CCE_Rline" style="display:visible" >
+                        <td>
+                            <?= view('icons/record', ['record' => $record]); ?>
+                            <a href="<?= e($record->url()); ?>">
+                                <?= $record->fullName(); ?>
+                            </a>
+                        </td>
+                        <td>
+                            <?php $xref= (string) $record->xref();
+                                    $cAction = $cartXREFs[$xref];
+                                    $xrefActions = explode(";",$cAction);
+                                    foreach ($xrefActions as $xAction) : ?>
+                                    <?= view('components/CCEbadgedText', ['text' => $xAction]); ?>
+                            <?php endforeach; ?>
+                        </td>
+                        <td>
+                            <form method="post" action="<?= e(route('module', ['module' => $module, 'action' => 'Remove', 'tree' => $tree->name(), 'xref' => $record->xref()])); ?>">
+                                <?= csrf_field(); ?>
+                                <button type="submit" class="btn btn-link" title="<?= I18N::translate('Remove'); ?>">
+                                    <?= view('icons/delete'); ?>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+        <div class="lineHalfHeight">&nbsp;</div>
+    <?php endif; ?>
+<?php endforeach; ?>

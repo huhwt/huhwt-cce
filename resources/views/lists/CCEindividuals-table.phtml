@@ -1,0 +1,58 @@
+<?php
+
+declare(strict_types=1);
+
+use Fisharebest\Webtrees\Age;
+use Fisharebest\Webtrees\Date;
+use Fisharebest\Webtrees\Individual;
+use Fisharebest\Webtrees\Registry;
+use Fisharebest\Webtrees\Family;
+use Fisharebest\Webtrees\I18N;
+use Fisharebest\Webtrees\Session;
+use Fisharebest\Webtrees\Tree;
+use Fisharebest\Webtrees\View;
+use Illuminate\Support\Collection;
+
+
+/**
+ * @var Collection<int,Individual> $individuals
+ * @var bool                       $sosa
+ * @var Tree                       $tree
+ */
+
+// EW.H - MOD ... we want the original view-contents
+$html = View::make('::lists/individuals-table', [
+    'individuals' => $individuals,       // EW.H - MOD ... 
+    'sosa'        => $sosa,
+    'tree'        => $tree,
+]);
+// EW.H - MOD ... and we want to extract the original script-contents
+// ... for to catch the datatable declaration for own purpose
+$html_s = $this->stack('javascript');
+// EW.H - MOD ... there might be multiple scripts included ... 
+$html_siT = strpos($html_s,'").dataTable({');                               // ... so we search for a significant term ...
+$html_siS = strrpos(substr($html_s,0, $html_siT),'<script>');               // ... set back to relevant position ...
+$html_js = substr($html_s,0,($html_siS+9)).'const FLjqdt='.substr($html_s,($html_siS+9));   // ... and inject the catch
+// EW.H - MOD ... we define our own script
+$html_js1 = View::make('lists/CCEindividuals-table-js', []);
+$file = Session::get('CCEtable-actions.js');
+$CCEjs = file_get_contents($file);
+$html_js2 = '<script>
+' . $CCEjs . '
+</script>';
+// EW.H - MOD ... we put all together
+$html_js .= $html_js1 . $html_js2;
+// EW.H - MOD ... now we have to restore the script-contents
+$this->push('javascript');
+echo $html_js;
+$this->endpush();
+
+$file = Session::get('CCEtable-actions.css');
+$html_css = '<style type="text/css">
+' . file_get_contents($file) . '
+</style>';
+$this->push('styles');
+echo $html_css;
+$this->endpush();
+
+echo $html;

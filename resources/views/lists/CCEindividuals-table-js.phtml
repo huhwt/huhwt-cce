@@ -1,0 +1,43 @@
+<?php
+
+declare(strict_types=1);
+
+use Fisharebest\Webtrees\Age;
+use Fisharebest\Webtrees\Date;
+use Fisharebest\Webtrees\Individual;
+use Fisharebest\Webtrees\Registry;
+use Fisharebest\Webtrees\Family;
+use Fisharebest\Webtrees\I18N;
+use Fisharebest\Webtrees\Tree;
+use Fisharebest\Webtrees\View;
+use Illuminate\Support\Collection;
+
+
+echo '
+<!--CCE-Javascript goes here -->
+<script>
+if (typeof CCEmen === "undefined") {
+    var CCEmen = document.querySelector(".CCE_Menue");
+    var CCEmenBadge = CCEmen.querySelector("span.badge.bg-secondary");
+}
+    /* collect persons */
+const CCEmen_IL = CCEmen.querySelector("#CCE-INDI_LIST");
+if (CCEmen_IL)
+    CCEmen_IL.addEventListener("click", (event) => {
+        exec_Request(event, "", "individual", "clipIndividuals");
+        });
+
+    /* collect persons with their parents */
+const CCEmen_ILwp = CCEmen.querySelector("#CCE-INDI_LISTwp");
+if (CCEmen_ILwp)
+    CCEmen_ILwp.addEventListener("click", (event) => {
+        exec_Request(event, "yes", "individual", "clipIndividuals");
+        });
+    /* collect persons with their spouses */
+const CCEmen_ILws = CCEmen.querySelector("#CCE-INDI_LISTws");
+if (CCEmen_ILws)
+    CCEmen_ILws.addEventListener("click", (event) => {
+        exec_Request(event, "", "individual", "clipIndividuals", "yes");
+        });
+</script>
+';
