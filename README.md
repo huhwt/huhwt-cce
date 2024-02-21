@@ -17,6 +17,14 @@ webtrees-2.1. For webtrees-2.0 use huhwt-cce20.
 
 For features and background of this module please have a look at the above given link.
 
+Attention:
+~~~
+  This module requires to be operated in a PHP 8.2-onward system 
+  environment due to some features not have been available before.
+
+  Systems with PHP 8.1 environment have to use Release 2.1.17.0.
+~~~
+
 ## Contents
 This Readme contains the following main sections
 
@@ -34,15 +42,12 @@ This Readme contains the following main sections
 
 Functions and actions for records are described in detail in the [Hartenthaler module description](/README-CCE.md).
 
-<<<<<<< Updated upstream
-=======
 This module covers all clipping actions covered in the Webtrees standard. In addition, records from 'Family List' and 'Individual List' as well as persons and families from the 'Shared Notes List' can also be taken over. [huhwt-xtv](https://github.com/huhwt/huhwt-xtv) (tree view extended) and [huhwt-mtv](https://github.com/huhwt-mtv) (multi-tree view for admin Action “Check duplicates”) can now also transfer to the clippings cart.
 
 The clipping actions carried out are displayed as an additional overview. Each clipping action done by CCE will be identified (example: INDI~I1 -> Individual I1 Action:'Only this record' - INDI_ANCESTOR_FAMILIES~I1 Action: 'This Person, his ancestors and their families'). You can filter the collected entries according to these actions. Each of these actions can be undone individually.
 
 The cart's content can be stored as files on Server-Side (file location is defined by Tree-Name and User-ID, you may choose your own name). Saved files may be reloaded and added to the actual cart's content.
 
->>>>>>> Stashed changes
 An action initiated by the user then takes place on the records in the clippings cart, such as
 * the export to a GEDCOM zip file, as in the actual clippings cart module
 * the export to file in plain textual GEDCOM
@@ -56,8 +61,6 @@ The [TAM] and [Lineage] functions are provided as their own independent modules.
 
 This module can be operated in addition to the other 'Clippings Cart' functions or replace them completely.
 
-<<<<<<< Updated upstream
-=======
 ~~~
 CAVEAT: Clippings of other 'Clippings Cart' functions can't be precisely identified because of missing references, they will get a generic identifier.
 ~~~
@@ -77,11 +80,11 @@ echo view('lists/surnames-tableCCE', [
 
 ---
 
->>>>>>> Stashed changes
 <a name="requirements"></a>
 ## Requirements
 
-This module requires **webtrees** version 2.1.x.
+This module requires **PHP 8.2** at least.
+This module requires **webtrees** version 2.1.18 at least.
 This module has the same general requirements as [webtrees#system-requirements](https://github.com/fisharebest/webtrees#system-requirements).
 
 <a name="installation"></a>
@@ -89,13 +92,9 @@ This module has the same general requirements as [webtrees#system-requirements](
 
 This section documents installation instructions for this module.
 
-1. Download the [latest release](https://github.com/huhwt/huhwt-cce/releases/latest).
+1. Download the [latest release](https://github.com/huhwt/huhwt-cce-dev/releases/latest). (By now: pre-release!).
 3. Unzip the package into your `webtrees/modules_v4` directory of your web server.
-<<<<<<< Updated upstream
-4. Occasionally rename the folder to `huhwt-cce`. It's safe to overwrite the respective directory if it already exists.
-=======
 4. Occasionally rename the folder to `huhwt-cce`. It's recommended to remove the respective directory if it already exists.
->>>>>>> Stashed changes
 
 <a name="upgrade"></a>
 ## Upgrade
@@ -135,7 +134,7 @@ Special thanks to [hartenthaler](https://github.com/hartenthaler/) for providing
 
 This module was originally derived from the [Vesta clippings cart](https://github.com/vesta-webtrees-2-custom-modules/vesta_clippings_cart) module.
 
-* Copyright (C) 2022 huhwt - EW.H
+* Copyright (C) 2022/2023 huhwt - EW.H
 * Copyright (C) 2021 Hermann Hartenthaler
 * Copyright (C) 2021 Richard Cissée. All rights reserved.
 * Derived from **webtrees** - Copyright 2022 webtrees development team.

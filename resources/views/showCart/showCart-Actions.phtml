@@ -1,50 +1,68 @@
 <?php
 
-use Fisharebest\Webtrees\GedcomRecord;
+/**
+ * webtrees - clippings cart enhanced
+ *
+ * Copyright (C) 2024 huhwt. All rights reserved.
+ *
+ */
+
 use Fisharebest\Webtrees\I18N;
-use Fisharebest\Webtrees\View;
 use Fisharebest\Webtrees\Tree;
 
 /**
  * @var string              $module
  * @var array<>             $cartActions
+ * @var string              $cArouteAjax
  * @var string              $header_acts
  * @var Tree                $tree
  */
 
+$html_subheader = view($module . '::' . 'showCart/showCart-subHeader', [
+    'header_recs' => '<h4>' . $header_acts . '</h4>',
+    'tree'        => $tree,
+]);
+
 ?>
 
-<h4><?= $header_acts ?></h4>
+<?php asort($cartActions); ?>
+
+<?php echo($html_subheader); ?>
 
 <?php if ($cartActions === []) : ?>
     <p><?= I18N::translate('No actions executed.'); ?></p>
 <?php else : ?>
     <?php $count = count($cartActions); ?>
     <?php $Theader = 'CCE-CartActions' ?>
+    <?php $Ttitle = I18N::translate('Click here to toggle highlighting of relevant records on or off'); ?>
     <table class="table wt-facts-table">
+        <colgroup>
+            <col span="1" style="width: 90%;">
+            <col span="1" style="width: 10%;">
+        </colgroup>
         <thead>
             <tr>
                 <th name="<?= $Theader ?>" class="CCE_Theader" ><?= I18N::translate('Records') . ' - ' . I18N::translate($Theader) . ' (' . view('components/badge', ['count' => $count]) . ')'; ?></th>
-                <th><?= I18N::translate('Action'); ?></th>
+                <th class="CCE_Theader"><?= I18N::translate('Action'); ?></th>
             </tr>
         </thead>
-        <tbody name="<?= $Theader ?>" style="visible">
+        <tbody name="<?= $Theader ?>" style="display:visible" colorsOn="" colorsOff="_;color1;color2;color3;color4;color5;color6">
             <?php foreach ($cartActions as $cartact) : ?>
-                <tr>
+                <tr color="">
                     <td>
                         <span class="wt-icon-basket"><i class="fas fa-shopping-basket fa-fw" aria-hidden="true"></i></span>
-                        <span><?= $cartact ?></span>
+                        <span title="<?= $Ttitle ?>"><?= $cartact ?></span>
                     </td>
                     <td>
-                        <form method="post" action="<?= e(route('module', ['module' => $module, 'action' => 'CartActRemove', 'tree' => $tree->name(), 'cartact' => $cartact])); ?>">
-                            <?= csrf_field(); ?>
+                        <a href="#" rel="nofollow" data-url="<?= $cArouteAjax ?>" action="CartActRemove" tree="<?= $tree->name() ?>", cartact ="<?= $cartact ?>">
                             <button type="submit" class="btn btn-link" title="<?= I18N::translate('Remove'); ?>">
                                 <?= view('icons/delete'); ?>
                             </button>
-                        </form>
+                        </a>
                     </td>
                 </tr>
             <?php endforeach; ?>
         </tbody>
     </table>
 <?php endif; ?>
+<?= view('modals/ajax') ?>

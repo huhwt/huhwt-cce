@@ -1,3 +1,10 @@
+/**
+ * webtrees - clippings cart enhanced
+ *
+ * Copyright (C) 2024 huhwt. All rights reserved.
+ *
+ */
+
 function exec_Request(event, _boolWp, _listType, _clipAction, _boolWs = "") {
     let elem = event.target;
     let actURL = window.location.href;
@@ -81,7 +88,7 @@ function showCountPop(XREFcnt) {
         let elem_main = document.getElementsByClassName('CCE_Menue')[0];
         let elem_dpop = document.createElement('div');
         elem_dpop.id = 'CCEpopUp';
-        elem_dpop.classList = 'CCEpopup hidden';
+        elem_dpop.classList = 'CCEpopup CCE-ta-popup hidden';
 
         let elem_dlineS = document.createElement('div');
         elem_dlineS.className = 'pop-line lineS';

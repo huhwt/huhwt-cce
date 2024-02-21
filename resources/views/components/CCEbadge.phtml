@@ -1,0 +1,16 @@
+<?php
+
+declare(strict_types=1);
+
+use Fisharebest\Webtrees\I18N;
+
+/**
+ * @var string|null $context
+ * @var int         $count
+ * @var int|null    $total
+ */
+
+?>
+
+<span class="badge bg-<?= $context ?? 'secondary' ?>"><?= I18N::number($count) ?></span><span class="badge CCEbg-secondary" style="display:visible"> / <?= I18N::number($total) ?></span>
+</span>

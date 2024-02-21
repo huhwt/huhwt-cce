@@ -1,0 +1,69 @@
+<?php
+
+/**
+ * webtrees - clippings cart enhanced
+ *
+ * Copyright (C) 2024 huhwt. All rights reserved.
+ *
+ */
+
+ declare(strict_types=1);
+
+namespace HuHwt\WebtreesMods\ClippingsCartEnhanced;
+
+use Fisharebest\Webtrees\I18N;
+use Fisharebest\Webtrees\Tree;
+
+use HuHwt\WebtreesMods\ClippingsCartEnhanced\ClippingsCartEnhancedModule;
+
+/**
+ * @var Tree    $tree
+ * @var string  $label
+ * @var string  $fnameCA
+ * @var string  $cArouteAjax
+ */
+
+?>
+
+<form method="post" action="<?= e(route(ClippingsCartEnhancedModule::class, ['tree' => $tree->name(), 'action' => 'doCartSaveAction'])) ?>" id="wt-modal-form">
+    <?= view('modals/header', ['title' => I18N::translate('Save cart to file')]) ?>
+
+    <div class="modal-body">
+        <div class="row form-group">
+            <div class="col-sm-5 col-form-label wt-page-options-label">
+                <span><?= $label ?></span>
+            </div>
+            <div class="col-sm-5 wt-page-options-value" title="<?= I18N::translate('File name') ?>">
+                <span id="CAfname"><?= $fnameCA ?></span>
+            </div>
+            <div class="col-sm-1 wt-page-options-value" title="<?= I18N::translate('Timestamp is set as UTC ...') ?>">
+                <span>(UTC)</span>
+            </div>
+        </div>
+        <div class="row form-group">
+            <div class="col-sm-5 wt-page-options-label">
+                <span><?= I18N::translate('Optional: Set own identifier'); ?></span>
+            </div>
+            <div class="col-sm-5 wt-page-options-value">
+                <label>
+                    <span class="visually-hidden">
+                        <?= I18N::translate('Filename') ?>
+                    </span>
+                    <input type="text" class="form-control" name="title" id="CAfname_own" value="" placeholder="<?= I18N::translate('(Own identifier)') ?>" data-url="<?= $cArouteAjax ?>" action="CAfname">
+                </label>
+            </div>
+            <div class="col-sm-2 wt-page-options-value">
+                <input class="mbutton" type="button" style="border:1px solid gray" value="<?= I18N::translate('Accept'); ?>" id="btn_CAfname" />
+            </div>
+        </div>
+    </div>
+
+    <?= view('modals/footer-save-cancelCCE') ?>
+
+    <?= csrf_field() ?>
+</form>
+
+<script>
+  document.getElementById('btn_CAfname').addEventListener('click', setOwnFname);
+  document.getElementById('wt-modal-form').addEventListener('submit', webtrees.createRecordModalSubmit);
+</script>

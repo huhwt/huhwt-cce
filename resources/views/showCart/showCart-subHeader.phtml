@@ -1,0 +1,34 @@
+<?php
+
+/**
+ * webtrees - clippings cart enhanced
+ *
+ * Copyright (C) 2024 huhwt. All rights reserved.
+ *
+ */
+
+use Fisharebest\Webtrees\Tree;
+
+/**
+ * @var string              $header_recs
+ * @var Tree                $tree
+ */
+
+?>
+
+    <div class="cce-subheader">
+        <div class="cce-shb1">
+            <?= $header_recs ?>
+        </div>
+        <div class="cce-shb2">
+            <?= view('icons/file-import', [
+                'tree'        => $tree,
+            ]); ?>
+            <?= view('icons/file-export', [
+                'tree'        => $tree,
+            ]); ?>
+            <?= view('icons/redoCCE', [
+                'tree'        => $tree,
+            ]); ?>
+        </div>
+    </div>

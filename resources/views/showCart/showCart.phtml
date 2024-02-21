@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * webtrees - clippings cart enhanced
+ *
+ * Copyright (C) 2024 huhwt. All rights reserved.
+ *
+ */
+
 use Fisharebest\Webtrees\GedcomRecord;
 use Fisharebest\Webtrees\I18N;
 use Fisharebest\Webtrees\View;
@@ -18,12 +25,18 @@ use Fisharebest\Webtrees\Tree;
  * @var Tree                $tree
  */
 
+$html_subheader = view($module . '::' . 'showCart/showCart-subHeader', [
+    'header_recs' => '<h4>' . $header_recs . '</h4>',
+    'tree'        => $tree,
+]);
+
 ?>
 
 <h2 class="wt-page-title"><?= $title ?></h2>
 
 <?php if ($recordTypes === []) : ?>
-    <h4><?= $header_recs ?></h4>
+    <?php echo $html_subheader; ?>
+    <?= view('modals/ajax') ?>
     <p><?= I18N::translate('Clippings cart is empty.'); ?></p>
 <?php else : 
     $html_table = view($module . '::' . 'showCart/showCart-Types', [
@@ -39,8 +52,7 @@ use Fisharebest\Webtrees\Tree;
         'tree'        => $tree,
     ]); 
     $html_actions = view($module . '::' . 'showCart/showCart-Actions', [
-        
-        'module' => $module,
+        'module'      => $module,
         'header_acts' => $header_acts,
         'cartActions' => $cartActions,
         'cArouteAjax' => $cArouteAjax,
@@ -65,7 +77,7 @@ use Fisharebest\Webtrees\Tree;
 
 <?= View::push('javascript'); ?>
 <script>
-  prepPevents();
-  showTables();
+  CCE_prepPevents();
+  CCE_showTables();
 </script>
 <?= View::endpush(); ?>

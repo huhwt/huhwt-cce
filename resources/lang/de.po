@@ -89,15 +89,6 @@ msgstr "Alle Personen/Familien in diesem Stammbaum - Achtung: wahrscheinlich seh
 msgid "Delete records in the clippings cart"
 msgstr "Datensätze im Sammelbehälter löschen"
 
-msgid "add individuals to the clippings cart"
-msgstr "Personen zum Sammelbehälter hinzufügen"
-
-msgid "add individuals with parents to the clippings cart"
-msgstr "Personen mit Eltern zum Sammelbehälter hinzufügen"
-
-msgid "add individuals and spouses to the clippings cart"
-msgstr "Personen mit Partnern zum Sammelbehälter hinzufügen"
-
 msgid "CCE-Individual"
 msgstr "Personen"
 
@@ -185,14 +176,39 @@ msgstr "Auflistung Sammelaktionen"
 msgid "CCE-CartActions"
 msgstr "Sammelaktionen"
 
-msgid "No actions executed."
-msgstr "Es wurden keine Aktionen ausgeführt."
-
 msgid "Just a moment"
 msgstr "'nen kleinen Augenblick noch"
 
-<<<<<<< Updated upstream
-=======
+msgid "records created by action"
+msgstr "Datensätze verursacht durch Aktion:"
+
+msgid "No actions executed."
+msgstr "Es wurden keine Aktionen ausgeführt."
+
+msgid "Delete records in the clippings cart entirely"
+msgstr "Datensätze im Sammelbehälter in Gänze löschen"
+
+msgid "Store the records in the clippings cart to file"
+msgstr "Datensätze im Sammelbehälter in Datei sichern"
+
+msgid "Delete records in the clippings cart with selection option"
+msgstr "Datensätze im Sammelbehälter mit Auswahloption löschen"
+
+msgid "add families and individuals to the clippings cart"
+msgstr "Familien und Personen zum Sammelbehälter hinzufügen"
+
+msgid "add families and individuals with parents to the clippings cart"
+msgstr "Familien und Personen mit Eltern zum Sammelbehälter hinzufügen"
+
+msgid "add individuals to the clippings cart"
+msgstr "Personen zum Sammelbehälter hinzufügen"
+
+msgid "add individuals with parents to the clippings cart"
+msgstr "Personen mit Eltern zum Sammelbehälter hinzufügen"
+
+msgid "add individuals and spouses to the clippings cart"
+msgstr "Personen mit Partnern zum Sammelbehälter hinzufügen"
+
 msgid "Click here to toggle highlighting of relevant records on or off"
 msgstr "Klicken Sie hier, um die Hervorhebung der entsprechenden Datensätze ein- oder auszuschalten"
 
@@ -201,6 +217,51 @@ msgstr "Anzahl Einträge gesamt: %s"
 
 msgid "of which new entries: %s"
 msgstr "davon Einträge neu: %s"
+
+msgid "Save cart to file"
+msgstr "Sammelkorb in Datei speichern"
+
+msgid "File name"
+msgstr "Datei-Name"
+
+msgid "Timestamp is set as UTC ..."
+msgstr "Zeitmarke ist als UTC gesetzt ..."
+
+msgid "Number of CartXrefs:"
+msgstr "Anzahl Datensatz-Referenzen:"
+
+msgid "Number of CartActs:"
+msgstr "Anzahl Sammelaktionen:"
+
+msgid "of which are new:"
+msgstr "davon neu:"
+
+msgid "Cart is saved to file"
+msgstr "Sammelkorb in Datei gespeichert"
+
+msgid "Load cart from file"
+msgstr "Sammelkorb aus Datei übernehmen"
+
+msgid "Choose saved carts"
+msgstr "Aus gespeicherten Sammelkörben auswählen"
+
+msgid "Cartkey"
+msgstr "Korbkennung"
+
+msgid "Click: select/deselect this file"
+msgstr "Klick: Diesen Sammelkorb aus-/abwählen"
+
+msgid "Timestamp"
+msgstr "Zeitmarke"
+
+msgid "cartActs"
+msgstr "Sammelaktionen"
+
+msgid "Load Cart from file done"
+msgstr "Sammelkorb aus Datei füllen abgeschlossen"
+
+msgid "Reload"
+msgstr "Ansicht neu laden"
 
 msgid "all persons to whom '%s' is linked"
 msgstr "Alle Personen welchen '%s' zugeordnet ist"
@@ -211,6 +272,8 @@ msgstr "Alle Familien welchen '%s' zugeordnet ist"
 msgid "Add '%s' to the clippings cart"
 msgstr "'%s' zum Sammelkorb hinzufügen"
 
->>>>>>> Stashed changes
+msgid "Transfer to tagging service"
+msgstr "Übertragen an den Tagging-Service"
+
 msgid ""
 msgstr ""

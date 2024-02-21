@@ -1,0 +1,56 @@
+<?php
+
+/**
+ * webtrees - clippings cart enhanced
+ *
+ * Copyright (C) 2024 huhwt. All rights reserved.
+ *
+ */
+
+declare(strict_types=1);
+
+use Fisharebest\Webtrees\I18N;
+
+/**
+ * @var string $title
+ * @var string $filename
+ * @var string $SinfoJson
+ */
+
+    $Sinfo  = json_decode($SinfoJson);
+    $vCntS = $Sinfo[0];
+    $vCntN = $Sinfo[1];
+    $vCntStxt = $Sinfo[2];
+    $vCntNtxt = $Sinfo[3];
+
+?>
+<?= view('modals/header', ['title' => $title]) ?>
+
+<div class="modal-body">
+    <div class="row form-group">
+        <div class="col-sm-5 col-form-label wt-page-options-label">
+            <span><?= I18N::translate('Filename') . ':' ?></span>
+        </div>
+        <div class="col-sm-5 wt-page-options-value">
+            <span><?= $filename ?></span>
+        </div>
+    </div>
+    <div class="row form-group">
+        <div class="col-sm-5 col-form-label wt-page-options-label">
+            <span><?= $vCntNtxt ?></span>
+        </div>
+        <div class="col-sm-5 wt-page-options-value">
+            <span><?= $vCntN ?></span>
+        </div>
+    </div>
+    <div class="row form-group">
+        <div class="col-sm-5 col-form-label wt-page-options-label">
+            <span><?= $vCntStxt ?></span>
+        </div>
+        <div class="col-sm-5 wt-page-options-value">
+            <span><?= $vCntS ?></span>
+        </div>
+    </div>
+</div>
+
+<?= view('modals/footer-checked') ?>

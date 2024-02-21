@@ -1,7 +1,11 @@
 /**
-* Icon converted via: https://base64.guru/converter/encode/image
-* Zusätzliche Steuerelemente Clippings Cart Enhanced
-*/
+ * webtrees - clippings cart enhanced
+ *
+ * Copyright (C) 2024 huhwt. All rights reserved.
+ *
+ * Icon converted via: https://base64.guru/converter/encode/image
+ * Zusätzliche Steuerelemente Clippings Cart Enhanced
+ */
 
 .cce-page-options {
     display: flex;
@@ -45,7 +49,7 @@
     .cce_button:hover {
         border: thin outset #fdfffd;
         cursor: pointer;
-    }
+        }
 
 .bPlus {
     content: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABYAAAAWCAYAAADEtGw7AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAEeSURBVEhLY2QgAtRP3/T/9O5VDP///WZQFuFmKC9MYpDVtsGrlwlK4wRnH3z6f/H0IbChIHD3zVeGS8cPgNn4AEGD/4MxiESA//9R+dgAQYPJBaMGwwHNDAanxY7py/8/unkZGN2/wfGPnEC///7H8PLlS4b/fyHJDQRE+DgYeAXFoDxIyoHpEeXlZAj1tmRg7F9/7v+uhd1AoX8QGSoADU5gUHz7/gPIJJwuSQHfvwMN5uLkADKJytlEA06gi2kXxlA+TnAGWFY0NzUy/Hr3BCrCwJDtrcPgk1qLV+9oBoGDYWgwKOoZ0RIPIyPBxETYYGMFPkZ9UzsGRiZWMB9U5+lZOoDZ+ABhq6EAVKaAsj8wpz4oDDRShArjAAwMAHA+ZOlwX6lRAAAAAElFTkSuQmCC');
@@ -67,6 +71,117 @@
     align-content: center;
 }
 
+.cce-subheader {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+}
+    .cce-shb1 {
+        min-width: 20%;
+    }
+    .cce-shb2 {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-evenly;
+        align-items: center;
+        min-width: 10%;
+    }
+.cce-btn:hover {
+    color: white;
+    box-shadow: 3px 1px 3px var(--bs-teal);
+}
+
+.cce-cb {
+    display: flex;
+    flex-direction: column;
+}
+    .cce-cbl {
+        display: flex;
+        flex-direction: row;
+    }
+    .cce-cbul>ul {
+        list-style-type: none;
+        margin-bottom: 0.5rem;
+        padding-left: 0;
+    }
+    .cce-cb-lblch {
+        background-color: #94BF13;
+    }
+
 table + h4 {
     margin-top: 2rem !important;
+}
+
+table {
+    table-layout: fixed;
+    width: 100%;
+}
+
+.CCE_Theader {
+    background-color: rgba(194, 194, 250, 0.623) !important;
+    text-align: left !important;
+    font-size: 1.1rem !important;
+}
+
+.dontShow {
+    visibility: hidden;
+}
+
+.lineHalfHeight {
+    height: 0.5rem;
+}
+
+.outlineBlue {
+    border: 1px solid !important;
+    border-color: rgb(82, 82, 252) !important;
+}
+
+.CCEbadge {
+    display: inline-block;
+    border-radius: 0.375rem;
+    padding: 0.65em 0.35em;
+    font-size: 0.8rem;
+    text-align: center
+    }
+
+.CCEbg-secondary {
+    background-color: rgba(208, 208, 208, 0.9)!important
+}
+
+
+.CCEbadge.CCEhighlighted {
+    font-size: 0.9rem;
+}
+.CCEcolor1 {
+    color: blue;
+}
+.CCEcolor2 {
+    color: red;
+}
+.CCEcolor3 {
+    color: green;
+}
+.CCEcolor4 {
+    color: darkmagenta;
+}
+.CCEcolor5 {
+    color: darkturquoise;
+}
+.CCEcolor6 {
+    color: goldenrod;
+}
+
+.CCEpopup {
+    display: block;
+    border: 2px dashed darkblue;
+    margin: 10px 5px 10px 5px;
+    font-size: 1.2em;
+    font-weight: 500;
+    background-color: mediumaquamarine;
+    position: absolute;
+    top: 5%;
+    left: 40%;
+    min-width: 310px;
+    z-index: 199;
 }

@@ -46,6 +46,10 @@ class RebuildCart extends ClippingsCartEnhanced
 
     public function rebuild()
     {
+        // additional parameters may be required
+        $bool_A1 = false;
+        $bool_A2 = false;
+
         $cart = Session::get('cart', []);
         $cart[$this->tree->name()] = [];
         Session::put('cart', $cart);
@@ -196,6 +200,21 @@ class RebuildCart extends ClippingsCartEnhanced
                     $this->addSubmitterToCart($submitter);
                     break;
 
+                case 'FAM-LISTwp':
+                    // $this->cartAct($tree, 'FAM-LIST', $surname . ';' . $alpha . ';' . $show . ';' . $show_all . ';' . $show_marnm);
+                    $bool_A1 = true;
+                case 'FAM-LIST':
+                    // $this->cartAct($tree, 'FAM-LIST', $surname . ';' . $alpha . ';' . $show . ';' . $show_all . ';' . $show_marnm);
+                    $_FLparms = explode(';', $cartActs[1]);
+                    $surname    = $_FLparms[0];
+                    $alpha      = $_FLparms[1];
+                    $show       = $_FLparms[2];
+                    $show_all   = $_FLparms[3];
+                    $show_marnm = $_FLparms[4];
+                    $this->lPdone = false;
+                    $this->CCEindiList = new CCEIndividualListModule($this);
+                    $this->addFamilyList($tree, $surname, $alpha, $show_marnm, $show, $show_all, $bool_A1);
+                    break;
                 }
         }
 

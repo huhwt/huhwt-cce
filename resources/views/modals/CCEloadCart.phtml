@@ -1,0 +1,72 @@
+<?php
+
+/**
+ * webtrees - clippings cart enhanced
+ *
+ * Copyright (C) 2024 huhwt. All rights reserved.
+ *
+ */
+
+ declare(strict_types=1);
+
+namespace HuHwt\WebtreesMods\ClippingsCartEnhanced;
+
+use Fisharebest\Webtrees\I18N;
+use Fisharebest\Webtrees\Tree;
+
+use HuHwt\WebtreesMods\ClippingsCartEnhanced\ClippingsCartEnhancedModule;
+
+/**
+ * @var Tree    $tree
+ * @var string  $legend
+ * @var array   $CIfiData
+ */
+
+?>
+
+<form method="post" action="<?= e(route(ClippingsCartEnhancedModule::class, ['tree' => $tree->name(), 'action' => 'doCartLoadAction'])) ?>" id="wt-modal-form">
+    <?= view('modals/header', ['title' => I18N::translate('Load cart from file')]) ?>
+
+    <div class="modal-body">
+        <fieldset>
+            <legend><?= $legend ?></legend>
+            <?php foreach ($CIfiData as $key => $content) : ?>
+                <div class="row form-group cce-cbd">
+                    <div class="col-sm-2 wt-page-options-label">
+                        <span><?= I18N::translate('Cartkey') . ':' ?></span>
+                    </div>
+                    <div class="col-sm-8 wt-page-options-value">
+                        <input type="checkbox" id="<?= $key ?>" name="CAfiKey[]" value="<?= $key ?>" class="visually-hidden">
+                        <label title="<?= I18N::translate('Click: select/deselect this file')?>" for="<?= $key ?>"><?= $key ?></label>
+                        <div class="cce-cb">
+                            <div class="cce-cbl">
+                                <div class="col-sm-3 wt-page-options-label"><?= I18N::translate('Timestamp') ?></div>
+                                <div class="col-sm-9 wt-page-options-value"><?= $content['timestamp'] ?></div>
+                            </div>
+                            <div class="cce-cbl">
+                                <div class="col-sm-3 wt-page-options-label"><?= I18N::translate('cartActs') ?></div>
+                                <div class="col-sm-9 wt-page-options-value cce-cbul">
+                                    <ul>
+                                        <?php foreach ($content['cartActs'] as $CAaction => $cok) : ?>
+                                            <li><?= $CAaction ?></li>
+                                        <?php endforeach ?>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <?php endforeach ?>
+        </fieldset>
+    </div>
+
+    <?= view('modals/footer-save-cancelCCE') ?>
+
+    <?= csrf_field() ?>
+</form>
+
+<script>
+  var mfElem = document.getElementById('wt-modal-form');
+  mfElem.addEventListener('submit', CCE_createRecordModalSubmit);
+  prepCCEload(mfElem);
+</script>
