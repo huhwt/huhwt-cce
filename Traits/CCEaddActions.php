@@ -276,20 +276,17 @@ trait CCEaddActions
                 break;
 
             case self::ADD_ANCESTORS:
-                $caDo = $xref . '|' . $this->levelAncestor;
-                $this->put_CartActs($tree, 'INDI_ANCESTORS', $caDo);
+                $this->put_CartActs($tree, 'INDI_ANCESTORS', $xref, (string) $this->levelAncestor);
                 $this->addAncestorsToCart($individual, $this->levelAncestor);
                 break;
 
             case self::ADD_ANCESTOR_FAMILIES:
-                $caDo = $xref . '|' . $this->levelAncestor;
-                $this->put_CartActs($tree, 'INDI_ANCESTOR_FAMILIES', $caDo);
+                $this->put_CartActs($tree, 'INDI_ANCESTOR_FAMILIES', $xref, (string) $this->levelAncestor);
                 $this->addAncestorFamiliesToCart($individual, $this->levelAncestor);
                 break;
 
             case self::ADD_DESCENDANTS:
-                $caDo = $xref . '|' . $this->levelDescendant;
-                $this->put_CartActs($tree, 'INDI_DESCENDANTS', $caDo);
+                $this->put_CartActs($tree, 'INDI_DESCENDANTS', $xref, (string) $this->levelDescendant);
                 foreach ($individual->spouseFamilies() as $family) {
                     $this->addFamilyAndDescendantsToCart($family, $this->levelDescendant);
                 }

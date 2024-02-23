@@ -497,7 +497,8 @@ class ClippingsCartEnhanced extends ClippingsCartModule
 
         $submenus = [$this->addMenuClippingsCart($tree, $cart)];
 
-        $TSMok = ($this->TSMok && str_contains($_SERVER['REQUEST_URI'], '/ShowCart/'));
+        $REQ_URI = rawurldecode($_SERVER['REQUEST_URI']);                   // we need to do so because some server might have that encoded ...
+        $TSMok = ($this->TSMok && str_contains($REQ_URI, '/ShowCart/'));        // ... and we want to show this entrance only in certain case
         if ($TSMok)
             $submenus[] = $this->addMenuTaggingService($tree);
 
