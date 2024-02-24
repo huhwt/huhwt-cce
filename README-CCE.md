@@ -18,7 +18,7 @@ This Readme contains the following main sections
 
 This custom module replaces the original 'Clippings Cart' module.
 The design concept for the enhanced clippings cart is shown in the following diagram:
-<p align="center"><img src="./_ASSETTS/ClippingsCartEnhanced.png" alt="new concept for enhanced clippings cart" align="center" width="100%"></p>
+<p align="center"><img src="./_ASSETTS/ClippingsCartEnhanced.png?raw=true" alt="new concept for enhanced clippings cart" align="center" width="100%"></p>
 
 Various functions can collect records in the clippings cart and these records could then be passed on to various evaluation / export / visualization functions.
 The user of the module can decide which records should be sent to the clippings cart
