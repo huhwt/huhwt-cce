@@ -20,11 +20,15 @@ use HuHwt\WebtreesMods\ClippingsCartEnhanced\ClippingsCartEnhancedModule;
  * @var Tree    $tree
  * @var string  $legend
  * @var array   $CIfiData
+ * @var string  $calledBy
  */
 
+$CartLoadAction     = e(route(ClippingsCartEnhancedModule::class, ['tree' => $tree->name(), 'action' => 'doCartLoadAction']));
+
+$FileKillAction     = e(route(ClippingsCartEnhancedModule::class, ['tree' => $tree->name(), 'action' => 'doKillFileAction']));
 ?>
 
-<form method="post" action="<?= e(route(ClippingsCartEnhancedModule::class, ['tree' => $tree->name(), 'action' => 'doCartLoadAction'])) ?>" id="wt-modal-form">
+<form method="post" action="<?= $CartLoadAction ?>" id="wt-modal-form">
     <?= view('modals/header', ['title' => I18N::translate('Load cart from file')]) ?>
 
     <div class="modal-body">
@@ -37,7 +41,7 @@ use HuHwt\WebtreesMods\ClippingsCartEnhanced\ClippingsCartEnhancedModule;
                     </div>
                     <div class="col-sm-8 wt-page-options-value">
                         <input type="checkbox" id="<?= $key ?>" name="CAfiKey[]" value="<?= $key ?>" class="visually-hidden">
-                        <label title="<?= I18N::translate('Click: select/deselect this file')?>" for="<?= $key ?>"><?= $key ?></label>
+                        <label title="<?= I18N::translate('Click: select/deselect this saved cart')?>" for="<?= $key ?>"><?= $key ?></label>
                         <div class="cce-cb">
                             <div class="cce-cbl">
                                 <div class="col-sm-3 wt-page-options-label"><?= I18N::translate('Timestamp') ?></div>
@@ -54,6 +58,13 @@ use HuHwt\WebtreesMods\ClippingsCartEnhanced\ClippingsCartEnhancedModule;
                                 </div>
                             </div>
                         </div>
+                    </div>
+                    <div class="col-sm-2 wt-page-options-label">
+                        <a href="#" rel="nofollow" data-url="<?= $FileKillAction ?>" fname="<?= $key ?>" calledBy="<?= $calledBy ?>" >
+                            <button type="button" class="btn btn-link" title="<?= I18N::translate('Click: remove this saved cart'); ?>">
+                                <?= view('icons/delete'); ?>
+                            </button>
+                        </a>
                     </div>
                 </div>
             <?php endforeach ?>

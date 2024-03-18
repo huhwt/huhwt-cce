@@ -494,12 +494,13 @@ class ClippingsCartEnhanced extends ClippingsCartModule
 
         // clippings cart is an array in the session specific for each tree
         $cart  = $this->get_Cart();
+        $count = count($cart[$tree->name()] ?? []);
 
         $submenus = [$this->addMenuClippingsCart($tree, $cart)];
 
         $REQ_URI = rawurldecode($_SERVER['REQUEST_URI']);                   // we need to do so because some server might have that encoded ...
         $TSMok = ($this->TSMok && str_contains($REQ_URI, '/ShowCart/'));        // ... and we want to show this entrance only in certain case
-        if ($TSMok)
+        if ($TSMok && $count > 0)
             $submenus[] = $this->addMenuTaggingService($tree);
 
         $action = array_search($route->name, self::ROUTES_WITH_RECORDS, true);
@@ -650,7 +651,7 @@ class ClippingsCartEnhanced extends ClippingsCartModule
      * @return Menu|null
      */
     private function addMenuEmptyForce (Tree $tree): ?Menu    {
-        $params['called_by'] = $_SERVER["REQUEST_URI"];
+        $params['called_by'] = rawurldecode($_SERVER["REQUEST_URI"]);
         return new Menu(I18N::translate('Delete records in the clippings cart entirely'),
         route('module', [
             'module' => $this->name(),
@@ -1819,6 +1820,8 @@ class ClippingsCartEnhanced extends ClippingsCartModule
         View::registerCustomView('::modals/CartSavedCCE', $this->name() . '::modals/CCE-CartSaved');
         View::registerCustomView('::modals/loadCart', $this->name() . '::modals/CCEloadCart');
         View::registerCustomView('::modals/CartLoadedCCE', $this->name() . '::modals/CCE-CartLoaded');
+        View::registerCustomView('::modals/noneCartFile', $this->name() . '::modals/CCEnoneCartFile');
+        View::registerCustomView('::modals/footer-backCCE', $this->name(). '::modals/CCEfooter-back');
 
         $CCEjs = $this->resourcesFolder() . 'js/CCEtable-actions.js';
         Session::put('CCEtable-actions.js', $CCEjs);

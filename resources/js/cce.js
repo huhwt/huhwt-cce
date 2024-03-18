@@ -62,7 +62,7 @@ function showgensPlus(forID, forClass) {
  * Once the structure of the tables is complete, the contents are displayed.
  * While the build is in progress, the 'prepInfo' element is initially displayed.
  */
-function CCE_showTables() {
+function CCE_showTables(Pcart_empty) {
     let elems = document.getElementsByClassName('wt-facts-table');
     for ( const elem of elems ) {
         let hevis = elem.getAttribute('style');
@@ -72,6 +72,13 @@ function CCE_showTables() {
     let elem = document.getElementById('prepInfo');
     if ( elem )
         elem.setAttribute('style', 'display:none');;
+
+    let cart_empty = Pcart_empty == 1 ? true : false;
+    if ( !cart_empty ) {
+        let btn_export = document.getElementById('CCE_btnExport');
+        if (btn_export.hasAttribute('disabled'))
+            btn_export.removeAttribute('disabled');
+    }
 }
 
 /**
@@ -381,7 +388,7 @@ function setOwnFname() {
 function prepCCEload(modElem) {
     let _inputs = modElem.querySelectorAll('input');
     for ( const inpe of _inputs ) {
-        inpe.addEventListener("change", (ev) => {
+        inpe.addEventListener('change', (ev) => {
             let _cb = ev.target;
             let _cbs = _cb.nextElementSibling;
             if (_cb.checked) {
@@ -389,6 +396,47 @@ function prepCCEload(modElem) {
             } else {
                 _cbs.classList.remove('cce-cb-lblch');
             }
+        });
+    }
+    var emc = modElem.querySelector(".modal-content");
+    let _buttons = modElem.querySelectorAll('button.btn-link');
+    for ( const btne of _buttons ) {
+        btne.addEventListener('click', (ev) => {
+            let telem    = ev.target;
+            ev.stopImmediatePropagation();
+            do {
+                if (telem.classList.contains('btn'))
+                    break;
+                telem   = telem.parentNode;
+            } while (!telem.classList.contains('btn'));
+            let belem   = telem.parentNode;
+
+            let fname   = belem.getAttribute('fname');
+            let calledBy  = belem.getAttribute('calledby');
+            let route_ajax  = belem.getAttribute('data-url');
+            let _url = decodeURIComponent(route_ajax);
+            if (_url.includes('&amp;')) {
+                _url = _url.replace('&amp;','&');
+            }
+            _url = _url + '&fname=' + encodeURIComponent(fname) + '&calledby=' + encodeURIComponent(calledBy);
+            document.body.classList.add('waiting');
+            s_wt.httpGet(_url)
+                .then((function(e) {
+                    let _url    = e.url;
+                    location.assign(_url);
+                        return e.url; // .json();
+                    }
+                ))
+                .then((function(t) {
+                        document.body.classList.remove('waiting');
+                        location.reload();
+                    }
+                ))
+                .catch((function(e) {
+                    document.body.classList.remove('waiting');
+                    location.reload();
+                 }
+                ))
         });
     }
 }
@@ -484,6 +532,6 @@ function CCE_createRecordModalSubmit(event) {
                 // }
         })
         .catch(error => {
-        modal_content.innerHTML = error;
+            modal_content.innerHTML = error;
         });
 };

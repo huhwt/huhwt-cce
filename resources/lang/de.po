@@ -219,7 +219,7 @@ msgid "of which new entries: %s"
 msgstr "davon Einträge neu: %s"
 
 msgid "Save cart to file"
-msgstr "Sammelkorb in Datei speichern"
+msgstr "Sammelbehälter in Datei speichern"
 
 msgid "File name"
 msgstr "Datei-Name"
@@ -237,19 +237,19 @@ msgid "of which are new:"
 msgstr "davon neu:"
 
 msgid "Cart is saved to file"
-msgstr "Sammelkorb in Datei gespeichert"
+msgstr "Sammelbehälter in Datei gespeichert"
 
 msgid "Load cart from file"
-msgstr "Sammelkorb aus Datei übernehmen"
+msgstr "Sammelbehälter aus Datei übernehmen"
 
 msgid "Choose saved carts"
-msgstr "Aus gespeicherten Sammelkörben auswählen"
+msgstr "Aus gespeicherten Sammelbehältern auswählen"
 
 msgid "Cartkey"
 msgstr "Korbkennung"
 
-msgid "Click: select/deselect this file"
-msgstr "Klick: Diesen Sammelkorb aus-/abwählen"
+msgid "Click: select/deselect this saved cart"
+msgstr "Klick: Diesen gespeicherten Sammelbehälter aus-/abwählen"
 
 msgid "Timestamp"
 msgstr "Zeitmarke"
@@ -258,7 +258,7 @@ msgid "cartActs"
 msgstr "Sammelaktionen"
 
 msgid "Load Cart from file done"
-msgstr "Sammelkorb aus Datei füllen abgeschlossen"
+msgstr "Sammelbehälter aus Datei füllen abgeschlossen"
 
 msgid "Reload"
 msgstr "Ansicht neu laden"
@@ -270,10 +270,16 @@ msgid "all families to whom '%s' is linked"
 msgstr "Alle Familien welchen '%s' zugeordnet ist"
 
 msgid "Add '%s' to the clippings cart"
-msgstr "'%s' zum Sammelkorb hinzufügen"
+msgstr "'%s' zum Sammelbehälter hinzufügen"
 
 msgid "Transfer to tagging service"
 msgstr "Übertragen an den Tagging-Service"
+
+msgid "Click: remove this saved cart"
+msgstr "Klick: Diesen gespeicherten Sammelbehälter löschen"
+
+msgid "No saved cart files found"
+msgstr "Keine gespeicherten Sammelbehälter vorhanden"
 
 msgid ""
 msgstr ""

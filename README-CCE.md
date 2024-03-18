@@ -18,7 +18,7 @@ This Readme contains the following main sections
 
 This custom module replaces the original 'Clippings Cart' module.
 The design concept for the enhanced clippings cart is shown in the following diagram:
-<p align="center"><img src="_ASSETTS/ClippingsCartEnhanced.png" alt="new concept for enhanced clippings cart" align="center" width="100%"></p>
+<p align="center"><img src="_ASSETS/ClippingsCartEnhanced.png?raw=true" ![new concept for enhanced clippings cart]
 
 Various functions can collect records in the clippings cart and these records could then be passed on to various evaluation / export / visualization functions.
 The user of the module can decide which records should be sent to the clippings cart
@@ -49,16 +49,16 @@ Such a function could be for example a link-node-diagram like
 
 ### Screenshots of menus
 #### Screenshot of the new menu
-<p align="center"><img src="_ASSETTS/Screenshot_Menu.png" alt="Screenshot of main menu" align="center" width="80%"></p>
+<p align="center"><img src="_ASSETS/Screenshot_Menu.png?raw=true" alt="Screenshot of main menu" align="center" width="80%"></p>
 
 #### Screenshot of menu to add global sets of records for a tree
-<p align="center"><img src="_ASSETTS/Screenshot_ViewAddGlobal.png" alt="Screenshot of menu to add global sets of records" align="center" width="80%"></p>
+<p align="center"><img src="_ASSETS/Screenshot_ViewAddGlobal.png?raw=true" alt="Screenshot of menu to add global sets of records" align="center" width="80%"></p>
 
 #### Screenshot of new menu to delete records in the clippings cart
-<p align="center"><img src="_ASSETTS/Screenshot_ViewEmpty.png" alt="Screenshot of menu to delete records" align="center" width="80%"></p>
+<p align="center"><img src="_ASSETS/Screenshot_ViewEmpty.png?raw=true" alt="Screenshot of menu to delete records" align="center" width="80%"></p>
 
 #### Screenshot of new menu to execute actions on the records in the clippings cart
-<p align="center"><img src="_ASSETTS/Screenshot_ExecuteActions.png" alt="Screenshot of menu to execute actions" align="center" width="80%"></p>
+<p align="center"><img src="_ASSETS/Screenshot_ExecuteActions.png?raw=true" alt="Screenshot of menu to execute actions" align="center" width="80%"></p>
 
 ### Screenshots of new visualisation possibilities
 The following charts are produced by an external application TAM.
@@ -66,15 +66,15 @@ It is planned to integrate TAM into webtrees
 so that export/import is not any longer necessary.
 
 #### Screenshot using TAM for a tree with more than 10.000 persons
-<p align="center"><img src="_ASSETTS/Screenshot_Tree.png" alt="Screenshot of large tree" align="center" width="80%"></p>
+<p align="center"><img src="_ASSETS/Screenshot_Tree.png" alt="Screenshot of large tree" align="center" width="80%"></p>
 This image was produced by exporting a complete tree from webtrees as GEDCOM file
 using the administrator menu. Then this file was imported to TAM.
 It is planned to add a new option "add all records to the clippings cart"
 to the "global add menu" of this module.
 
 #### Screenshot using TAM for a visualisation of all ancestor circles in this tree
-<p align="center"><img src="_ASSETTS/Screenshot_Circles.png" alt="Screenshot of circles" align="center" width="80%"></p>
-<p align="center"><img src="_ASSETTS/Screenshot_Circles_Background.png" alt="Screenshot of circles" align="center" width="80%"></p>
+<p align="center"><img src="_ASSETS/Screenshot_Circles.png" alt="Screenshot of circles" align="center" width="80%"></p>
+<p align="center"><img src="_ASSETS/Screenshot_Circles_Background.png" alt="Screenshot of circles" align="center" width="80%"></p>
 This chart was produced using the new "global add menu"
 selecting "add all circles".
 This function removes all leaves in a tree recursively.
@@ -100,7 +100,7 @@ Charts / Relationships / Find all possible relationships.
 But up to now there was no possibility to show all such circles in a tree.
 
 ### Screenshot using TAM to show a H diagram
-<p align="center"><img src="_ASSETTS/Screenshot_H_diagram.png" alt="Screenshot of H diagram" align="center" width="80%"></p>
+<p align="center"><img src="_ASSETS/Screenshot_H_diagram.png" alt="Screenshot of H diagram" align="center" width="80%"></p>
 A H diagramm is a very compact ancestor diagram showing the proband and
 a few generations of his ancestors.
 One example is the webtrees chart "compact tree".
@@ -112,8 +112,8 @@ Now you have to place the persons and families
 manually to their right position by drag and drop.
 
 #### Screenshot using TAM for a partner chain with 30 partners of partners of partners ...
-<p align="center"><img src="_ASSETTS/Screenshot_PartnerChains.png" alt="Screenshot of partner chains" align="center" width="80%"></p>
-<p align="center"><img src="_ASSETTS/Screenshot_PartnerChains_Background.png" alt="Screenshot of partner chains" align="center" width="80%"></p>
+<p align="center"><img src="_ASSETS/Screenshot_PartnerChains.png" alt="Screenshot of partner chains" align="center" width="80%"></p>
+<p align="center"><img src="_ASSETS/Screenshot_PartnerChains_Background.png" alt="Screenshot of partner chains" align="center" width="80%"></p>
 A partner chain is a chain of partners of partners of partners of ...
 If one partner of marriage was married before or later to another partner,
 this is a chain of three partners.

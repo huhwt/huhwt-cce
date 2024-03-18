@@ -129,6 +129,10 @@ use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCEvizActions;
             return $this->doCartLoadAction($request);
         }
 
+        if ( $action == 'doKillFileAction' ) {
+            return $this->doKillFileAction($request);
+        }
+
         if ( $action == 'CAfname' ) {
             return $this->doSetCAfname($request);
         }
@@ -242,6 +246,11 @@ use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCEvizActions;
      */
     private function doCartLoad(ServerRequestInterface $request): ResponseInterface
     {
+
+        $called_by      = rawurldecode($_SERVER["REQUEST_URI"]);
+
+        $act_uri        = (string) $request->getUri();
+
         $tree           = Validator::attributes($request)->tree();
 
         $title          = I18N::translate('Load Cart');
@@ -260,14 +269,20 @@ use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCEvizActions;
             foreach( $CIfiles as $fi => $fc) {
                 $CIfileData[$fi] = json_decode(json_encode($fc), true);
             }
-        }
+            return response(view('modals/loadCart', [
+                'tree'        => $tree,
+                'title'       => $title,
+                'legend'      => $legend,
+                'CIfiData'    => $CIfileData,
+                'calledBy'    => $called_by,
+            ]));
+        } else {
+            return response(view('modals/noneCartFile', [
+                'tree'        => $tree,
+                'title'       => $title,
+            ]));
 
-        return response(view('modals/loadCart', [
-            'tree'        => $tree,
-            'title'       => $title,
-            'legend'      => $legend,
-            'CIfiData'    => $CIfileData,
-        ]));
+        }
 
     }
 
@@ -404,6 +419,62 @@ use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCEvizActions;
         Session::put('cartActsVariants', $cartActsVariants);
 
         return $caV;
+    }
+
+    /**
+     * kill saved cart
+     *
+     * @param ServerRequestInterface $request
+     *
+     * @return string
+     */
+    private function doKillFileAction(ServerRequestInterface $request): ResponseInterface
+    {
+        $tree           = Validator::attributes($request)->tree();
+
+        $KFname         = Validator::queryParams($request)->string('fname');
+
+        $calledBy       = Validator::queryParams($request)->string('calledby');
+
+        $server         = $_SERVER['SERVER_NAME'];
+        $request_scheme = $_SERVER['REQUEST_SCHEME'];
+        $redUri         = $request_scheme . '://' . $server . $calledBy;
+
+        $CFuserDir      = Session::get('userDir');
+        if ( $CFuserDir === null) {
+            return redirect($redUri);
+        }
+
+        $CIfileData     = [];
+        $fnameCI        = 'Cart-Index.txt';
+        $fpathCI        = $CFuserDir . '/' . $fnameCI;
+
+        $files_array    = scandir($CFuserDir);
+
+        if( in_array($fnameCI, $files_array)) {
+            $CIfiles        = json_decode(file_get_contents($fpathCI));
+            foreach( $CIfiles as $fi => $fc) {
+                $CIfileData[$fi] = json_decode(json_encode($fc), true);
+            }
+        }
+
+        $CIfileData_upd = [];
+        foreach ( $CIfileData as $fname => $fdata) {
+            if( !$fname == $KFname) {
+                $CIfileData_upd[$fname] = $fdata;
+            }
+        }
+        $fpathKF        = $CFuserDir . '/' . $KFname . '.txt';
+        unlink( $fpathKF );
+
+        if (count($CIfileData_upd) > 0) {
+            file_put_contents($fpathCI, json_encode($CIfileData_upd));
+        } else {
+            unlink( $fpathCI );
+        }
+
+        return redirect($redUri);
+
     }
 
     /**

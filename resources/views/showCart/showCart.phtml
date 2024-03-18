@@ -30,11 +30,12 @@ $html_subheader = view($module . '::' . 'showCart/showCart-subHeader', [
     'tree'        => $tree,
 ]);
 
+$cart_empty = $recordTypes === [] ? true : false;
 ?>
 
 <h2 class="wt-page-title"><?= $title ?></h2>
 
-<?php if ($recordTypes === []) : ?>
+<?php if ($cart_empty) : ?>
     <?php echo $html_subheader; ?>
     <?= view('modals/ajax') ?>
     <p><?= I18N::translate('Clippings cart is empty.'); ?></p>
@@ -78,6 +79,6 @@ $html_subheader = view($module . '::' . 'showCart/showCart-subHeader', [
 <?= View::push('javascript'); ?>
 <script>
   CCE_prepPevents();
-  CCE_showTables();
+  CCE_showTables(<?= $cart_empty ?>);
 </script>
 <?= View::endpush(); ?>

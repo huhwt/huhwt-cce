@@ -44,7 +44,7 @@ Functions and actions for records are described in detail in the [Hartenthaler m
 
 This module covers all clipping actions covered in the Webtrees standard. In addition, records from 'Family List' and 'Individual List' as well as persons and families from the 'Shared Notes List' can also be taken over. [huhwt-xtv](https://github.com/huhwt/huhwt-xtv) (tree view extended) and [huhwt-mtv](https://github.com/huhwt-mtv) (multi-tree view for admin Action “Check duplicates”) can now also transfer to the clippings cart.
 
-The clipping actions carried out are displayed as an additional overview. Each clipping action done by CCE will be identified (example: INDI~I1 -> Individual I1 Action:'Only this record' - INDI_ANCESTOR_FAMILIES~I1 Action: 'This Person, his ancestors and their families'). You can filter the collected entries according to these actions. Each of these actions can be undone individually.
+The clipping actions carried out are displayed as an additional overview. Each clipping action done by CCE will be identified (example: INDI\~I1 -> Individual I1 Action:'Only this record' - INDI_ANCESTOR_FAMILIES\~I1 Action: 'This Person, his ancestors and their families'). You can filter the collected entries according to these actions. Each of these actions can be undone individually.
 
 The cart's content can be stored as files on Server-Side (file location is defined by Tree-Name and User-ID, you may choose your own name). Saved files may be reloaded and added to the actual cart's content.
 

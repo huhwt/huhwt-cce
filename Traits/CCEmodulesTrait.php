@@ -30,7 +30,7 @@ trait CCEmodulesTrait
     public const CUSTOM_MODULE      = 'huhwt-cce';
     public const CUSTOM_AUTHOR      = 'EW.H / Hermann Hartenthaler';
     public const CUSTOM_WEBSITE     = 'https://github.com/huhwt/' . self::CUSTOM_MODULE . '/';
-    public const CUSTOM_VERSION     = '2.1.18.0';
+    public const CUSTOM_VERSION     = '2.1.18.1';
     public const CUSTOM_LAST        = 'https://github.com/huhwt/' .
                                         self::CUSTOM_MODULE. '/blob/master/latest-version.txt';
 
