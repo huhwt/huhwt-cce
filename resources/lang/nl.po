@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: hh 2.0.19\n"
 "Report-Msgid-Bugs-To: hermann@hartenthaler.de\n"
 "POT-Creation-Date: 2021-11-21 12:57+0200\n"
-"PO-Revision-Date: 2022-12-02 10:04+0100\n"
+"PO-Revision-Date: 2024-02-25 08:54+0100\n"
 "Last-Translator: TheDutchJewel <thedutchjewel@gmail.com>\n"
 "Language-Team: \n"
 "Language: nl\n"
@@ -11,7 +11,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Poedit 3.2.2\n"
+"X-Generator: Poedit 3.4.2\n"
 
 msgid "Replacement for the original 'Clippings Cart' module."
 msgstr "Vervanging voor de originele 'Stamboomknipsel'-module."
@@ -35,28 +35,28 @@ msgid "Add this record to the clippings cart"
 msgstr "Voeg dit record toe aan de knipselverzameling"
 
 msgid "%1$s and her ancestors (up to %2$s generations)"
-msgstr "%1$s en haar voorouders (tot %2$s generaties)"
+msgstr "%1$s en haar voorouders (tot maximaal %2$s generaties)"
 
 msgid "%1$s and his ancestors (up to %2$s generations)"
-msgstr "%1$s en zijn voorouders (tot %2$s generaties)"
+msgstr "%1$s en zijn voorouders (tot maximaal %2$s generaties)"
 
 msgid "%s and her ancestors, up to 4 generations, for H-Tree"
-msgstr "%s en haar voorouders, tot 4 generaties, voor H-Tree"
+msgstr "%s en haar voorouders, tot maximaal 4 generaties, voor H-Tree-weergave (TAM-functie)"
 
 msgid "%s and his ancestors, up to 4 generations, for H-Tree"
-msgstr "%s en zijn voorouders, tot 4 generaties, voor H-Tree"
+msgstr "%s en zijn voorouders, tot maximaal 4 generaties, voor H-Tree-weergave (TAM-functie)"
 
 msgid "%1$s, her ancestors and their families (up to %2$s generations)"
-msgstr "%1$s, haar voorouders en hun gezinnen (tot %2$s generaties)"
+msgstr "%1$s, haar voorouders en hun gezinnen (tot maximaal maximaal %2$s generaties)"
 
 msgid "%1$s, his ancestors and their families (up to %2$s generations)"
-msgstr "%1$s, zijn voorouders en hun gezinnen (tot %2$s generaties)"
+msgstr "%1$s, zijn voorouders en hun gezinnen (tot maximaal %2$s generaties)"
 
 msgid "%1$s, her spouses and descendants (up to %2$s generations)"
-msgstr "%1$s, haar partners en afstammelingen (tot %2$s generaties)"
+msgstr "%1$s, haar partners en afstammelingen (tot maximaal %2$s generaties)"
 
 msgid "%1$s, his spouses and descendants (up to %2$s generations)"
-msgstr "%1$s, zijn partners en afstammelingen (tot %2$s generaties)"
+msgstr "%1$s, zijn partners en afstammelingen (tot maximaal %2$s generaties)"
 
 msgid "%s and all linked individuals"
 msgstr "%s en alle verbonden personen"
@@ -137,7 +137,7 @@ msgid "... as GEDCOM file (all Tags, no media files)"
 msgstr "... als GEDCOM-bestand (*.ged) - alle labels, geen mediabestanden"
 
 msgid "... as GEDCOM file (only INDI and FAM)"
-msgstr "... als GEDCOM-bestand (*.ged) - alleen INDI en FAM"
+msgstr "... als GEDCOM-bestand (*.ged) - alleen INDI en FAM, verder niets"
 
 msgid "Visualize records in a diagram ..."
 msgstr "Visualiseer records in een diagram ..."
@@ -149,7 +149,7 @@ msgid "... using Lineage"
 msgstr "... met behulp van Lineage"
 
 msgid "Privatize options"
-msgstr "Privacybeperkingen"
+msgstr "Privacyopties"
 
 msgid "back to show"
 msgstr "terug naar overzicht"
@@ -174,3 +174,99 @@ msgstr "CCE-Knipselverzamelingacties"
 
 msgid "Just a moment"
 msgstr "Een ogenblik geduld"
+
+msgid "records created by action"
+msgstr "records aangemaakt door actie"
+
+msgid "No actions executed."
+msgstr "Geen acties uitgevoerd."
+
+msgid "Delete records in the clippings cart entirely"
+msgstr "Records in de knipselverzameling volledig verwijderen"
+
+msgid "Store the records in the clippings cart to file"
+msgstr "Records in de knipselverzameling opslaan in een bestand"
+
+msgid "Delete records in the clippings cart with selection option"
+msgstr "Records in de knipselverzameling verwijderen met selectieoptie"
+
+msgid "add families and individuals to the clippings cart"
+msgstr "gezinnen en personen toevoegen aan de knipselverzameling"
+
+msgid "add families and individuals with parents to the clippings cart"
+msgstr "gezinnen en personen met ouders toevoegen aan de knipselverzameling"
+
+msgid "add individuals to the clippings cart"
+msgstr "personen toevoegen aan de knipselverzameling"
+
+msgid "add individuals with parents to the clippings cart"
+msgstr "personen met ouders toevoegen aan de knipselverzameling"
+
+msgid "add individuals and spouses to the clippings cart"
+msgstr "personen en echtgenoten toevoegen aan de knipselverzameling"
+
+msgid "Click here to toggle highlighting of relevant records on or off"
+msgstr "Klik hier om het markeren van relevante records aan of uit te zetten"
+
+msgid "Total number of entries: %s"
+msgstr "Totaal aantal vermeldingen: %s"
+
+msgid "of which new entries: %s"
+msgstr "waarvan nieuwe vermeldingen: %s"
+
+msgid "Save cart to file"
+msgstr "Verzameling opslaan in bestand"
+
+msgid "File name"
+msgstr "Bestandsnaam"
+
+msgid "Timestamp is set as UTC ..."
+msgstr "Tijdstempel is ingesteld als UTC ..."
+
+msgid "Number of CartXrefs:"
+msgstr "Aantal verzamelingsXrefs:"
+
+msgid "Number of CartActs:"
+msgstr "Aantal verzamelingsacties:"
+
+msgid "of which are new:"
+msgstr "waarvan nieuw:"
+
+msgid "Cart is saved to file"
+msgstr "Verzameling opgeslagen in bestand"
+
+msgid "Load cart from file"
+msgstr "Verzameling uit bestand laden"
+
+msgid "Choose saved carts"
+msgstr "Kies opgeslagen verzamelingen"
+
+msgid "Cartkey"
+msgstr "Verzamelings-id"
+
+msgid "Click: select/deselect this file"
+msgstr "Klik: dit bestand selecteren/deselecteren"
+
+msgid "Timestamp"
+msgstr "Tijdstempel"
+
+msgid "cartActs"
+msgstr "verzamelingsacties"
+
+msgid "Load Cart from file done"
+msgstr "Verzameling uit bestand geladen"
+
+msgid "Reload"
+msgstr "Opnieuw laden"
+
+msgid "all persons to whom '%s' is linked"
+msgstr "alle personen aan wie '%s' is gekoppeld"
+
+msgid "all families to whom '%s' is linked"
+msgstr "alle gezinnen waaraan '%s' is gekoppeld"
+
+msgid "Add '%s' to the clippings cart"
+msgstr "'%s' toevoegen aan de knipselverzameling"
+
+msgid "Transfer to tagging service"
+msgstr "Overbrengen naar markeringsservice"
