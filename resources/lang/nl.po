@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: hh 2.0.19\n"
 "Report-Msgid-Bugs-To: hermann@hartenthaler.de\n"
 "POT-Creation-Date: 2021-11-21 12:57+0200\n"
-"PO-Revision-Date: 2024-02-25 08:54+0100\n"
+"PO-Revision-Date: 2024-03-19 07:17+0100\n"
 "Last-Translator: TheDutchJewel <thedutchjewel@gmail.com>\n"
 "Language-Team: \n"
 "Language: nl\n"
@@ -244,7 +244,7 @@ msgstr "Kies opgeslagen verzamelingen"
 msgid "Cartkey"
 msgstr "Verzamelings-id"
 
-msgid "Click: select/deselect this file"
+msgid "Click: select/deselect this saved cart"
 msgstr "Klik: dit bestand selecteren/deselecteren"
 
 msgid "Timestamp"
@@ -270,3 +270,9 @@ msgstr "'%s' toevoegen aan de knipselverzameling"
 
 msgid "Transfer to tagging service"
 msgstr "Overbrengen naar markeringsservice"
+
+msgid "Click: remove this saved cart"
+msgstr "Klik: deze opgeslagen verzameling verwijderen"
+
+msgid "No saved cart files found"
+msgstr "Geen opgeslagen verzamelingsbestanden gevonden"
