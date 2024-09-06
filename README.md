@@ -11,7 +11,7 @@ This [webtrees](https://www.webtrees.net/) custom module replaces the original '
 It offers additional possibilities to add records to the clippings cart and owns beside the possibility
 to export GEDCOM information for visualizing the records in the clippings cart using a diagram.
 
-This custom module is mainly based on the hh_clippings_cart_enhanced by Hermann Hartenthaler
+This custom module is primarily based on the hh_clippings_cart_enhanced by Hermann Hartenthaler
 (https://github.com/hartenthaler/hh_clippings_cart_enhanced) and is only executable with
 webtrees-2.1. For webtrees-2.0 use huhwt-cce20.
 
@@ -42,22 +42,23 @@ This Readme contains the following main sections
 
 Functions and actions for records are described in detail in the [Hartenthaler module description](/README-CCE.md).
 
-This module covers all clipping actions covered in the Webtrees standard. In addition, records from 'Family List' and 'Individual List' as well as persons and families from the 'Shared Notes List' can also be taken over. [huhwt-xtv](https://github.com/huhwt/huhwt-xtv) (tree view extended) and [huhwt-mtv](https://github.com/huhwt-mtv) (multi-tree view for admin Action “Check duplicates”) can now also transfer to the clippings cart.
+This module covers all clipping actions covered in the Webtrees standard. This has been supplemented by the adoption of entries from the 'Family List' and 'Individual List', both from the respective standard functions and from the 'Shared Notes List' as well as from 'General ...' and 'Advanced Search', which use these views for the output. In 'Individual List' mode, parents and descendants can also be adopted alternatively or completely as required.
 
-The clipping actions carried out are displayed as an additional overview. Each clipping action done by CCE will be identified (example: INDI\~I1 -> Individual I1 Action:'Only this record' - INDI_ANCESTOR_FAMILIES\~I1 Action: 'This Person, his ancestors and their families'). You can filter the collected entries according to these actions. Each of these actions can be undone individually.
+[huhwt-xtv](https://github.com/huhwt/huhwt-xtv) (Tree view extended) and [huhwt-mtv](https://github.com/huhwt-mtv) (Multi-tree view for admin action "Check duplicates") can now also be adopted into the clipping basket.
+
+The clipping actions carried out are displayed as an additional overview. Each clipping action done by CCE will be identified (example: INDI\~I1 -> Individual I1 Action:'Only this record' - INDI_ANCESTOR_FAMILIES\~I1 Action: 'This Person, his ancestors and their families'). You can filter the collected entries according to these actions. Each action can be undone individually.
 
 The cart's content can be stored as files on Server-Side (file location is defined by Tree-Name and User-ID, you may choose your own name). Saved files may be reloaded and added to the actual cart's content.
 
 An action initiated by the user then takes place on the records in the clippings cart, such as
 * the export to a GEDCOM zip file, as in the actual clippings cart module
 * the export to file in plain textual GEDCOM
-* the display of the objects in list form with the possibility of sorting and filtering this list (tbd)
-* the executed collection actions are displayed in a supplementary overview and can be selectively undone - 'Undo' option. However, there is no 'Redo' option (yet).
+* the display of the objects in list form with the options of sorting and filtering this list (tbd)
 * the transfer of the records in the clippings cart to new functions that visualize this data or analyze it statistically.
-Such a function could be for example a link-node-diagram like [TAM](https://github.com/huhwt/huhwt-wttam) 
-(Topographic Attribute Map) or [Lineage](https://github.com/huhwt/huhwt-wtlin).
+  * Such a function could be for example a link-node-diagram like [TAM](https://github.com/huhwt/huhwt-wttam) (Topographic Attribute Map) or [LIN/Lineage](https://github.com/huhwt/huhwt-wtlin).
+* the transfer of the records in the clippings cart to new function [TSM](https://github.com/huhwt/huhwt-tsm) (Tagging Service Manager) providing the capability to handle appropriately structured 'Shared Notes' at a high abstract level.
 
-The [TAM] and [Lineage] functions are provided as their own independent modules.
+The [TAM], [LIN] and [TSM] functions are provided as their own independent modules.
 
 This module can be operated in addition to the other 'Clippings Cart' functions or replace them completely.
 
@@ -92,7 +93,7 @@ This module has the same general requirements as [webtrees#system-requirements](
 
 This section documents installation instructions for this module.
 
-1. Download the [latest release](https://github.com/huhwt/huhwt-cce-dev/releases/latest). (By now: pre-release!).
+1. Download the [latest release](https://github.com/huhwt/huhwt-cce-dev/releases/latest).
 3. Unzip the package into your `webtrees/modules_v4` directory of your web server.
 4. Occasionally rename the folder to `huhwt-cce`. It's recommended to remove the respective directory if it already exists.
 
@@ -134,10 +135,10 @@ Special thanks to [hartenthaler](https://github.com/hartenthaler/) for providing
 
 This module was originally derived from the [Vesta clippings cart](https://github.com/vesta-webtrees-2-custom-modules/vesta_clippings_cart) module.
 
-* Copyright (C) 2022/2023 huhwt - EW.H
+* Copyright (C) 2022/2024 huhwt - EW.H
 * Copyright (C) 2021 Hermann Hartenthaler
 * Copyright (C) 2021 Richard Cissée. All rights reserved.
-* Derived from **webtrees** - Copyright 2022 webtrees development team.
+* Derived from **webtrees** - Copyright 2024 webtrees development team.
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

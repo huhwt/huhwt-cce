@@ -511,12 +511,14 @@ use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCEvizActions;
         // with parents?
         $boolWp = (Validator::queryParams($request)->string('boolWp', 'no') == 'yes');
 
+        $CCEkey = (Validator::queryParams($request)->string('CCEkey', 'clip_fam'));
+
         // the actual search parameters of origin request
         $actSEARCH = $this->cleanSearch(Validator::queryParams($request)->string('actSEARCH', ''));
         $actSEARCH_p = $this->getSearch($actSEARCH);
 
         // the actual page in DataTable
-        $actPage_ = (Validator::queryParams($request)->string('actPage',''));
+        $actPage_ = Validator::queryParams($request)->string('actPage','');
         if (array_key_exists('surname',$actSEARCH_p)) {
             $actPage = $actSEARCH_p['surname'] . '=' . $actPage_ . '=';
         } else if (array_key_exists('alpha',$actSEARCH_p)) {
@@ -535,7 +537,7 @@ use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCEvizActions;
 
         $families = $this->make_GedcomRecords($tree, $XREFs);
 
-        $caKey = $boolWp ? 'FAM-LISTwp' : 'FAM-LIST';
+        $caKey = $boolWp ? $CCEkey . 'wp' : $CCEkey;
         $caKey = $this->put_CartActs($tree, $caKey, $actSEARCH, $actPage);
         $_dname = 'wtVIZ-DATA~' . $caKey . '|' . $actSEARCH;
         $this->putVIZdname($_dname);
@@ -557,12 +559,6 @@ use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCEvizActions;
         return $this->count_CartTreeXrefsReport($tree, $xrefsCold);
     }
 
-    protected function toCartParents(Individual $individual) {
-        foreach ($individual->childFamilies() as $family) {
-            $this->addFamilyToCart($family);
-        }
-    }
-
     /**
      * Fetch a list of individuals with specified names
      * To search for unknown names, use $surn="@N.N.", $salpha="@" or $galpha="@"
@@ -578,23 +574,64 @@ use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCEvizActions;
 
         // with parents?
         $boolWp = (Validator::queryParams($request)->string('boolWp', 'no') == 'yes');
-
         // with spouses?
         $boolWs = (Validator::queryParams($request)->string('boolWs', 'no') == 'yes');
+        // with children?
+        $boolWc = (Validator::queryParams($request)->string('boolWc', 'no') == 'yes');
+        // with all relations?
+        $boolWa = (Validator::queryParams($request)->string('boolWa', 'no') == 'yes');
 
-        // the actual search parameters of origin request
+        $CCEkey = (Validator::queryParams($request)->string('CCEkey', 'clip_indi'));
+
         $actSEARCH = $this->cleanSearch(Validator::queryParams($request)->string('actSEARCH', ''));
-        $actSEARCH_p = $this->getSearch($actSEARCH);
+        $actSEARCH_ = $actSEARCH;
+        $is_search = false;
+        if (str_starts_with($CCEkey, 'SEARCH')) {
+            $is_search = true;
+            if (str_starts_with($CCEkey, 'SEARCH_G')) {
+                $actSEARCH_p = $this->getSearch_G($actSEARCH);
+            } else if (str_starts_with($CCEkey, 'SEARCH_A')) {
+                $actSEARCH_p = $this->getSearch_A($actSEARCH);
+            }
+        } else {
+            // the actual search parameters of origin request
+            $actSEARCH_p = $this->getSearch($actSEARCH);
+        }
 
         // the actual page in DataTable
         $actPage_ = (Validator::queryParams($request)->string('actPage',''));
-        if (array_key_exists('surname',$actSEARCH_p)) {
-            $actPage = $actSEARCH_p['surname'] . '=' . $actPage_ . '=';
-        } else if (array_key_exists('alpha',$actSEARCH_p)) {
-            $actPage = $actSEARCH_p['alpha'] . '=' . $actPage_ . '=';
+        $actPage  = '_';
+        if ($is_search) {
+            if (array_key_exists('query',$actSEARCH_p)) {
+                $actPage = $actSEARCH_p['query'];
+                $actSEARCH_ = '';
+                foreach($actSEARCH_p as $s_key => $s_val) {
+                    if ($s_val != '0') {
+                        $actSEARCH_ .= '&' . $s_key . '=' . $s_val;
+                    }
+                }
+            } else {
+                $actPage = '';
+                $actSEARCH_ = '';
+                foreach($actSEARCH_p as $s_key => $s_val) {
+                    $actSEARCH_ .= '&' . $s_key . '=' . $s_val;
+                    if(str_starts_with($s_key, 'fields')) {
+                        if ($actPage == '')
+                            $actPage = $s_val;
+                        else
+                            $actPage .= '&' . $s_val;
+                    }
+                }
+            }
+            // $actPage  = implode('&', $actSEARCH_p);
         } else {
-            $actPage = '_' . '=' . $actPage_ . '=';
+            if (array_key_exists('surname',$actSEARCH_p)) {
+                $actPage = $actSEARCH_p['surname'];
+            } else if (array_key_exists('alpha',$actSEARCH_p)) {
+                $actPage = $actSEARCH_p['alpha'];
+            }
         }
+        $actPage = $actPage . ' [' . $actPage_ . ']';
 
         // the XREFs
         $xrefs = Validator::queryParams($request)->string('xrefs', '');
@@ -606,13 +643,13 @@ use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCEvizActions;
 
         $individuals = $this->make_GedcomRecords($tree, $XREFs);
 
-        $caKey = 'INDI-LIST';
-        if ($boolWp)
-            $caKey = $caKey . 'wp';
-        if ($boolWs)
-            $caKey = $caKey . 'ws';
-        $caKey = $this->put_CartActs($tree, $caKey, $actSEARCH, $actPage);
-        $_dname = 'wtVIZ-DATA~' . $caKey . '|' . $actSEARCH;
+        $caKey = $CCEkey;
+        // if ($boolWp)
+        //     $caKey = $caKey . 'wp';
+        // if ($boolWs)
+        //     $caKey = $caKey . 'ws';
+        $caKey = $this->put_CartActs($tree, $caKey, $actSEARCH_, $actPage);
+        $_dname = 'wtVIZ-DATA~' . $caKey . '|' . $actSEARCH_;
         $this->putVIZdname($_dname);
 
         foreach($individuals  as $individual) {
@@ -624,13 +661,25 @@ use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCEvizActions;
             }
         }
         if ($boolWs) {
-            foreach ($individual->spouseFamilies() as $family) {
-                $indi_wife = $family->wife();
-                if ($indi_wife)
-                    $this->addIndividualToCart($indi_wife);
-                $indi_husb = $family->husband();
-                if ($indi_husb)
-                    $this->addIndividualToCart($indi_husb);
+            foreach($individuals  as $individual) {
+                foreach ($individual->spouseFamilies() as $family) {
+                    $this->addFamilyToCart($family);
+                }
+            }
+        }
+        if ($boolWc) {
+            foreach($individuals  as $individual) {
+                foreach ($individual->spouseFamilies() as $family) {
+                    $this->addFamilyAndChildrenToCart($family);
+                }
+            }
+        }
+        if ($boolWa) {
+            foreach($individuals  as $individual) {
+                $this->toCartParents($individual);
+                foreach ($individual->spouseFamilies() as $family) {
+                    $this->addFamilyAndChildrenToCart($family);
+                }
             }
         }
 
@@ -712,30 +761,23 @@ use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCEvizActions;
 
         $XREFs = explode(';', $xrefs);
 
-        $individuals = $this->make_GedcomRecords($tree, $XREFs);
+        $records = array_map(static function (string $xref) use ($tree): ?GedcomRecord {
+            return Registry::gedcomRecordFactory()->make($xref, $tree);
+        }, $XREFs);
 
         $caKey = 'XTV';
         $caKey = $this->put_CartActs($tree, $caKey, $XREFindi);
         $_dname = 'wtVIZ-DATA~' . $caKey;
         $this->putVIZdname($_dname);
 
-        // we want only INDI - switch all_RecTypes temporarly
         $all_RT = $this->all_RecTypes;
         $this->all_RecTypes = false;
         
-        foreach($individuals  as $individual) {
-            $this->addIndividualToCart($individual);
-            foreach ($individual->spouseFamilies() as $family) {
-                $indi_wife = $family->wife();
-                if ($indi_wife)
-                    $this->addIndividualToCart($indi_wife);
-                $indi_husb = $family->husband();
-                if ($indi_husb)
-                    $this->addIndividualToCart($indi_husb);
-
-                $this->addFamilyWithoutSpousesToCart($family);
-
-                $this->addMediaLinksToCart($family);
+        foreach ($records as $record) {
+            if ($record instanceof Individual) {
+                $this->addIndividualToCart($record);
+            } else if ($record instanceof Family) {
+                $this->addFamilyToCart($record);
             }
         }
 
@@ -816,6 +858,91 @@ use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCEvizActions;
                 }
 
             }
+        }
+
+        return $actSearch_;
+    }
+
+    /**
+     * there is a bunch of search declarations, we want them as keyed array
+     * 'SEARCH_G' is the parameters of 'search-general'
+     * We want only 'query', all other parameters are irrelevant
+     * 
+     * @param string            $p_actSearch
+     * 
+     * @return array<string,string>         key     search term         value   search parm
+     */
+    private function getSearch_G($p_actSearch) : array
+    {
+        if ($p_actSearch == '')
+            return [''];
+
+        $actSearch_x = explode('&', $p_actSearch);
+
+        $actSearch_ = [];
+        foreach($actSearch_x  as $search) {
+            if ($search > '') {
+                if (str_starts_with($search, 'query')) {
+                    $search_x = explode('=', $search);
+                    if ($search_x[1] > '') {
+                        $actSearch_ [$search_x[0]] = $search_x[1];
+                    }
+                } else {
+                    $search_x = explode('=', $search);
+                    if ($search_x[1] == '1') {
+                        $actSearch_ [$search_x[0]] = $search_x[1];
+                    }
+                }
+            }
+        }
+
+        return $actSearch_;
+    }
+
+    /**
+     * there is a bunch of search declarations, we want them as keyed array
+     * 'SEARCH_A' is the parameters of 'search-advanced'
+     * We have a set of fields and a second set of modifiers.
+     * Modifiers are explicitly defined but have no sense when the corresponding
+     * field isn't set. 
+     * So we have to check, if a modifier is valid because the referred field is valid too.
+     * 
+     * @param string            $p_actSearch
+     * 
+     * @return array<string,string>         key     search term         value   search parm
+     */
+    private function getSearch_A($p_actSearch) : array
+    {
+        if ($p_actSearch == '')
+            return [''];
+
+        $actSearch_x = explode('&', $p_actSearch);
+
+        $actSearch_fields = [];
+        $actSearch_modifiers = [];
+        foreach($actSearch_x  as $search) {
+            if ($search > '') {
+                $search_x = explode('=', $search);
+                if ($search_x[1] > '') {
+                    $s_0    = $search_x[0];
+                    if (str_starts_with($s_0, 'fields')) {
+                        $actSearch_fields [$s_0] = $search_x[1];
+                    } else {
+                        $s_key = 'fields' . str_replace('modifier','',$s_0);
+                        if (array_key_exists($s_key, $actSearch_fields)) {
+                            $actSearch_modifiers [$s_0] = $search_x[1];
+                        }
+                    }
+                }
+            }
+        }
+        $actSearch_ = [];
+
+        foreach($actSearch_fields as $s_key => $s_val) {
+            $actSearch_ [$s_key] = $s_val;
+        }
+        foreach($actSearch_modifiers as $s_key => $s_val) {
+            $actSearch_ [$s_key] = $s_val;
         }
 
         return $actSearch_;

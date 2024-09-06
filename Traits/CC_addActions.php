@@ -123,10 +123,10 @@ trait CC_addActions
     {
         $this->addFamilyAndChildrenToCart($family);
 
-        foreach ($family->children() as $child) {
-            foreach ($child->spouseFamilies() as $child_family) {
-                if ($level > 1) {
-                    $this->addFamilyAndDescendantsToCart($child_family, $level - 1);
+        if ($level > 1) {
+            foreach ($family->children() as $child) {
+                foreach ($child->spouseFamilies() as $child_family) {
+                        $this->addFamilyAndDescendantsToCart($child_family, $level - 1);
                 }
             }
         }
@@ -313,7 +313,7 @@ trait CC_addActions
      */
     public function addRepositoryLinksToCart(GedcomRecord $record): void
     {
-        preg_match_all('/\n\d REPO @(' . Gedcom::REGEX_XREF . '@)/', $record->gedcom(), $matches);
+        preg_match_all('/\n\d REPO @(' . Gedcom::REGEX_XREF . ')@/', $record->gedcom(), $matches);      // Fix #4986
 
         foreach ($matches[1] as $xref) {
             $repository = Registry::repositoryFactory()->make($xref, $record->tree());

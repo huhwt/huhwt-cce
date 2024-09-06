@@ -5,7 +5,31 @@
  *
  */
 
-function exec_Request(event, _boolWp, _listType, _clipAction, _boolWs = "") {
+function CCEprepEvents(mElem, _dtNNjq, _wt_table_id) {
+    // 'listType' => $listType, 'clipAction' => $clipAction, 'action-key' => $action_key,
+    // 'dt_id' => $dt_id, 'dt_grep' => $dt_grep]);
+    let boolWp = "";
+    let boolWs = "";
+    let boolWc = "";
+    let boolWa = "";
+    let listType    = mElem.getAttribute('listType');
+    let clipAction  = mElem.getAttribute('clipAction');
+    let dt_id       = mElem.getAttribute('dt_id');
+    let CCE_key     = mElem.getAttribute('action-key');
+    if (CCE_key.endsWith('wp'))
+        boolWp = "yes";
+    if (CCE_key.endsWith('ws'))
+        boolWs = "yes";
+    if (CCE_key.endsWith('wc'))
+        boolWc = "yes";
+    if (CCE_key.endsWith('wa'))
+        boolWa = "yes";
+    mElem.addEventListener("click", (event) => {
+        CCEexecRequest(event, boolWp, listType, clipAction, boolWs, boolWc, boolWa, dt_id, CCE_key, _dtNNjq, _wt_table_id);
+        });
+}
+
+function CCEexecRequest(event, _boolWp, _listType, _clipAction, _boolWs, _boolWc, _boolWa, _dt_ind, _CCE_key, _dtNNjq, _wt_table_id) {
     let elem = event.target;
     let actURL = window.location.href;
     let indTypeInd = 5;                                         // Index of List-Indicator - assumed PrettyUrl ...
@@ -14,22 +38,23 @@ function exec_Request(event, _boolWp, _listType, _clipAction, _boolWs = "") {
     let actSEARCH = decodeURIComponent(window.location.search);
     actSEARCH = actSEARCH.substring(actSEARCH.indexOf("&"));
 
-    let dt_pag = get_dt_length();
+    let dt_pag = CCEget_dt_length(_dtNNjq);
 
     let fXREF = "_";                                            // first XREF in table-row
     let XREFs = [];                                             // array of XREFs für update
-    let dt = document.querySelector("#DataTables_Table_0");
+    let dt = document.getElementsByClassName(_wt_table_id)[0];    // "#DataTables_Table_" + _dt_ind;
+    // let dt = document.querySelector(dt_Tid);
     let dtb = dt.querySelector("tbody");
     let dtb_Fs = dtb.querySelectorAll("a");
     for (let i = 0; i < dtb_Fs.length; i++) {
-        let _Fe = dtb_Fs[i].href;
-        let _Fed = decodeURIComponent(_Fe);
-        let _Fes = _Fed.split("/");
+        let _Fe     = dtb_Fs[i].href;
+        let _Fed    = decodeURIComponent(_Fe);
+        let _Fes    = _Fed.split("/");
         if (_Fes[indTypeInd] == _listType) {                     // if it is this type of list ...
-            let XREF = _Fes[indTypeInd+1];                      // ... we'll find the Xref in the next slot
+            let XREF    = _Fes[indTypeInd+1];                       // ... we'll find the Xref in the next slot
             if (XREF != fXREF) {
                 if ( XREFs.indexOf(XREF) < 0 ) {
-                    fXREF = XREF;
+                    fXREF   = XREF;
                     XREFs.push(XREF);
                 }
             }
@@ -41,14 +66,17 @@ function exec_Request(event, _boolWp, _listType, _clipAction, _boolWs = "") {
     if (_url.includes("&amp;")) {
         _url = _url.replace("&amp;","&");
     }
-    _url = _url + "&action=" + _clipAction + "&boolWp=" + encodeURIComponent(_boolWp) + "&actSEARCH=" + encodeURIComponent(actSEARCH) + "&actPage=" + encodeURIComponent(dt_pag) + "&boolWs=" + encodeURIComponent(_boolWs);
+    _url = _url + "&action=" + _clipAction + "&boolWp=" + encodeURIComponent(_boolWp)
+                + "&actSEARCH=" + encodeURIComponent(actSEARCH) + "&actPage=" + encodeURIComponent(dt_pag)
+                + "&boolWs=" + encodeURIComponent(_boolWs) + "&boolWc=" + encodeURIComponent(_boolWc) + "&boolWa=" + encodeURIComponent(_boolWa) 
+                + "&CCEkey=" + encodeURIComponent(_CCE_key);
     $.ajax({
         url: _url,
         dataType: "json",
         data: "xrefs=" + XREFs.join(";"),
         success: function (ret) {
             var _ret = ret;
-            updateCCEcount(_ret);
+            CCEupdateCount(_ret);
             return true;
         },
         complete: function () {
@@ -60,7 +88,7 @@ function exec_Request(event, _boolWp, _listType, _clipAction, _boolWs = "") {
     });
 }
 
-function updateCCEcount(XREFcnt) {
+function CCEupdateCount(XREFcnt) {
     let pto = typeof XREFcnt;
     let cnt = CCEmenBadge.textContent;
     cnt = cnt.substring(2).trim();
@@ -68,7 +96,7 @@ function updateCCEcount(XREFcnt) {
     switch (pto) {
         case 'object':
             vcnt = XREFcnt[0];
-            showCountPop(XREFcnt);
+            CCEshowCountPop(XREFcnt);
             break;
         case 'number':
         default:
@@ -78,7 +106,7 @@ function updateCCEcount(XREFcnt) {
     CCEmenBadge.textContent = " "  + vcnt.toString() + " ";
 }
 
-function showCountPop(XREFcnt) {
+function CCEshowCountPop(XREFcnt) {
     let vCntS = XREFcnt[0];
     let vCntN = XREFcnt[1];
     let vCntStxt = XREFcnt[2];
@@ -108,10 +136,10 @@ function showCountPop(XREFcnt) {
     if (elem_pop.classList.contains('hidden'))
         elem_pop.classList.remove('hidden');
     elem_pop.style.opacity = 1;
-    setTimeout(fadeOut,2400);
+    setTimeout(CCEfadeOutPop,2400);
 }
 
-function fadeOut() {
+function CCEfadeOutPop() {
     let elem_pop = document.getElementById('CCEpopUp');
     var op = 1;  // initial opacity
     var timer = setInterval(function () {
@@ -127,8 +155,8 @@ function fadeOut() {
     }, 100);
 }
 
-function get_dt_length() {
-    let dt_0 = FLjqdt[0];
+function CCEget_dt_length(_dtNNjq) {
+    let dt_0 = _dtNNjq[0];
     let dt_0_keys = Object.keys(dt_0);
     let dt_0_id = dt_0_keys[0];
     let dt_id = dt_0[dt_0_id];
@@ -136,7 +164,7 @@ function get_dt_length() {
     let dt_lenMenu_vals = dt_lenMenu[0];
     let dt_lenMenu_texts = dt_lenMenu[1];
 
-    let dTapi = FLjqdt.api();
+    let dTapi = _dtNNjq.api();
     let dTinfo = dTapi.page.info();
     let dt_pag_ = [];
     dt_pag_.push((dTinfo['page']+1).toString());

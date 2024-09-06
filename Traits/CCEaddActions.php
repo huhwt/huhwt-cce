@@ -59,8 +59,10 @@ trait CCEaddActions
     private const ADD_ALL_LINKED_PERSONS = 'all connected persons in this family tree - Caution: probably very high number of persons!';
     private const ADD_COMPLETE_GED       = 'all persons in this family tree - Caution: probably very high number of persons!';
     private const ADD_LINKED_INDIS       = 'all persons to whom this note is linked';
+    private const ADD_LINKED_INDIS_wp    = 'all persons to whom this note is linked with their parents';
     private const ADD_LINKED_FAMS        = 'all families to whom this note is linked';
-/**
+
+    /**
      * GET and POST actions
      */
 
@@ -310,60 +312,6 @@ trait CCEaddActions
         return redirect($individual->url());
     }
 
-#endregion
-
-    /**
-     * POST actions
-     */
-
-#region     POST
-
-    /**
-     * @param ServerRequestInterface $request
-     *
-     * @return ResponseInterface
-     */
-    public function postAddLocationAction(ServerRequestInterface $request): ResponseInterface
-    {
-        $tree = Validator::attributes($request)->tree();
-
-        $xref = Validator::queryParams($request)->isXref()->string('xref','');
-
-        $location = Registry::locationFactory()->make($xref, $tree);
-        $location = Auth::checkLocationAccess($location);
-
-        $this->put_CartActs($tree, 'LOC', $xref);
-        $_dname = 'wtVIZ-DATA~LOC_' . $xref;
-        $this->putVIZdname($_dname);
-
-        $this->addLocationToCart($location);
-
-        return redirect($location->url());
-    }
-
-    /**
-     * @param ServerRequestInterface $request
-     *
-     * @return ResponseInterface
-     */
-    public function postAddMediaAction(ServerRequestInterface $request): ResponseInterface
-    {
-        $tree = Validator::attributes($request)->tree();
-
-        $xref = Validator::queryParams($request)->isXref()->string('xref','');
-
-        $media = Registry::mediaFactory()->make($xref, $tree);
-        $media = Auth::checkMediaAccess($media);
-
-        $this->put_CartActs($tree, 'MEDIA', $xref);
-        $_dname = 'wtVIZ-DATA~MEDIA_' . $xref;
-        $this->putVIZdname($_dname);
-
-        $this->addMediaToCart($media);
-
-        return redirect($media->url());
-    }
-
     /**
      * @param ServerRequestInterface $request
      *
@@ -380,9 +328,10 @@ trait CCEaddActions
         $options = [
             self::ADD_RECORD_ONLY => $name,
             /* EW.H - MOD ... we want all individuals where this note is linked */
-            self::ADD_LINKED_INDIS   => I18N::translate("all persons to whom '%s' is linked", $name),
+            self::ADD_LINKED_INDIS      => I18N::translate("all persons to whom '%s' is linked", $name),
+            self::ADD_LINKED_INDIS_wp   => I18N::translate("all persons to whom '%s' is linked with their parents", $name),
             /* I18N: %s is a family (husband + wife) */
-            self::ADD_LINKED_FAMS    => I18N::translate("all families to whom '%s' is linked", $name),
+            self::ADD_LINKED_FAMS       => I18N::translate("all families to whom '%s' is linked", $name),
         ];
 
         /* I18N: %s is a family (husband + wife) */
@@ -423,11 +372,16 @@ trait CCEaddActions
                 $this->put_CartActs($tree, 'NOTE', $xref);
                 $this->addNoteToCart($note);
                 break;
-            case self::ADD_LINKED_INDIS:
-                $this->put_CartActs($tree, 'NOTE_PERSONS', $note->fullName(), $xref, false);
-                $this->addNoteLinkedIndividualsToCart($note);
-                break;
 
+                case self::ADD_LINKED_INDIS:
+                $this->put_CartActs($tree, 'NOTE_PERSONS', $note->fullName(), $xref, false);
+                $this->addNoteLinkedIndividualsToCart($note, false);
+                break;
+            case self::ADD_LINKED_INDIS_wp:
+                $this->put_CartActs($tree, 'NOTE_PERSONSwp', $note->fullName(), $xref, false);
+                $this->addNoteLinkedIndividualsToCart($note, true);
+                break;
+    
             case self::ADD_LINKED_FAMS:
                 $this->put_CartActs($tree, 'NOTE_FAMILIES', $note->fullName(), $xref, false);
                 $this->addNoteLinkedFamiliesToCart($note);
@@ -437,33 +391,6 @@ trait CCEaddActions
     }
 
     /**
-     * @param ServerRequestInterface $request
-     *
-     * @return ResponseInterface
-     */
-    public function postAddRepositoryAction(ServerRequestInterface $request): ResponseInterface
-    {
-        $tree = Validator::attributes($request)->tree();
-
-        $xref = Validator::queryParams($request)->isXref()->string('xref','');
-
-        $repository = Registry::repositoryFactory()->make($xref, $tree);
-        $repository = Auth::checkRepositoryAccess($repository);
-
-        $this->put_CartActs($tree, 'REPO', $xref);
-        $_dname = 'wtVIZ-DATA~REPO_' . $xref;
-        $this->putVIZdname($_dname);
-
-        $this->addRepositoryToCart($repository);
-
-        foreach ($this->linked_record_service->linkedSources($repository) as $source) {
-            $this->addSourceToCart($source);
-        }
-
-        return redirect($repository->url());
-    }
-
-        /**
      * @param ServerRequestInterface $request
      *
      * @return ResponseInterface
@@ -527,6 +454,87 @@ trait CCEaddActions
         }
 
         return redirect($source->url());
+    }
+
+#endregion
+
+    /**
+     * POST actions
+     */
+
+#region     POST
+
+    /**
+     * @param ServerRequestInterface $request
+     *
+     * @return ResponseInterface
+     */
+    public function postAddLocationAction(ServerRequestInterface $request): ResponseInterface
+    {
+        $tree = Validator::attributes($request)->tree();
+
+        $xref = Validator::queryParams($request)->isXref()->string('xref','');
+
+        $location = Registry::locationFactory()->make($xref, $tree);
+        $location = Auth::checkLocationAccess($location);
+
+        $this->put_CartActs($tree, 'LOC', $xref);
+        $_dname = 'wtVIZ-DATA~LOC_' . $xref;
+        $this->putVIZdname($_dname);
+
+        $this->addLocationToCart($location);
+
+        return redirect($location->url());
+    }
+
+    /**
+     * @param ServerRequestInterface $request
+     *
+     * @return ResponseInterface
+     */
+    public function postAddMediaAction(ServerRequestInterface $request): ResponseInterface
+    {
+        $tree = Validator::attributes($request)->tree();
+
+        $xref = Validator::queryParams($request)->isXref()->string('xref','');
+
+        $media = Registry::mediaFactory()->make($xref, $tree);
+        $media = Auth::checkMediaAccess($media);
+
+        $this->put_CartActs($tree, 'MEDIA', $xref);
+        $_dname = 'wtVIZ-DATA~MEDIA_' . $xref;
+        $this->putVIZdname($_dname);
+
+        $this->addMediaToCart($media);
+
+        return redirect($media->url());
+    }
+
+    /**
+     * @param ServerRequestInterface $request
+     *
+     * @return ResponseInterface
+     */
+    public function postAddRepositoryAction(ServerRequestInterface $request): ResponseInterface
+    {
+        $tree = Validator::attributes($request)->tree();
+
+        $xref = Validator::queryParams($request)->isXref()->string('xref','');
+
+        $repository = Registry::repositoryFactory()->make($xref, $tree);
+        $repository = Auth::checkRepositoryAccess($repository);
+
+        $this->put_CartActs($tree, 'REPO', $xref);
+        $_dname = 'wtVIZ-DATA~REPO_' . $xref;
+        $this->putVIZdname($_dname);
+
+        $this->addRepositoryToCart($repository);
+
+        foreach ($this->linked_record_service->linkedSources($repository) as $source) {
+            $this->addSourceToCart($source);
+        }
+
+        return redirect($repository->url());
     }
 
     /**
@@ -738,7 +746,7 @@ trait CCEaddActions
      * redefined add-actions
      */
 
-#region     enhanced add-actions
+#region     redefined add-actions
 
     /**
      * @param Family $family
@@ -783,7 +791,7 @@ trait CCEaddActions
     /**
      * @param Note $note
      */
-    public function addNoteLinkedIndividualsToCart(Note $note): void
+    public function addNoteLinkedIndividualsToCart(Note $note, bool $bool_wp=false): void
     {
         $tree = $note->tree();
         $xref = $note->xref();
@@ -797,6 +805,10 @@ trait CCEaddActions
         $linked_individuals = $this->linked_record_service->linkedIndividuals($note);
         foreach ($linked_individuals as $key => $individual) {
             $this->addIndividualToCart($individual);
+
+            if ($bool_wp) {
+                $this->toCartParents($individual);
+            }
         }
 
         $this->all_RecTypes = $all_RT;
@@ -820,6 +832,12 @@ trait CCEaddActions
         }
 
         $this->all_RecTypes = $all_RT;
+    }
+
+    public function toCartParents(Individual $individual) {
+        foreach ($individual->childFamilies() as $family) {
+            $this->addFamilyToCart($family);
+        }
     }
 
 

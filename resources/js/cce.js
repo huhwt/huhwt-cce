@@ -202,6 +202,15 @@ function clickCAdelete(trElem, celem, celemt, delem) {
     if (doRefresh) {
         refreshTR();
     }
+
+    let btn_export = document.getElementById('CCE_btnExport');
+    if (tcount === 0) {                                                             // we have no more cartActs ...
+        if (!btn_export.hasAttribute('disabled'))
+            btn_export.setAttribute('disabled','');                                     // ... so there is no reason to support export
+    } else {                                                                        // we have at least 1 cartAct
+        if (btn_export.hasAttribute('disabled'))
+            btn_export.removeAttribute('disabled');                                     // ... so we want to be able to export
+    }
 }
 function execCAdelete(delem, XREFs) {
     let cartAct = delem.getAttribute('cartact');

@@ -75,6 +75,9 @@ use Fisharebest\Webtrees\Http\RequestHandlers\SourcePage;
 use Fisharebest\Webtrees\Http\RequestHandlers\SubmitterPage;
 use Fisharebest\Webtrees\Module\FamilyListModule;
 use Fisharebest\Webtrees\Module\IndividualListModule;
+use Fisharebest\Webtrees\Http\RequestHandlers\SearchGeneralPage;
+use Fisharebest\Webtrees\Http\RequestHandlers\SearchAdvancedPage;
+
 use Fisharebest\Localization\Translation;
 use Fisharebest\Webtrees\I18N;
 use Fisharebest\Webtrees\FlashMessages;
@@ -82,6 +85,7 @@ use Fisharebest\Webtrees\Individual;
 use Fisharebest\Webtrees\Location;
 use Fisharebest\Webtrees\Media;
 use Fisharebest\Webtrees\Menu;
+use Fisharebest\Webtrees\Module\ModuleGlobalInterface;
 use Fisharebest\Webtrees\Note;
 use Fisharebest\Webtrees\Registry;
 use Fisharebest\Webtrees\Repository;
@@ -132,7 +136,6 @@ use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCEcartActions;
 use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCEdatabaseActions;
 use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCEtagsActions;
 use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCEvizActions;
-use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCElistModulesTrait;
 
 use HuHwt\WebtreesMods\TaggingServiceManager\TaggingServiceManager;
 use HuHwt\WebtreesMods\TaggingServiceManager\TaggingServiceManagerAdapter;
@@ -171,8 +174,8 @@ use const PREG_SET_ORDER;
  * Class ClippingsCartEnhanced
  */
 class ClippingsCartEnhanced extends ClippingsCartModule
-                         implements ModuleCustomInterface, ModuleMenuInterface, ModuleConfigInterface
-{   use ModuleMenuTrait;
+                         implements ModuleGlobalInterface, ModuleCustomInterface, ModuleConfigInterface // , ModuleMenuInterface
+{   // use ModuleMenuTrait;
 
     use ModuleConfigTrait;
     use CCEconfigTrait;
@@ -205,10 +208,41 @@ class ClippingsCartEnhanced extends ClippingsCartModule
     /** All constants and functions related to connecting vizualizations  */
     use CCEvizActions;
 
-    use CCElistModulesTrait;
-
     protected const ROUTE_URL = '/tree/{tree}/CCE';
 
+    /**
+     * {@inheritDoc}
+     * @see \Fisharebest\Webtrees\Module\ModuleGlobalInterface::headContent()
+     * CSS class for the URL.
+     *
+     * EW.H - MOD ... we need our Script too, so we do a double injection
+     * @return string
+     */
+    public function headContent(): string
+    {
+        $_name   = $this->name();
+
+        $html_CSS = view("{$_name}::style", [
+            'path' => $this->assetUrl('css/CCEtable-actions.css'),
+        ]);
+        $html_JSx = view("{$_name}::script", [
+            'path' => $this->assetUrl('js/CCEtable-actions.js'),
+        ]);
+        $html_ = $html_CSS . " " . $html_JSx;
+
+        return $html_;
+    }
+
+    /**
+     * {@inheritDoc}
+     * @see \Fisharebest\Webtrees\Module\ModuleGlobalInterface::bodyContent()
+     * EW.H - MOD ... - ( see headConten() )
+     * @return string
+     */
+    public function bodyContent(): string
+    {
+        return '';
+    }
     public const SHOW_RECORDS       = 'Records in clippings cart - Execute an action on them.';
     public const SHOW_ACTIONS       = 'Performed actions fo fill the cart.';
 
@@ -244,6 +278,65 @@ class ClippingsCartEnhanced extends ClippingsCartModule
         'Submitter'  => SubmitterPage::class,
         'FamilyListModule'      => FamilyListModule::class,
         'IndividualListModule'  => IndividualListModule::class,
+        'Search-General'        => SearchGeneralPage::class,
+        'SearchGeneralPage'     => SearchGeneralPage::class,
+        'Search-Advanced'       => SearchAdvancedPage::class,
+    ];
+
+    // Modules with lists: which DataTable to grep  - what kind of list
+    //      works combined with OTHER_MENU_TYPES
+    //          'X'  -> 'DataTables_Table_X_wrapper'
+    //          'action-type'   -> primary key for clipping action - defines number of menu entries
+    //          'action-pref'   -> optional prefix for clipping action
+    //          'action-suff'   -> optional suffix for clipping action
+    //          'action-text'   -> menu label
+    //          'grep-id'       -> will be used as variable name to grep the datatable functions
+    //          'listType'      -> basic type of information
+    //          'clipAction'    -> will be performed in ClippingsCartEnhancedModule
+    private const OTHER_MENUES = [
+        'FamilyListModule'      => [
+                'FL' => [ 'action-type' => 'FAM-LIST', 'action-pref' => '', 'grep-id' => 'dtFLjq'
+                        , 'view' => 'families-table', 'table' => '.wt-table-family' ]
+                ],
+        'IndividualListModule'  => [
+                'IL' => [ 'action-type' => 'INDI-LIST', 'action-pref' => '', 'grep-id' => 'dtILjq'
+                        , 'view' => 'individuals-table', 'table' => '.wt-table-individual' ]
+                ],
+        'Search-Advanced'        => [
+                'IL' => [ 'action-type' => 'INDI-LIST', 'action-pref' => 'SEARCH_A-', 'grep-id' => 'dtILjq'
+                        , 'view' => 'individuals-table', 'table' => '.wt-table-individual' ]
+                ],
+        'Search-General'       => [
+                'IL' => [ 'action-type' => 'INDI-LIST', 'action-pref' => 'SEARCH_G-', 'grep-id' => 'dtILjq'
+                        , 'view' => 'individuals-table', 'table' => '.wt-table-individual' ],
+                'FL' => [ 'action-type' => 'FAM-LIST', 'action-pref' => 'SEARCH_G-', 'grep-id' => 'dtFLjq' 
+                        , 'view' => 'families-table', 'table' => '.wt-table-family' ],
+                // '2'  => [ 'action-type' => 'SOURCE', 'action-pref' => 'SEARCH_G-', 'grep-id' => 'dt2jq' ],
+                // '3'  => [ 'action-type' => 'NOTE', 'action-pref' => 'SEARCH_G-', 'grep-id' => 'dt3jq' ]
+                ],
+        'SearchGeneralPage'    => [
+            'IL' => [ 'action-type' => 'INDI-LIST', 'action-pref' => 'SEARCH_G-', 'grep-id' => 'dtILjq'
+                    , 'view' => 'individuals-table', 'table' => '.wt-table-individual' ],
+            'FL' => [ 'action-type' => 'FAM-LIST', 'action-pref' => 'SEARCH_G-', 'grep-id' => 'dtFLjq' 
+                    , 'view' => 'families-table', 'table' => '.wt-table-family' ],
+            ],
+        ];
+
+    // 
+    private const OTHER_MENUES_TYPES = [
+        'FAM-LIST'            => [
+                '0'  => [ 'listType' => 'family', 'clipAction' => 'clipFamilies'],
+                '1'  => [ 'action-suff' => '', 'action-text' => 'add families and individuals to the clippings cart' ],
+                '2'  => [ 'action-suff' => 'wp', 'action-text' => 'add families and individuals with parents to the clippings cart'],
+        ],
+        'INDI-LIST'           => [
+                '0'  => [ 'listType' => 'individual', 'clipAction' => 'clipIndividuals'],
+                '1'  => [ 'action-suff' => '', 'action-text' => 'add individuals to the clippings cart'],
+                '2'  => [ 'action-suff' => 'wp', 'action-text' => 'add individuals with parents to the clippings cart'],
+                '3'  => [ 'action-suff' => 'ws', 'action-text' => 'add individuals and spouses to the clippings cart'],
+                '4'  => [ 'action-suff' => 'wc', 'action-text' => 'add individuals and children to the clippings cart'],
+                '5'  => [ 'action-suff' => 'wa', 'action-text' => 'add individuals and all relations to the clippings cart'],
+        ]
     ];
 
     // Types of records
@@ -460,6 +553,8 @@ class ClippingsCartEnhanced extends ClippingsCartModule
      *      AddSubmitter:    add submitter record
      *      FamilyList:      add collected XREFs                                              -> ClippingsCartEnhancedModule.php
      *      IndividualList:  add collected XREFs                                              -> ClippingsCartEnhancedModule.php
+     *      Search-Advanced: add collected XREFs                                              -> ClippingsCartEnhancedModule.php
+     *      Search-General:  add collected XREFs                                              -> ClippingsCartEnhancedModule.php
      * Global:          add global sets of records (partner chains, circles)
      * Empty:           delete records in clippings cart
      * Execute:         execute an action on records in the clippings cart (export to GEDCOM file, visualize)
@@ -604,44 +699,98 @@ class ClippingsCartEnhanced extends ClippingsCartModule
     private function addMenuAddOthers (Tree $tree, Route $route, string $action, array $params): ?Menu    {
         if ($action === 'FamilyListModule') {
             if (array_key_exists('show', $params)) {
-                if ($params['show'] == 'indi') {
-                    // EW.H - MOD ... 
-                    $route_ajax = e(route(ClippingsCartEnhancedModule::class, ['module' => $this->name(), 'tree' => $tree->name()]), false);
-                    $_menu = new Menu(I18N::translate('add families and individuals to the clippings cart'),
-                        '#',
-                        'menu-clippings-add', ['rel' => 'nofollow', 'id' => 'CCE-FAM_LIST', 'data-url' => $route_ajax]);
-                    $route_ajax = e(route(ClippingsCartEnhancedModule::class, ['module' => $this->name(), 'tree' => $tree->name()]));
-                    $_menu_sm = new Menu(I18N::translate('add families and individuals with parents to the clippings cart'),
-                        '#',
-                        'menu-clippings-add', ['rel' => 'nofollow', 'id' => 'CCE-FAM_LISTwp', 'data-url' => $route_ajax]);
-                    $_menu = $_menu->addSubmenu($_menu_sm);
+                // if ($params['show'] == 'indi') {
+                if ($params['show'] > ' ') {
+                    $_menu = $this->addMenuAddOthersList($tree, $route, $action);
                     return $_menu;
                 }
             }
         }
         if ($action === 'IndividualListModule') {
             if (array_key_exists('show', $params)) {
-                if ($params['show'] == 'indi') {
-                    // EW.H - MOD ... 
-                    $route_ajax = e(route(ClippingsCartEnhancedModule::class, ['module' => $this->name(), 'tree' => $tree->name()]), false);
-                    $_menu = new Menu(I18N::translate('add individuals to the clippings cart'),
-                        '#',
-                        'menu-clippings-add', ['rel' => 'nofollow', 'id' => 'CCE-INDI_LIST', 'data-url' => $route_ajax]);
-                    $route_ajax = e(route(ClippingsCartEnhancedModule::class, ['module' => $this->name(), 'tree' => $tree->name()]));
-                    $_menu_sm = new Menu(I18N::translate('add individuals with parents to the clippings cart'),
-                        '#',
-                        'menu-clippings-add', ['rel' => 'nofollow', 'id' => 'CCE-INDI_LISTwp', 'data-url' => $route_ajax]);
-                    $_menu = $_menu->addSubmenu($_menu_sm);
-                    $route_ajax = e(route(ClippingsCartEnhancedModule::class, ['module' => $this->name(), 'tree' => $tree->name()]));
-                    $_menu_sm = new Menu(I18N::translate('add individuals and spouses to the clippings cart'),
-                        '#',
-                        'menu-clippings-add', ['rel' => 'nofollow', 'id' => 'CCE-INDI_LISTws', 'data-url' => $route_ajax]);
-                    $_menu = $_menu->addSubmenu($_menu_sm);
+                // if ($params['show'] == 'indi') {
+                if ($params['show'] > ' ') {
+                    $_menu = $this->addMenuAddOthersList($tree, $route, $action);
                     return $_menu;
                 }
             }
         }
+        if ($action === 'Search-General') {
+            if (array_key_exists('search_individuals', $params)) {
+                if ($params['search_individuals'] == '1') {
+                    $_menu = $this->addMenuAddOthersList($tree, $route, $action);
+                    return $_menu;
+                }
+            } else if (array_key_exists('query', $params)) {
+                $_menu = $this->addMenuAddOthersList($tree, $route, $action);
+                return $_menu;
+            }
+
+        }
+        if ($action === 'Search-Advanced') {
+            if (array_key_exists('fields', $params)) {
+                $param_fields = $params['fields'];
+                $sa_add_cce = false;
+                foreach($param_fields as $pfk => $pfv) {
+                    if ($pfv > '') {
+                        $sa_add_cce = true;
+                        break;
+                    }
+                }
+                if ($sa_add_cce) {
+                    $_menu = $this->addMenuAddOthersList($tree, $route, $action);
+                    return $_menu;
+                }
+            }
+        }
+        if ($action  === 'SearchGeneralPage') {
+        }
         return null;
+    }
+
+    private function addMenuAddOthersList(Tree $tree, Route $route, string $action): ?Menu {
+        $m_views   = [];
+        $first_opt  = true;
+        $menu_type = self::OTHER_MENUES[$action];
+        // '0'  => [ 'action-type' => 'FAM-LIST', 'action-pref' => '', 'grep-id' => 'dt0jq', 'view' => 'families-table', 'table' => '.wt-table-family' ]
+        foreach( $menu_type as $dt_id => $mparms) {
+            // '0'  => [ 'listType' => 'family', 'clipAction' => 'clipFamilies'],
+            // '1'  => [ 'action-suff' => '', 'action-text' => I18N::translate('add families and individuals to the clippings cart') ],
+            $a_type     = $mparms['action-type'];
+            $a_pref     = $mparms['action-pref'];
+            $dt_grep    = $mparms['grep-id'];
+            $list_type  = self::OTHER_MENUES_TYPES[$a_type];
+            foreach($list_type as $lopt => $loparms) {
+                if ($lopt == '0') {
+                    $listType   = $loparms['listType'];
+                    $clipAction = $loparms['clipAction'];
+                } else {
+                    $a_suff = $loparms['action-suff'];
+                    $a_text = $loparms['action-text'];
+                    $action_key = $a_pref . $a_type . $a_suff;
+                    $menu_opt = 'CCE-Mopt-' . $dt_id . '-' . $lopt;
+                    if ($first_opt) {
+                        $route_ajax = e(route(ClippingsCartEnhancedModule::class, ['module' => $this->name(), 'tree' => $tree->name()]), false);
+                        $_menu = new Menu(I18N::translate($a_text),
+                        '#',
+                        'menu-clippings-add', ['rel' => 'nofollow', 'id' => $menu_opt, 'data-url' => $route_ajax,
+                                               'listType' => $listType, 'clipAction' => $clipAction, 'action-key' => $action_key,
+                                               'dt_id' => $dt_id, 'dt_grep' => $dt_grep]);
+                        $first_opt = false;
+                    } else {
+                        $route_ajax = e(route(ClippingsCartEnhancedModule::class, ['module' => $this->name(), 'tree' => $tree->name()]));
+                        $_menu_sm = new Menu(I18N::translate($a_text),
+                            '#',
+                            'menu-clippings-add', ['rel' => 'nofollow', 'id' => $menu_opt, 'data-url' => $route_ajax, 
+                                                   'listType' => $listType, 'clipAction' => $clipAction, 'action-key' => $action_key,
+                                                   'dt_id' => $dt_id, 'dt_grep' => $dt_grep]);
+                            $_menu = $_menu->addSubmenu($_menu_sm);
+    
+                    }
+                }
+            }
+        }
+        return $_menu;
     }
 
     /**
@@ -1805,10 +1954,13 @@ class ClippingsCartEnhanced extends ClippingsCartModule
         View::registerCustomView('::components/CCEbadge', $this->name() . '::components/CCEbadge');
 
         View::registerCustomView('::lists/families-table', $this->name() . '::lists/CCEfamilies-table');
-        View::registerCustomView('::lists/CCEfamilies-table-js', $this->name() . '::lists/CCEfamilies-table-js');
+        // View::registerCustomView('::lists/CCEfamilies-table-js', $this->name() . '::lists/CCEfamilies-table-js');
 
         View::registerCustomView('::lists/individuals-table', $this->name() . '::lists/CCEindividuals-table');
-        View::registerCustomView('::lists/CCEindividuals-table-js', $this->name() . '::lists/CCEindividuals-table-js');
+        // View::registerCustomView('::lists/CCEindividuals-table-js', $this->name() . '::lists/CCEindividuals-table-js');
+
+        View::registerCustomView('::lists/CCEtable-IL-js', $this->name() . '::lists/CCEtable-IL-js');
+        View::registerCustomView('::lists/CCEtable-FL-js', $this->name() . '::lists/CCEtable-FL-js');
 
         View::registerCustomView('::save-cart', $this->name() . '::save-cart');
         View::registerCustomView('::modals/saveCart', $this->name() . '::modals/CCEsaveCart');
@@ -1829,6 +1981,11 @@ class ClippingsCartEnhanced extends ClippingsCartModule
         Session::put('CCEtable-actions.css', $CCEcss);
 
         $this->TSMok = class_exists(TaggingServiceManager::class, true);
+
+        foreach (self::OTHER_MENUES as $lkey => $actions) {
+            $sess_key = 'CCElist-' . $lkey;
+            Session::put($sess_key, $actions);
+        }
     }
 
     /**

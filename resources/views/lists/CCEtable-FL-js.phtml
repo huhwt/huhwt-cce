@@ -19,26 +19,23 @@ use Fisharebest\Webtrees\Tree;
 use Fisharebest\Webtrees\View;
 use Illuminate\Support\Collection;
 
-
-echo '
+?>
 <!--CCE-Javascript goes here -->
 <script>
 if (typeof CCEmen === "undefined") {
     var CCEmen = document.querySelector(".CCE_Menue");
     var CCEmenBadge = CCEmen.querySelector("span.badge.bg-secondary");
 }
-    /* collect families and persons */
-const CCEmen_FL = CCEmen.querySelector("#CCE-FAM_LIST");
-if (CCEmen_FL)
-    CCEmen_FL.addEventListener("click", (event) => {
-        exec_Request(event, "", "family", "clipFamilies");
-        });
-
-    /* collect families and persons with their parents */
-const CCEmen_FLwp = CCEmen.querySelector("#CCE-FAM_LISTwp");
-if (CCEmen_FLwp)
-    CCEmen_FLwp.addEventListener("click", (event) => {
-        exec_Request(event, "yes", "family", "clipFamilies");
-        });
+    /* collect option 1 */
+var CCEmen_O1 = CCEmen.querySelector("#CCE-Mopt-FL-1");
+if (CCEmen_O1)
+    CCEprepEvents(CCEmen_O1, dtFLjq, 'wt-table-family');
+    /* collect option 2 */
+var CCEmen_O2 = CCEmen.querySelector("#CCE-Mopt-FL-2");
+if (CCEmen_O2)
+    CCEprepEvents(CCEmen_O2, dtFLjq, 'wt-table-family');
+    /* collect option 3 */
+var CCEmen_O3 = CCEmen.querySelector("#CCE-Mopt-FL-3");
+if (CCEmen_O3)
+    CCEprepEvents(CCEmen_O3, dtFLjq, 'wt-table-family');
 </script>
-';

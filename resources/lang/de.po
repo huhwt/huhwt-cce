@@ -209,6 +209,12 @@ msgstr "Personen mit Eltern zum Sammelbehälter hinzufügen"
 msgid "add individuals and spouses to the clippings cart"
 msgstr "Personen mit Partnern zum Sammelbehälter hinzufügen"
 
+msgid "add individuals and children to the clippings cart"
+msgstr "Personen mit Kindern zum Sammelbehälter hinzufügen"
+
+msgid "add individuals and all relations to the clippings cart"
+msgstr "Personen mit allen Beziehungen zum Sammelbehälter hinzufügen"
+
 msgid "Click here to toggle highlighting of relevant records on or off"
 msgstr "Klicken Sie hier, um die Hervorhebung der entsprechenden Datensätze ein- oder auszuschalten"
 
@@ -280,6 +286,9 @@ msgstr "Klick: Diesen gespeicherten Sammelbehälter löschen"
 
 msgid "No saved cart files found"
 msgstr "Keine gespeicherten Sammelbehälter vorhanden"
+
+msgid "all persons to whom '%s' is linked with their parents"
+msgstr "Alle Personen mit Eltern welchen '%s' zugeordnet ist"
 
 msgid ""
 msgstr ""
