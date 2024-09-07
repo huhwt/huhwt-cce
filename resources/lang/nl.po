@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: hh 2.0.19\n"
 "Report-Msgid-Bugs-To: hermann@hartenthaler.de\n"
 "POT-Creation-Date: 2021-11-21 12:57+0200\n"
-"PO-Revision-Date: 2024-03-19 07:17+0100\n"
+"PO-Revision-Date: 2024-09-07 08:23+0200\n"
 "Last-Translator: TheDutchJewel <thedutchjewel@gmail.com>\n"
 "Language-Team: \n"
 "Language: nl\n"
@@ -11,7 +11,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Poedit 3.4.2\n"
+"X-Generator: Poedit 3.5\n"
 
 msgid "Replacement for the original 'Clippings Cart' module."
 msgstr "Vervanging voor de originele 'Stamboomknipsel'-module."
@@ -205,6 +205,12 @@ msgstr "personen met ouders toevoegen aan de knipselverzameling"
 msgid "add individuals and spouses to the clippings cart"
 msgstr "personen en echtgenoten toevoegen aan de knipselverzameling"
 
+msgid "add individuals and children to the clippings cart"
+msgstr "personen en kinderen toevoegen aan de knipselverzameling"
+
+msgid "add individuals and all relations to the clippings cart"
+msgstr "personen en alle relaties toevoegen aan de knipselverzameling"
+
 msgid "Click here to toggle highlighting of relevant records on or off"
 msgstr "Klik hier om het markeren van relevante records aan of uit te zetten"
 
@@ -276,3 +282,6 @@ msgstr "Klik: deze opgeslagen verzameling verwijderen"
 
 msgid "No saved cart files found"
 msgstr "Geen opgeslagen verzamelingsbestanden gevonden"
+
+msgid "all persons to whom '%s' is linked with their parents"
+msgstr "alle personen aan wie '%s' is gekoppeld met hun ouders"
