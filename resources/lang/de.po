@@ -246,7 +246,7 @@ msgid "Cart is saved to file"
 msgstr "Sammelbehälter in Datei gespeichert"
 
 msgid "Load cart from file"
-msgstr "Sammelbehälter aus Datei übernehmen"
+msgstr "Aus Datei in Sammelbehälter übernehmen"
 
 msgid "Choose saved carts"
 msgstr "Aus gespeicherten Sammelbehältern auswählen"

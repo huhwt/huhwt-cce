@@ -18,7 +18,7 @@
         display: inline;
     }
     .cce_buttongroup>input[type=number] {
-        -moz-appearance:textfield;
+        appearance:textfield;
         height: 26px;
         width: 46px;
         margin: 0;
@@ -34,22 +34,25 @@
     .cce_button {
     /* display: inline-flex; */
     /* position: relative; */
-    width: 24px;
-    height: 24px;
-    vertical-align: middle;
-    padding: 0;
-    margin: 0;
-    text-align: center;
-    border: thin solid #efefef;
-    background-color: #efefef;
-    border-radius: 4px;
-    background-repeat: no-repeat;
-    background-position: center;
-}
+        width: 24px;
+        height: 24px;
+        vertical-align: middle;
+        padding: 0;
+        margin: 0;
+        text-align: center;
+        border: thin solid #efefef;
+        background-color: #efefef;
+        border-radius: 4px;
+        background-repeat: no-repeat;
+        background-position: center;
+    }
     .cce_button:hover {
         border: thin outset #fdfffd;
         cursor: pointer;
-        }
+    }
+    .cce-fw {
+        width: 3.2em !important;
+    }
 
 .bPlus {
     content: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABYAAAAWCAYAAADEtGw7AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAEeSURBVEhLY2QgAtRP3/T/9O5VDP///WZQFuFmKC9MYpDVtsGrlwlK4wRnH3z6f/H0IbChIHD3zVeGS8cPgNn4AEGD/4MxiESA//9R+dgAQYPJBaMGwwHNDAanxY7py/8/unkZGN2/wfGPnEC///7H8PLlS4b/fyHJDQRE+DgYeAXFoDxIyoHpEeXlZAj1tmRg7F9/7v+uhd1AoX8QGSoADU5gUHz7/gPIJJwuSQHfvwMN5uLkADKJytlEA06gi2kXxlA+TnAGWFY0NzUy/Hr3BCrCwJDtrcPgk1qLV+9oBoGDYWgwKOoZ0RIPIyPBxETYYGMFPkZ9UzsGRiZWMB9U5+lZOoDZ+ABhq6EAVKaAsj8wpz4oDDRShArjAAwMAHA+ZOlwX6lRAAAAAElFTkSuQmCC');
@@ -85,7 +88,7 @@
         flex-direction: row;
         justify-content: space-evenly;
         align-items: center;
-        min-width: 10%;
+        min-width: 14%;
     }
 .cce-btn:hover {
     color: white;
