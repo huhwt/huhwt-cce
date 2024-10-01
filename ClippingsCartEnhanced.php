@@ -871,6 +871,8 @@ class ClippingsCartEnhanced extends ClippingsCartModule
 
         $cartActs         = $this->get_CartActs($tree);
 
+        $CAfiles          = $this->getCactfilesInCart($tree);
+
         $cAroute_ajax     = e(route(ClippingsCartEnhancedModule::class, ['module' => $this->name(), 'tree' => $tree->name()]));
 
         return $this->viewResponse($this->name() . '::' . 'showCart/showCart', [
@@ -881,6 +883,7 @@ class ClippingsCartEnhanced extends ClippingsCartModule
             'header_recs' => I18N::translate(self::SHOW_RECORDS),
             'header_acts' => I18N::translate(self::SHOW_ACTIONS),
             'cartActions' => $cartActs,
+            'CAfiles'     => $CAfiles,
             'cArouteAjax' => $cAroute_ajax,
             'cartXREFs'   => $this->cartXREFs,
             'tree'        => $tree,

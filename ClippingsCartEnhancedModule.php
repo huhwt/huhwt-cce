@@ -81,24 +81,31 @@ use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCEvizActions;
      */
     private array $cart;
 
-     public function __construct() {
+    /**
+     * @var array $CIfileData
+     */
+    private array $CIfileData;
+
+    public function __construct() {
          $this->huh = json_decode('"\u210D"');
 
          $this->cart = $this->get_Cart();
 
          $this->all_RecTypes        = true;
-        }
 
-     /**
-      * Catch the different ClippingsCart-Actions - called by listing-modules
-      *
-      * @param ServerRequestInterface $request
-      *
-      * @return ResponseInterface
-      *
-      */
-     public function handle(ServerRequestInterface $request): ResponseInterface
-     {
+         $this->CIfileData          = [];
+    }
+
+    /**
+     * Catch the different ClippingsCart-Actions - called by listing-modules
+    *
+    * @param ServerRequestInterface $request
+    *
+    * @return ResponseInterface
+    *
+    */
+    public function handle(ServerRequestInterface $request): ResponseInterface
+    {
         $action = Validator::queryParams($request)->string('action');
 
         if ( $action == 'clipFamilies' ) {
@@ -109,8 +116,12 @@ use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCEvizActions;
             return response($this->clip_individuals($request));
         }
 
-        if ( $action == 'CartActRemove' ) {
-            return response($this->doCartActRemove($request));
+        if ( $action == 'RemoveCartAct' ) {
+            return response($this->doRemoveCartAct($request));
+        }
+
+        if ( $action == 'RemoveCAfile' ) {
+            return response($this->doRemoveCAfile($request));
         }
 
         if ( $action == 'CAsave' ) {
@@ -269,6 +280,9 @@ use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCEvizActions;
             foreach( $CIfiles as $fi => $fc) {
                 $CIfileData[$fi] = json_decode(json_encode($fc), true);
             }
+            $this->CIfileData = $CIfileData;
+            Session::put('CIfileData', $CIfileData);
+
             return response(view('modals/loadCart', [
                 'tree'        => $tree,
                 'title'       => $title,
@@ -345,21 +359,29 @@ use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCEvizActions;
     private function execCartLoad(Tree $tree, string $fKey, array $fActs, array $fxrefs) : void
     {
         $CAsubst = [];
+        $CAfiles = [];
         $cartAct = [];
         foreach( $fActs as $cAkey => $cAval) {
             $caV    = $this->put_CartActs_var($tree, $fKey);
-            $cAct   = $caV . strtolower($cAkey) . '|' . $fKey;
+            $this->put_CIfileData($tree, $fKey, $caV);
+            $cAct   = $caV . $cAkey;
             if ( !array_key_exists($cAct, $CAsubst)) {
                 $CAsubst[$cAkey]    = $cAct;
                 $cartAct[$cAct]     = true;
             }
         }
         foreach( $CAsubst as $cactO => $cactN ) {
-            $cAct = substr($cactN,0,stripos($cactN,'|'));
+            $_cActO = stripos($cactO, '|')
+                    ? substr($cactO,0,stripos($cactO,'|'))
+                    : $cactO; 
+            $_cActN = stripos($cactN, '|')
+                    ? substr($cactN,0,stripos($cactN,'|'))
+                    : $cactN;
             foreach ( $fxrefs as $xref => $xref_action ) {
-                if (str_contains($xref_action, $cactO)) {
-                    $xref_action = str_replace($cactO, $cAct, $xref_action);
-                    $fxrefs[$xref] = $xref_action;
+                $_xref_action = $xref_action;
+                if (str_contains($_xref_action, $_cActO)) {
+                    $_xref_action = str_replace($_cActO, $_cActN, $_xref_action);
+                    $fxrefs[$xref] = $_xref_action;
                 }
             }
         }
@@ -367,7 +389,7 @@ use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCEvizActions;
         $_tree      = $tree->name();
 
         $S_cartAct  = Session::get('cartActs', []);
-        $T_cacts    = $S_cartAct[$tree->name()] ?? [];
+        $T_cacts    = $S_cartAct[$_tree] ?? [];
 
         foreach ( $cartAct as $CAkey => $CAbool) {
             if (($T_cacts[$CAkey] ?? '_NIX_') === '_NIX_') {
@@ -420,6 +442,23 @@ use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCEvizActions;
 
         return $caV;
     }
+
+    private function put_CIfileData(Tree $tree, string $fKey, string $caV): bool
+    {
+        $this->CIfileData   = Session::get('CIfileData');
+        $CIfileData         = $this->CIfileData[$fKey];
+
+        $T_CAfiles          = $this->getCactfilesInCart($tree);
+
+        $CIfileValues       = I18N::translate('Filekey') . ': ' . $fKey . ' - ' . I18N::translate('Timestamp') . ': ' . $CIfileData['timestamp'];
+
+        $T_CAfiles[$caV]    = $CIfileValues;
+
+        $this->put_CartActTreeFiles($tree, $T_CAfiles);
+
+        return true;
+    }
+
 
     /**
      * kill saved cart
@@ -948,7 +987,7 @@ use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCEvizActions;
         return $actSearch_;
     }
 
-    private function doCartActRemove(ServerRequestInterface $request): string
+    private function doRemoveCartAct(ServerRequestInterface $request): string
     {
         $tree = Validator::attributes($request)->tree();
 
@@ -992,6 +1031,76 @@ use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCEvizActions;
 
         return (string) $this->count_CartTreeXrefs($tree);
 
+    }
+
+    /**
+     * delete one record from the clippings cart
+     *
+     * @param ServerRequestInterface $request
+     *
+     * @return ResponseInterface
+     */
+    public function doRemoveCAfile(ServerRequestInterface $request): ResponseInterface
+    {
+        $tree   = Validator::attributes($request)->tree();
+        $_tree  = $tree->name();
+
+        $caV    = Validator::queryParams($request)->string('cafkey');
+
+        // let's get the pieces - we need the raw data
+        $cartActFiles   = Session::get('cartActsFiles', []);
+
+        $cartActS       = Session::get('cartActs', []);
+        $cartActT       = $cartActS[$_tree] ?? [];
+
+        $cart           = Session::get('cart', []);
+        $cartT          = $cart[$_tree] ?? [];
+
+        // now starts the cleaning
+
+        $T_cacts = [];
+        foreach ( $cartActT as $cartAct => $val) {
+            if (str_starts_with($cartAct, $caV)) {
+                // we have to remove the cartAct from the XREFs
+
+                $cAct = str_contains($cartAct,'|') ? substr($cartAct,0,stripos($cartAct,'|')) : $cartAct;
+                foreach ($cartT as $xref => $xref_action) {
+                    $xref_actions = explode(';', $xref_action);
+                    $ica = array_search($cAct, $xref_actions);
+                    if (!is_bool($ica)) {
+                        array_splice($xref_actions, $ica,1);
+                        if (count($xref_actions) > 0) {
+                            $xref_action = $xref_actions[0];
+                            if (count($xref_actions) > 1)
+                                $xref_action = implode(';', $xref_actions);
+                            $cart[$_tree][$xref] = $xref_action;
+                        } else {
+                            unset($cart[$_tree][$xref]);
+                        }
+                    }
+                }
+
+            } else {
+                $T_cacts[$cartAct] = $val;
+            }
+        }
+        Session::put('cart', $cart);
+
+        unset($cartActS[$_tree]);
+        $cartActS[$_tree]    = $T_cacts;
+        Session::put('cartActs', $cartActS);
+
+        unset($cartActFiles[$_tree][$caV]);
+        Session::put('cartActsFiles', $cartActFiles);
+
+        $url = route('module', [
+            'module'      => $this->name(),
+            'action'      => 'ShowCart',
+            'description' => $this->description(),
+            'tree'        => $tree->name(),
+        ]);
+
+        return redirect($url);
     }
 
 }
