@@ -793,12 +793,12 @@ use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCEvizActions;
         $XREFindi   = Validator::queryParams($request)->string('XREFindi', '');
 
         // the XREFs
-        $xrefs = Validator::queryParams($request)->string('xrefs', '');
+        $XREFs = json_decode((Validator::parsedBody($request)->string('xrefs','')),true);
         $xrefsCold = $this->count_CartTreeXrefs($tree);                // Count of xrefs actual in stock
-        if ($xrefs == '')
+        if ($XREFs == [])
             return (string) $xrefsCold;
 
-        $XREFs = explode(';', $xrefs);
+        // $XREFs = explode(';', $xrefs);
 
         $records = array_map(static function (string $xref) use ($tree): ?GedcomRecord {
             return Registry::gedcomRecordFactory()->make($xref, $tree);

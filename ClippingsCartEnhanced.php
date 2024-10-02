@@ -1241,6 +1241,7 @@ class ClippingsCartEnhanced extends ClippingsCartModule
          */
 
         $encodedString = json_encode($arr_string);
+        $ecSlength      = strlen($encodedString);
 
         switch ($action) {
 
