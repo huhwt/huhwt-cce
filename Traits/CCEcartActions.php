@@ -204,30 +204,36 @@ trait CCEcartActions
 
    private function get_CartActs(Tree $tree) : array
    {
-       $cartAct = Session::get('cartActs', []);
-       $cartacts = array_keys($cartAct[$tree->name()] ?? []);
-       $cartacts = array_map('strval', $cartacts);           // PHP converts numeric keys to integers.
+       $cartAct     = Session::get('cartActs', []);
+       $cartacts    = array_keys($cartAct[$tree->name()] ?? []);
+       $cartacts    = array_map('strval', $cartacts);           // PHP converts numeric keys to integers.
        return $cartacts;
    }
 
    private function clean_CartActs(Tree $tree) : void
     {
-        $cartAct = Session::get('cartActs', []);
-        $cartAct[$tree->name()] = [];
+        $_tree      = $tree->name();
+
+        $cartAct    = Session::get('cartActs', []);
+        $cartAct[$_tree] = [];
         Session::put('cartActs', $cartAct);
 
         $cartActsDiversity = Session::get('cartActsDiversity', []);
-        $cartActsDiversity[$tree->name()] = [];
-        $cartActsDiversity[$tree->name()][0] = 0;
+        $cartActsDiversity[$_tree] = [];
+        $cartActsDiversity[$_tree][0] = 0;
         Session::put('cartActsDiversity', $cartActsDiversity);
 
         $cartActsVariants  = Session::get('cartActsVariants', []);
-        $cartActsVariants[$tree->name()] = [];
+        $cartActsVariants[$_tree] = [];
         Session::put('cartActsVariants', $cartActsVariants);
+
+        $cartActsFiles  = Session::get('cartActsFiles', []);
+        $cartActsFiles[$_tree] = [];
+        Session::put('cartActsFiles', $cartActsFiles);
 
         if ($this->TSMok) {
             $tagsAct = Session::get('tagsActs', []);
-            $tagsAct[$tree->name()] = [];
+            $tagsAct[$_tree] = [];
             Session::put('tagsActs', $tagsAct);
         }
     }
@@ -282,6 +288,30 @@ trait CCEcartActions
         $retval = $this->cartAction;
         $caction = $caction . '|' . $Key;                                           // ... and this will be shown in cartAct list
         return [$retval, $caction];
+    }
+
+    /**
+     * @param Tree              $tree
+     */
+    private function getCactfilesInCart(Tree $tree) : array
+    {
+        $S_CAfiles          = Session::get('cartActsFiles', []);
+        $T_CAfiles          = $S_CAfiles[$tree->name()] ?? [];
+
+        return $T_CAfiles;
+    }
+
+    /**
+     * @param Tree              $tree
+     */
+    private function put_CartActTreeFiles(Tree $tree, array $T_CAfiles) : bool
+    {
+        $S_CAfiles          = Session::get('cartActsFiles', []);
+        $S_CAfiles[$tree->name()]   = $T_CAfiles;
+
+        Session::put('cartActsFiles', $S_CAfiles);
+
+        return true;
     }
 
     /**
