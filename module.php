@@ -3,8 +3,7 @@
 namespace HuHwt\WebtreesMods\ClippingsCartEnhanced;
 
 use Fisharebest\Webtrees\Webtrees;
-
-use function app;
+use Fisharebest\Webtrees\Registry;
 
 //webtrees major version switch
 if (defined("WT_VERSION"))
@@ -18,7 +17,5 @@ if (defined("WT_VERSION"))
 // Register our namespace
 require_once __DIR__ . '/autoload.php';
   
-require __DIR__ . '/ClippingsCartEnhanced.php';
 // Create and return instance of the module
-
-return app(ClippingsCartEnhanced::class);
+return Registry::container()->get(ClippingsCartEnhanced::class);

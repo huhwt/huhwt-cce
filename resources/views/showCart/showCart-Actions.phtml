@@ -35,7 +35,7 @@ $html_subheader = view($module . '::' . 'showCart/showCart-subHeader', [
     <?php $count = count($cartActions); ?>
     <?php $Theader = 'CCE-CartActions' ?>
     <?php $Ttitle = I18N::translate('Click here to toggle highlighting of relevant records on or off'); ?>
-    <table class="table wt-facts-table">
+    <table class="table wt-facts-table CCE-actions-table">
         <colgroup>
             <col span="1" style="width: 90%;">
             <col span="1" style="width: 10%;">
@@ -50,11 +50,11 @@ $html_subheader = view($module . '::' . 'showCart/showCart-subHeader', [
             <?php foreach ($cartActions as $cartact) : ?>
                 <tr color="">
                     <td>
-                        <span class="wt-icon-basket"><i class="fas fa-shopping-basket fa-fw" aria-hidden="true"></i></span>
+                        <span class="cce-icon-basket"><i class="fas fa-shopping-basket fa-fw" aria-hidden="true"></i></span>
                         <span title="<?= $Ttitle ?>"><?= $cartact ?></span>
                     </td>
                     <td>
-                        <a href="#" rel="nofollow" data-url="<?= $cArouteAjax ?>" action="CartActRemove" tree="<?= $tree->name() ?>", cartact ="<?= $cartact ?>">
+                        <a href="#" rel="nofollow" data-url="<?= $cArouteAjax ?>" action="RemoveCartAct" tree="<?= $tree->name() ?>", cartact ="<?= $cartact ?>">
                             <button type="submit" class="btn btn-link" title="<?= I18N::translate('Remove'); ?>">
                                 <?= view('icons/delete'); ?>
                             </button>

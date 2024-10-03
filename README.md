@@ -12,10 +12,13 @@ It offers additional possibilities to add records to the clippings cart and owns
 to export GEDCOM information for visualizing the records in the clippings cart using a diagram.
 
 This custom module is primarily based on the hh_clippings_cart_enhanced by Hermann Hartenthaler
-(https://github.com/hartenthaler/hh_clippings_cart_enhanced) and is only executable with
-webtrees-2.1. For webtrees-2.0 use huhwt-cce20.
-
+(https://github.com/hartenthaler/hh_clippings_cart_enhanced)
 For features and background of this module please have a look at the above given link.
+
+This custom module is only executable with webtrees-2.2.
+
+For webtrees-2.1 use huhwt-cce Release v2.1.20.0; for webtrees-2.0 use huhwt-cce20.
+
 
 Attention:
 ~~~

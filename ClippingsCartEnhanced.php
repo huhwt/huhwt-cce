@@ -142,7 +142,6 @@ use HuHwt\WebtreesMods\TaggingServiceManager\TaggingServiceManagerAdapter;
 
 // control functions
 use stdClass;
-use function app;
 use function array_filter;
 use function array_keys;
 use function array_map;
@@ -566,7 +565,7 @@ class ClippingsCartEnhanced extends ClippingsCartModule
     public function getMenu(Tree $tree): ?Menu
     {
         /** @var ServerRequestInterface $request */
-        $request = app(ServerRequestInterface::class);
+        $request = Registry::container()->get(ServerRequestInterface::class);
         assert($request instanceof ServerRequestInterface);
 
         $route = Validator::attributes($request)->route();
@@ -1194,7 +1193,7 @@ class ClippingsCartEnhanced extends ClippingsCartModule
         // - so we have to add the regarding note-xref
         $tags = $this->get_TreeTags($tree);
         if (count($tags)>0) {
-            $TSMadapter = app(TaggingServiceManagerAdapter::class);
+            $TSMadapter = Registry::container()->get(TaggingServiceManagerAdapter::class);
             $INFOdata = $TSMadapter->getNotes_All($tree);
         } else {
             $INFOdata = $this->getNotes_All($tree);
@@ -1241,7 +1240,6 @@ class ClippingsCartEnhanced extends ClippingsCartModule
          */
 
         $encodedString = json_encode($arr_string);
-        $ecSlength      = strlen($encodedString);
 
         switch ($action) {
 

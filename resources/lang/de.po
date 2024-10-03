@@ -290,5 +290,14 @@ msgstr "Keine gespeicherten Sammelbehälter vorhanden"
 msgid "all persons to whom '%s' is linked with their parents"
 msgstr "Alle Personen mit Eltern welchen '%s' zugeordnet ist"
 
+msgid "File-imports included in cart"
+msgstr "Aus Datei übernommene Bestände im Sammelbehälter"
+
+msgid "CCE-CAfiles"
+msgstr "Datei-Importe"
+
+msgid "Filekey"
+msgstr "Dateikennung"
+
 msgid ""
 msgstr ""
