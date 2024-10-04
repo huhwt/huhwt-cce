@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: hh 2.0.19\n"
 "Report-Msgid-Bugs-To: hermann@hartenthaler.de\n"
 "POT-Creation-Date: 2021-11-21 12:57+0200\n"
-"PO-Revision-Date: 2024-09-08 07:28+0200\n"
+"PO-Revision-Date: 2024-10-04 07:20+0200\n"
 "Last-Translator: TheDutchJewel <thedutchjewel@gmail.com>\n"
 "Language-Team: \n"
 "Language: nl\n"
@@ -285,3 +285,12 @@ msgstr "Geen opgeslagen verzamelingsbestanden gevonden"
 
 msgid "all persons to whom '%s' is linked with their parents"
 msgstr "alle personen aan wie '%s' is gekoppeld met hun ouders"
+
+msgid "File-imports included in cart"
+msgstr "Bestandsimports inbegrepen in stamboomknipsels"
+
+msgid "CCE-CAfiles"
+msgstr "Bestandsimport"
+
+msgid "Filekey"
+msgstr "Bestandsidentificatie"
