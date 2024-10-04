@@ -93,7 +93,10 @@ function CCE_prepPevents() {
         });
         let eName = elem.getAttribute('name');
         if (eName == 'CCE-CartActions') {
-            prepCAevents(elem);
+            prepCA_events(elem);
+        }
+        if (eName == 'CCE-CAfiles') {
+            prepCAfi_events(elem);
         }
     }
 
@@ -126,12 +129,12 @@ function toggleCollapse(helem) {
 /**
  * thElem   the element carrying the name 'CCE-CartActions'
  */
-function prepCAevents(thElem) {
+function prepCA_events(thElem) {
     let he_name = thElem.getAttribute('name');
     let henames = document.getElementsByName(he_name);                      // we collect significant nodes ...
     for ( const henelem of henames) {
         if ( henelem != thElem) {                                           // ... but we don't want the thElem itself
-            let belems = henelem.getElementsByClassName('wt-icon-basket');      // we collect significant nodes ...
+            let belems = henelem.getElementsByClassName('cce-icon-basket');      // we collect significant nodes ...
             for ( const belem of belems ) {                                     // ... and grep for each:
                 let trElem = belem.parentElement.parentElement;                 // -> the superior table-line
                 let tbElem = trElem.parentElement;                              // -> the superior table-body
@@ -150,14 +153,14 @@ function prepCAevents(thElem) {
                 delem.addEventListener( 'click', event => {
                     if (celemt.includes('|'))                                    // ... extended text? ...
                         celemt = celemt.substring(0, celemt.indexOf('|'));       // ... cut off extension
-                    clickCAdelete(trElem, celem, celemt, delem);                        // ... to feed the handler
+                    clickCA_delete(trElem, celem, celemt, delem);                        // ... to feed the handler
                 });
 
             }
         }
     }
 }
-function clickCAdelete(trElem, celem, celemt, delem) {
+function clickCA_delete(trElem, celem, celemt, delem) {
     let doneHighlight = celem.classList.contains('CCEhighlighted');
     let doRefresh = false;
     let XREFs = [];
@@ -190,7 +193,7 @@ function clickCAdelete(trElem, celem, celemt, delem) {
         tbadge.innerText = tcount.toString();                                       // update the actual counter
         tbadge_tc.innerText = '/ ' + tcount_tc.toString();                             // ... and also the total counter
     }
-    execCAdelete(delem, XREFs);
+    execCA_delete(delem, XREFs);
 
     let trElemp = trElem.parentNode;
     trElemp.removeChild(trElem);
@@ -212,7 +215,7 @@ function clickCAdelete(trElem, celem, celemt, delem) {
             btn_export.removeAttribute('disabled');                                     // ... so we want to be able to export
     }
 }
-function execCAdelete(delem, XREFs) {
+function execCA_delete(delem, XREFs) {
     let cartAct = delem.getAttribute('cartact');
     let action = delem.getAttribute('action');
     let route_ajax = delem.getAttribute('data-url');
@@ -238,6 +241,83 @@ function execCAdelete(delem, XREFs) {
         }
     });
 }
+
+/**
+ * thElem   the element carrying the name 'CCE-CAfiles'
+ */
+function prepCAfi_events(thElem) {
+    let he_name = thElem.getAttribute('name');
+    let henames = document.getElementsByName(he_name);                      // we collect significant nodes ...
+    for ( const henelem of henames) {
+        if ( henelem != thElem) {                                           // ... but we don't want the thElem itself
+            let belems = henelem.getElementsByClassName('cce-icon-file');       // we collect significant nodes ...
+            for ( const belem of belems ) {                                     // ... and grep for each:
+                let trElem = belem.parentElement.parentElement;                 // -> the superior table-line
+                let tbElem = trElem.parentElement;                              // -> the superior table-body
+                let celem = belem.nextElementSibling;                           // -> the element to receive the event
+                let celemt = celem.innerText;                                   // we grep the text ...
+                let pelem = belem.parentElement.parentElement;
+                const aelem = pelem.lastElementChild;
+                let delem = aelem.firstElementChild;
+                delem.addEventListener( 'click', event => {
+                    if (celemt.includes('|'))                                    // ... extended text? ...
+                        celemt = celemt.substring(0, celemt.indexOf('|'));       // ... cut off extension
+                    clickCAfi_delete(trElem, celem, celemt, delem);                        // ... to feed the handler
+                });
+
+            }
+        }
+    }
+}
+function clickCAfi_delete(trElem, celem, celemt, delem) {
+    let tbodies = document.querySelectorAll('table.CCE-files-table > tbody');       // all tables with records
+    for ( const tbody of tbodies) {
+        let ta_spans = tbody.querySelectorAll('span.cce-icon-file');                    // all file-badges in table
+        for ( const ta_span of ta_spans) {
+            let ta_sptxt = ta_span.nextElementSibling.innerText;                    // file-def in badge
+            let do_del = ta_sptxt.includes(celemt);                                 // file-toDel included?
+            if (do_del) {
+                let span_td = ta_span.parentElement;                                // badge's parent - contains the cartAct-defs
+                let span_tr = span_td.parentElement;                                // the record-line
+                span_td.removeChild(ta_span);                                       // remove the badge
+                tbody.removeChild(span_tr);                                     // ... no: remove the record-line
+                // if (!span_td.firstElementChild) {                                   // any other badges remaining? ...
+                //     tbody.removeChild(span_tr);                                     // ... no: remove the record-line
+                //     if (doneHighlight)
+                //         doRefresh = true;
+                // }
+            }
+        }
+    }
+
+    let cafkey = delem.getAttribute('cafkey');
+    let action = delem.getAttribute('action');
+    let route_ajax = delem.getAttribute('data-url');
+    let _url = decodeURIComponent(route_ajax);
+    if (_url.includes('&amp;')) {
+        _url = _url.replace('&amp;','&');
+    }
+    _url = _url + '&action=' + encodeURIComponent(action) + '&cafkey=' + encodeURIComponent(cafkey);
+    document.body.classList.add('waiting');
+    s_wt.httpGet(_url)
+        .then((function(e) {
+            let _url    = e.url;
+            location.assign(_url);
+                return e.url; // .json();
+            }
+        ))
+        .then((function(t) {
+                document.body.classList.remove('waiting');
+                location.reload();
+            }
+        ))
+        .catch((function(e) {
+            document.body.classList.remove('waiting');
+            location.reload();
+            }
+        ))
+}
+
 function updateCCEcount(XREFcnt) {
     let CCEmen = document.querySelector('.CCE_Menue');
     let CCEmenBadge = CCEmen.querySelector('span.badge.bg-secondary');

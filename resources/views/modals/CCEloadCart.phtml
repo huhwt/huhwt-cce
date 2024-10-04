@@ -37,11 +37,13 @@ $FileKillAction     = e(route(ClippingsCartEnhancedModule::class, ['tree' => $tr
             <?php foreach ($CIfiData as $key => $content) : ?>
                 <div class="row form-group cce-cbd">
                     <div class="col-sm-2 wt-page-options-label">
-                        <span><?= I18N::translate('Cartkey') . ':' ?></span>
+                        <span><?= I18N::translate('Filekey') . ':' ?></span>
                     </div>
                     <div class="col-sm-8 wt-page-options-value">
-                        <input type="checkbox" id="<?= $key ?>" name="CAfiKey[]" value="<?= $key ?>" class="visually-hidden">
-                        <label title="<?= I18N::translate('Click: select/deselect this saved cart')?>" for="<?= $key ?>"><?= $key ?></label>
+                        <div class="cce-cb-lbl">
+                            <input type="checkbox" id="<?= $key ?>" name="CAfiKey[]" value="<?= $key ?>" class="visually-hidden">
+                            <label class="cce-cbX-lbl" title="<?= I18N::translate('Click: select/deselect this saved cart')?>" for="<?= $key ?>"><?= $key ?></label>
+                        </div>
                         <div class="cce-cb">
                             <div class="cce-cbl">
                                 <div class="col-sm-3 wt-page-options-label"><?= I18N::translate('Timestamp') ?></div>

@@ -1,0 +1,65 @@
+<?php
+
+/**
+ * webtrees - clippings cart enhanced
+ *
+ * Copyright (C) 2024 huhwt. All rights reserved.
+ *
+ */
+
+use Fisharebest\Webtrees\I18N;
+use Fisharebest\Webtrees\Tree;
+
+/**
+ * @var string              $module
+ * @var array<string>       $CAfiles
+ * @var string              $cArouteAjax
+ * @var Tree                $tree
+ */
+
+ $html_cafs      = I18N::translate('File-imports included in cart');
+
+?>
+
+<?php if ($CAfiles === []) : ?>
+<?php else : ?>
+    <?php asort($CAfiles); ?>
+    <?php $count = count($CAfiles); ?>
+    <?php $Theader = 'CCE-CAfiles' ?>
+    <?php $Ttitle = I18N::translate('Click here to toggle highlighting of relevant records on or off'); ?>
+    <table class="table wt-facts-table CCE-files-table">
+        <colgroup>
+            <col span="1" style="width: 30%;">
+            <col span="1" style="width: 60%;">
+            <col span="1" style="width: 10%;">
+        </colgroup>
+        <thead>
+            <tr>
+                <th name="<?= $Theader ?>" class="CCE_Theader" ><?= $html_cafs; ?></th>
+                <th class="dontShow">...</th>
+                <th class="CCE_Theader"><?= I18N::translate('Action'); ?></th>
+            </tr>
+        </thead>
+        <tbody name="<?= $Theader ?>" style="display:visible">
+            <?php foreach ($CAfiles as $CAfkey => $CAfile) : ?>
+                <tr color="">
+                    <td>
+                        <span class="cce-icon-file"><i class="fas fa-file fa-fw" aria-hidden="true"></i></span>
+                        <span><?= $CAfkey ?></span>
+                    </td>
+                    <td>
+                        <span><?= $CAfile ?></span>
+                    </td>
+                    <td>
+                        <a href="#" rel="nofollow" data-url="<?= $cArouteAjax ?>" action="RemoveCAfile" tree="<?= $tree->name() ?>" cafkey ="<?= $CAfkey ?>">
+                            <button type="submit" class="btn btn-link" title="<?= I18N::translate('Remove'); ?>">
+                                <?= view('icons/delete'); ?>
+                            </button>
+                        </a>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
+    <br>
+<?php endif; ?>

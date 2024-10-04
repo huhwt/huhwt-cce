@@ -20,6 +20,7 @@ use Fisharebest\Webtrees\Tree;
  * @var string              $header_recs
  * @var string              $header_acts
  * @var array<>             $cartActions
+ * @var array<>             $CAfiles
  * @var string              $cArouteAjax
  * @var array<>             $cartXREFs
  * @var Tree                $tree
@@ -39,7 +40,20 @@ $cart_empty = $recordTypes === [] ? true : false;
     <?php echo $html_subheader; ?>
     <?= view('modals/ajax') ?>
     <p><?= I18N::translate('Clippings cart is empty.'); ?></p>
-<?php else : 
+<?php else :
+    $html_files = view($module . '::' . 'showCart/showCart-CAfiles', [
+        'module'      => $module,
+        'CAfiles'     => $CAfiles,
+        'cArouteAjax' => $cArouteAjax,
+        'tree'        => $tree
+    ]);
+    $html_actions = view($module . '::' . 'showCart/showCart-Actions', [
+        'module'      => $module,
+        'header_acts' => $header_acts,
+        'cartActions' => $cartActions,
+        'cArouteAjax' => $cArouteAjax,
+        'tree'        => $tree
+    ]);
     $html_table = view($module . '::' . 'showCart/showCart-Types', [
         'module'      => $module,
         'types'       => $types,
@@ -52,14 +66,8 @@ $cart_empty = $recordTypes === [] ? true : false;
         'cartXREFs'   => $cartXREFs,
         'tree'        => $tree,
     ]); 
-    $html_actions = view($module . '::' . 'showCart/showCart-Actions', [
-        'module'      => $module,
-        'header_acts' => $header_acts,
-        'cartActions' => $cartActions,
-        'cArouteAjax' => $cArouteAjax,
-        'tree'        => $tree
-    ]);
     ?>
+    <?php echo $html_files ?>
     <?php echo $html_actions ?>
     <br>
     <p id="prepInfo"><?= I18N::translate("Just a moment") . " ..." ?></p>
