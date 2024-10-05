@@ -499,7 +499,7 @@ use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCEvizActions;
 
         $CIfileData_upd = [];
         foreach ( $CIfileData as $fname => $fdata) {
-            if( !$fname == $KFname) {
+            if( $fname != $KFname) {
                 $CIfileData_upd[$fname] = $fdata;
             }
         }
