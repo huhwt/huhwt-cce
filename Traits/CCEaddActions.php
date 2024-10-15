@@ -62,6 +62,9 @@ trait CCEaddActions
     private const ADD_LINKED_INDIS_wp    = 'all persons to whom this note is linked with their parents';
     private const ADD_LINKED_FAMS        = 'all families to whom this note is linked';
 
+    private array $Dfams;
+    private array $Afams;
+
     /**
      * GET and POST actions
      */
@@ -184,35 +187,53 @@ trait CCEaddActions
             $generations['Dmin'] = 0;
         }
 
-        if ($individual->sex() === 'F') {
-            $txt_ANC = $this->substText('%1$s and her ancestors (up to %2$s generations)', $name, '~~', '~~', 'cce_genA', $generations['A']);
-            $txt_ANCF = $this->substText('%1$s, her ancestors and their families (up to %2$s generations)', $name, '~~', '~~', 'cce_genA', $generations['A']);
-            $txt_DES = $this->substText('%1$s, her spouses and descendants (up to %2$s generations)', $name, '~~', '~~', 'cce_genD', $generations['D']);
-            $options = [
-                self::ADD_RECORD_ONLY       => $name,
-                self::ADD_PARENT_FAMILIES   => I18N::translate('%s, her parents and siblings', $name),
-                self::ADD_SPOUSE_FAMILIES   => I18N::translate('%s, her spouses and children', $name),
-                self::ADD_ANCESTORS         => $txt_ANC,
-                // self::ADD_ANCESTORS_HT      => I18N::translate('%s and her ancestors, up to 4 generations, for H-Tree', $name),
-                self::ADD_ANCESTOR_FAMILIES => $txt_ANCF,
-                self::ADD_DESCENDANTS       => $txt_DES,
-                self::ADD_LINKED_INDIVIDUALS => I18N::translate('%s and all linked individuals', $name),
-            ];
-        } else {
-            $txt_ANC = $this->substText('%1$s and his ancestors (up to %2$s generations)', $name, '~~', '~~', 'cce_genA', $generations['A']);
-            $txt_ANCF = $this->substText('%1$s, his ancestors and their families (up to %2$s generations)', $name, '~~', '~~', 'cce_genA', $generations['A']);
-            $txt_DES = $this->substText('%1$s, his spouses and descendants (up to %2$s generations)', $name, '~~', '~~', 'cce_genD', $generations['D']);
-            $options = [
-                self::ADD_RECORD_ONLY       => $name,
-                self::ADD_PARENT_FAMILIES   => I18N::translate('%s, his parents and siblings', $name),
-                self::ADD_SPOUSE_FAMILIES   => I18N::translate('%s, his spouses and children', $name),
-                self::ADD_ANCESTORS         => $txt_ANC,
-                // self::ADD_ANCESTORS_HT      => I18N::translate('%s and his ancestors, up to 4 generations, for H-Tree', $name),
-                self::ADD_ANCESTOR_FAMILIES => $txt_ANCF,
-                self::ADD_DESCENDANTS       => $txt_DES,
-                self::ADD_LINKED_INDIVIDUALS => I18N::translate('%s and all linked individuals', $name),
-            ];
-        }
+        $indi_sex = $individual->sex();
+        switch ($indi_sex) {
+            case 'F':
+                $txt_ANC = $this->substText('%1$s and her ancestors (up to %2$s generations)', $name, '~~', '~~', 'cce_genA', $generations['A']);
+                $txt_ANCF = $this->substText('%1$s, her ancestors and their families (up to %2$s generations)', $name, '~~', '~~', 'cce_genA', $generations['A']);
+                $txt_DES = $this->substText('%1$s, her spouses and descendants (up to %2$s generations)', $name, '~~', '~~', 'cce_genD', $generations['D']);
+                $options = [
+                    self::ADD_RECORD_ONLY       => $name,
+                    self::ADD_PARENT_FAMILIES   => I18N::translate('%s, her parents and siblings', $name),
+                    self::ADD_SPOUSE_FAMILIES   => I18N::translate('%s, her spouses and children', $name),
+                    self::ADD_ANCESTORS         => $txt_ANC,
+                    // self::ADD_ANCESTORS_HT      => I18N::translate('%s and her ancestors, up to 4 generations, for H-Tree', $name),
+                    self::ADD_ANCESTOR_FAMILIES => $txt_ANCF,
+                    self::ADD_DESCENDANTS       => $txt_DES,
+                    self::ADD_LINKED_INDIVIDUALS => I18N::translate('%s and all to her linked individuals', $name),
+                ];
+                break;
+            case 'M':
+                $txt_ANC = $this->substText('%1$s and his ancestors (up to %2$s generations)', $name, '~~', '~~', 'cce_genA', $generations['A']);
+                $txt_ANCF = $this->substText('%1$s, his ancestors and their families (up to %2$s generations)', $name, '~~', '~~', 'cce_genA', $generations['A']);
+                $txt_DES = $this->substText('%1$s, his spouses and descendants (up to %2$s generations)', $name, '~~', '~~', 'cce_genD', $generations['D']);
+                $options = [
+                    self::ADD_RECORD_ONLY       => $name,
+                    self::ADD_PARENT_FAMILIES   => I18N::translate('%s, his parents and siblings', $name),
+                    self::ADD_SPOUSE_FAMILIES   => I18N::translate('%s, his spouses and children', $name),
+                    self::ADD_ANCESTORS         => $txt_ANC,
+                    // self::ADD_ANCESTORS_HT      => I18N::translate('%s and his ancestors, up to 4 generations, for H-Tree', $name),
+                    self::ADD_ANCESTOR_FAMILIES => $txt_ANCF,
+                    self::ADD_DESCENDANTS       => $txt_DES,
+                    self::ADD_LINKED_INDIVIDUALS => I18N::translate('%s and all to him linked individuals', $name),
+                ];
+                break;
+            default:
+                $txt_ANC = $this->substText('%1$s and ancestors (up to %2$s generations)', $name, '~~', '~~', 'cce_genA', $generations['A']);
+                $txt_ANCF = $this->substText('%1$s, ancestors and their families (up to %2$s generations)', $name, '~~', '~~', 'cce_genA', $generations['A']);
+                $txt_DES = $this->substText('%1$s, spouses and descendants (up to %2$s generations)', $name, '~~', '~~', 'cce_genD', $generations['D']);
+                $options = [
+                    self::ADD_RECORD_ONLY       => $name,
+                    self::ADD_PARENT_FAMILIES   => I18N::translate('%s, parents and siblings', $name),
+                    self::ADD_SPOUSE_FAMILIES   => I18N::translate('%s, spouses and children', $name),
+                    self::ADD_ANCESTORS         => $txt_ANC,
+                    // self::ADD_ANCESTORS_HT      => I18N::translate('%s and ancestors, up to 4 generations, for H-Tree', $name),
+                    self::ADD_ANCESTOR_FAMILIES => $txt_ANCF,
+                    self::ADD_DESCENDANTS       => $txt_DES,
+                    self::ADD_LINKED_INDIVIDUALS => I18N::translate('%s and all linked individuals', $name),
+                ];
+            }
         $sp_families = $individual->spouseFamilies();
         if ( count($sp_families) > 0) {
             $options[self::ADD_PARTNER_CHAINS] = I18N::translate('the partner chains %s belongs to', $name);
@@ -239,6 +260,8 @@ trait CCEaddActions
     {
         $tree = Validator::attributes($request)->tree();
         assert($tree instanceof Tree);
+
+        $user = Validator::attributes($request)->user();
 
         $xref        = Validator::parsedBody($request)->string('xref');
         $option      = Validator::parsedBody($request)->string('option');
@@ -303,7 +326,7 @@ trait CCEaddActions
                 $this->put_CartActs($tree, 'INDI_LINKED_INDIVIDUALS', $xref);
                 $_dname = 'wtVIZ-DATA~all linked_' . $xref;
                 $this->putVIZdname($_dname);
-                $this->addAllLinked($tree, $xref);
+                $this->addAnyLinkedToIndi($individual);
                 break;
         
     
@@ -665,9 +688,9 @@ trait CCEaddActions
      *
      * @param Tree $tree
      */
-    public function addAllLinked(Tree $tree, $xref = null): void
+    public function addAllLinked(Tree $tree, $user, $xref = null): void
     {
-        $allconns = new AllConnected($tree, ['FAMS', 'FAMC', 'ALIA', 'ASSO', '_ASSO'], $xref);
+        $allconns = new AllConnected($tree, ['FAMS', 'FAMC', 'ALIA', 'ASSO', '_ASSO'], $user, $xref);
         foreach ($allconns->getXrefs() as $xref) {
             $object = Registry::individualFactory()->make($xref, $tree);
             if ($object instanceof Individual) {
@@ -680,6 +703,102 @@ trait CCEaddActions
                     $this->addFamilyWithoutSpousesToCart($object);
                 }
             }
+        }
+    }
+
+    /**
+     * add any linked individuals in a tree to the clippings cart
+     * by adding individuals and their families the clippings cart
+     *
+     * @param Individual $individual
+     */
+    public function addAnyLinkedToIndi(Individual $individual): void
+    {
+        $this->Dfams    = [];
+        $this->Afams    = [];
+
+        $this->addALIloop($individual, '');
+    }
+    /**
+     * Recursive function to traverse the tree and add the descendant families
+     *
+     * @param Individual $individual
+     * @param int $level
+     *
+     * @return void
+     */
+    private function addALIloop(Individual $individual, string $loop_context): void
+    {
+        // $xref  = $individual->xref();
+        // if ($xref == 'X32') {
+        //     $xref_T = $xref;
+        // }
+        $Dfamilies  = $individual->spouseFamilies();            // Descendants
+        $Afamilies  = $individual->childFamilies();             // Ancestors
+
+        foreach ($Dfamilies as $family) {
+            $xref  = $family->xref();
+            // if ($xref == 'X35') {
+            //     $xref_T = $xref;
+            // }
+            if ( !key_exists($xref, $this->Dfams)) {
+                $this->Dfams[$xref] = true;
+                $this->addDESC($family, $individual, 'l_D_D');
+                $children   = $family->children();
+                foreach ($children as $child) {
+                    $this->addIndividualToCart($child);
+                    foreach ($child->spouseFamilies() as $child_family) {
+                        $this->addDESC($child_family, $child, 'l_D_c');
+                    }
+                }
+            }
+        }
+        foreach ($Afamilies as $family) {
+            $xref  = $family->xref();
+            // if ($xref == 'X31') {
+            //     $xref_T = $xref;
+            // }
+            if ( !key_exists($xref, $this->Afams)) {
+                $this->Afams[$xref] = true;
+                $this->addANC($family, $individual, 'l_A_A');
+                foreach ($family->spouses() as $parent) {
+                    foreach ($parent->spouseFamilies() as $spouse_family) {
+                        if ($spouse_family != $family) {
+                            $this->addDESC($spouse_family, $parent, 'l_D_p');
+                        }
+                    }
+                    foreach ($parent->childFamilies() as $parent_family) {
+                        $this->addANC($parent_family, $parent, 'l_A_p');
+                    }
+                }
+            }
+        }
+    }
+    /**
+     * @param Family $family
+     *
+     * @return void
+     */
+    private function addDESC(Family $family, Individual $individual, string $loop_context): void
+    {
+        $this->addFamilyToCart($family);
+        foreach ($family->spouses() as $spouse) {
+            if( $spouse != $individual) {
+                $this->addALIloop($spouse, $loop_context); // Ancestors
+            }
+        }
+    }
+    /**
+     * @param Family $family
+     *
+     * @return void
+     */
+    private function addANC(Family $family, Individual $individual, string $loop_context): void
+    {
+        $this->addFamilyToCart($family);                                            // spouses (Ixref) and familiy (Fxref)
+        foreach ($family->children() as $child) {
+            $this->addIndividualToCart($child);
+            $this->addALIloop($child, $loop_context); // Descendants
         }
     }
 
@@ -786,6 +905,26 @@ trait CCEaddActions
                 $this->addSourceLinksToCart($individual);
             }
         }
+    }
+    /**
+     * @param Individual $individual
+     */
+    public function addIndividualToCart_b(Individual $individual): bool
+    {
+        $tree = $individual->tree();
+        $xref = $individual->xref();
+
+        $do_cart = $this->put_Cart($tree, $xref);
+        if ($do_cart) {
+            $this->addMediaLinksToCart($individual);
+
+            if ( $this->all_RecTypes) {                                // EW.H mod ...
+                $this->addLocationLinksToCart($individual);
+                $this->addNoteLinksToCart($individual);
+                $this->addSourceLinksToCart($individual);
+            }
+        }
+        return $do_cart;
     }
 
     /**
