@@ -590,7 +590,7 @@ class ClippingsCartEnhanced extends ClippingsCartModule
         $cart  = $this->get_Cart();
         $count = count($cart[$tree->name()] ?? []);
 
-        $submenus = [$this->addMenuClippingsCart($tree, $cart)];
+        $submenus = [$this->addMenuClippingsCart($tree, $cart)];        // add cart-overview - counter
 
         $REQ_URI = rawurldecode($_SERVER['REQUEST_URI']);                   // we need to do so because some server might have that encoded ...
         $TSMok = ($this->TSMok && str_contains($REQ_URI, '/ShowCart/'));        // ... and we want to show this entrance only in certain case
@@ -925,7 +925,7 @@ class ClippingsCartEnhanced extends ClippingsCartModule
 
         $options[self::ADD_ALL_PARTNER_CHAINS] = I18N::translate('all partner chains in this tree');
         $options[self::ADD_ALL_CIRCLES]        = I18N::translate('all circles of individuals in this tree');
-        // $options[self::ADD_ALL_LINKED_PERSONS] = I18N::translate('all connected persons in this family tree - Caution: probably very high number of persons!');
+        $options[self::ADD_ALL_LINKED_PERSONS] = I18N::translate('all connected persons in this family tree - Caution: probably very high number of persons!');
         $options[self::ADD_COMPLETE_GED]       = I18N::translate('all persons/families in this family tree - Caution: probably very high number of persons!');
 
         $title = I18N::translate('Add global record sets to the clippings cart');
@@ -950,12 +950,13 @@ class ClippingsCartEnhanced extends ClippingsCartModule
     public function postGlobalAction(ServerRequestInterface $request): ResponseInterface
     {
         $tree = Validator::attributes($request)->tree();
+        $user = Validator::attributes($request)->user();
 
         $option = Validator::parsedBody($request)->string('option');
 
         switch ($option) {
             case self::ADD_ALL_PARTNER_CHAINS:
-                $this->put_CartActs($tree, 'ALL_PARTNER_CHAINS', 'all');
+                $this->put_CartActs($tree, 'ALL_PARTNER_CHAINS', 'allPC');
                 $_dname = 'wtVIZ-DATA~all partner chains';
                 $this->putVIZdname($_dname);
                 $this->addPartnerChainsGlobalToCart($tree);
@@ -968,13 +969,16 @@ class ClippingsCartEnhanced extends ClippingsCartModule
                 $this->addCompleteGEDtoCart($tree);
                 break;
 
-            // case self::ADD_ALL_LINKED_PERSONS:
-            //     $this->addAllLinked($tree);
-            //     break;
+            case self::ADD_ALL_LINKED_PERSONS:
+                $this->put_CartActs($tree, 'ALL_LINKED', 'allLP');
+                $_dname = 'wtVIZ-DATA~all linked';
+                $this->putVIZdname($_dname);
+                $this->addAllLinked($tree, $user);
+                break;
     
             default;
             case self::ADD_ALL_CIRCLES:
-                $this->put_CartActs($tree, 'ALL_CIRCLES', 'all');
+                $this->put_CartActs($tree, 'ALL_CIRCLES', 'allC');
                 $_dname = 'wtVIZ-DATA~all circles';
                 $this->putVIZdname($_dname);
                 $this->addAllCirclesToCart($tree);
@@ -1240,11 +1244,12 @@ class ClippingsCartEnhanced extends ClippingsCartModule
          */
 
         $encodedString = json_encode($arr_string);
+        $ecSlength      = strlen($encodedString);
 
         switch ($action) {
 
             case 'VIZ=TAM':
-                $ok = class_exists("HuHwt\WebtreesMods\TAMchart\TAMaction", true);
+                $ok = class_exists("HuHwt\WebtreesMods\TAMchart\TAMaction", autoload: true);
                 if ( $ok ) {
                     // Save the JSON string to SessionStorage.
                     Session::put('wt2TAMgedcom', $encodedString);
@@ -1262,7 +1267,7 @@ class ClippingsCartEnhanced extends ClippingsCartModule
                 break;
 
             case 'VIZ=LINEAGE':
-                $ok = class_exists("HuHwt\WebtreesMods\LINchart\LINaction", true);
+                $ok = class_exists("HuHwt\WebtreesMods\LINchart\LINaction", autoload: true);
                 if ( $ok ) {
                     Session::put('wt2LINgedcom', $encodedString);
                     Session::put('wt2LINaction', 'wt2LINgedcom');
