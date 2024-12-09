@@ -175,7 +175,7 @@ use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCEvizActions;
 
         $cAroute_ajax     = e(route(ClippingsCartEnhancedModule::class, ['module' => $this->name(), 'tree' => $tree->name()]));
 
-        return response(view('modals/saveCart', [
+        return response(view(name: 'modals/saveCart', data: [
             'tree'       => $tree,
             'title'      => $title,
             'label'      => $label,

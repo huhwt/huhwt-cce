@@ -17,15 +17,12 @@ For features and background of this module please have a look at the above given
 
 This custom module is only executable with webtrees-2.2.
 
-For webtrees-2.1 use huhwt-cce Release v2.1.20.0; for webtrees-2.0 use huhwt-cce20.
+For webtrees-2.1 use the latest release of the huhwt-cce 2.1 Branch; for webtrees-2.0 use huhwt-cce20.
 
 
 Attention:
 ~~~
-  This module requires to be operated in a PHP 8.2-onward system 
-  environment due to some features not have been available before.
-
-  Systems with PHP 8.1 environment have to use Release 2.1.17.0.
+  This module requires to be operated in a PHP 8.3-onward system, according to the webtrees-2.2 requirements.
 ~~~
 
 ## Contents
@@ -87,8 +84,8 @@ echo view('lists/surnames-tableCCE', [
 <a name="requirements"></a>
 ## Requirements
 
-This module requires **PHP 8.2** at least.
-This module requires **webtrees** version 2.1.18 at least.
+This module requires **PHP 8.3** at least.
+This module requires **webtrees** version 2.2.0 at least.
 This module has the same general requirements as [webtrees#system-requirements](https://github.com/fisharebest/webtrees#system-requirements).
 
 <a name="installation"></a>
@@ -96,7 +93,7 @@ This module has the same general requirements as [webtrees#system-requirements](
 
 This section documents installation instructions for this module.
 
-1. Download the [latest release](https://github.com/huhwt/huhwt-cce-dev/releases/latest).
+1. Download the [latest release](https://github.com/huhwt/huhwt-cce/releases/latest) respectively the Github Master branch.
 3. Unzip the package into your `webtrees/modules_v4` directory of your web server.
 4. Occasionally rename the folder to `huhwt-cce`. It's recommended to remove the respective directory if it already exists.
 

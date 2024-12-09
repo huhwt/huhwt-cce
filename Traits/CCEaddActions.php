@@ -57,6 +57,7 @@ trait CCEaddActions
     private const ADD_ALL_PARTNER_CHAINS = 'all partner chains in this tree';
     private const ADD_ALL_CIRCLES        = 'all circles - clean version';
     private const ADD_ALL_LINKED_PERSONS = 'all connected persons in this family tree - Caution: probably very high number of persons!';
+    private const ADD_ALL_LNKD_PRSNS_WO  = 'all connected persons in this family tree with options - Caution: probably very high number of persons!';
     private const ADD_COMPLETE_GED       = 'all persons in this family tree - Caution: probably very high number of persons!';
     private const ADD_LINKED_INDIS       = 'all persons to whom this note is linked';
     private const ADD_LINKED_INDIS_wp    = 'all persons to whom this note is linked with their parents';
@@ -689,6 +690,30 @@ trait CCEaddActions
      * @param Tree $tree
      */
     public function addAllLinked(Tree $tree, $user, $xref = null): void
+    {
+        $allconns = new AllConnected($tree, ['FAMS', 'FAMC'], $user, $xref);
+        foreach ($allconns->getXrefs() as $xref) {
+            $object = Registry::individualFactory()->make($xref, $tree);
+            if ($object instanceof Individual) {
+                if ($object->canShow()) {
+                    $this->addIndividualToCart($object);
+                }
+            } else {
+                $object = Registry::familyFactory()->make($xref, $tree);
+                if ($object instanceof Family && $object->canShow()) {
+                    $this->addFamilyWithoutSpousesToCart($object);
+                }
+            }
+        }
+    }
+
+    /**
+     * add all linked individuals in a tree to the clippings cart
+     * by adding individuals and their families without spouses to the clippings cart
+     *
+     * @param Tree $tree
+     */
+    public function addAllLinked_wo(Tree $tree, $user, $xref = null): void
     {
         $allconns = new AllConnected($tree, ['FAMS', 'FAMC', 'ALIA', 'ASSO', '_ASSO'], $user, $xref);
         foreach ($allconns->getXrefs() as $xref) {

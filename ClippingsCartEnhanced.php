@@ -454,12 +454,6 @@ class ClippingsCartEnhanced extends ClippingsCartModule
     private bool $add_sNOTE;
 
     /**
-     * stub for repeating Webtrees-List-Actions in CCE-compliant manner
-     * @var ListProcessor $listProcessor
-     */
-    private ListProcessor $listProcessor;
-
-    /**
      * where 'this' is not $this ...
      * @var ClippingsCartEnhanced $instance
      */
@@ -926,6 +920,7 @@ class ClippingsCartEnhanced extends ClippingsCartModule
         $options[self::ADD_ALL_PARTNER_CHAINS] = I18N::translate('all partner chains in this tree');
         $options[self::ADD_ALL_CIRCLES]        = I18N::translate('all circles of individuals in this tree');
         $options[self::ADD_ALL_LINKED_PERSONS] = I18N::translate('all connected persons in this family tree - Caution: probably very high number of persons!');
+        $options[self::ADD_ALL_LNKD_PRSNS_WO]  = I18N::translate('all connected persons in this family tree with options - Caution: probably very high number of persons!');
         $options[self::ADD_COMPLETE_GED]       = I18N::translate('all persons/families in this family tree - Caution: probably very high number of persons!');
 
         $title = I18N::translate('Add global record sets to the clippings cart');
@@ -975,8 +970,15 @@ class ClippingsCartEnhanced extends ClippingsCartModule
                 $this->putVIZdname($_dname);
                 $this->addAllLinked($tree, $user);
                 break;
-    
-            default;
+
+            case self::ADD_ALL_LNKD_PRSNS_WO:
+                $this->put_CartActs($tree, 'ALL_LINKED_WO', 'allLPwo');
+                $_dname = 'wtVIZ-DATA~all linked-wo';
+                $this->putVIZdname($_dname);
+                $this->addAllLinked_wo($tree, $user);
+                break;
+
+                default;
             case self::ADD_ALL_CIRCLES:
                 $this->put_CartActs($tree, 'ALL_CIRCLES', 'allC');
                 $_dname = 'wtVIZ-DATA~all circles';

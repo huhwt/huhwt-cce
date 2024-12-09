@@ -32,8 +32,9 @@ class AllConnected
      *
      * @param Tree $tree
      * @param array $links keywords in database table like ['FAMS', 'FAMC','ALIA']
+     * @param $user
      */
-    public function __construct(Tree $tree, array $links, $xref=null)
+    public function __construct(Tree $tree, array $links, $user, $xref=null)
     {
         $this->graph = DB::table('individuals')
             ->where('i_file', '=', $tree->id())
