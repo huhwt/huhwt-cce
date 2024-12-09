@@ -2,7 +2,7 @@
 # webtrees module huhwt-clippings_cart_enhanced
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](http://www.gnu.org/licenses/gpl-3.0)
-![webtrees major version](https://img.shields.io/badge/webtrees-v2.1.x-green)
+![webtrees major version](https://img.shields.io/badge/webtrees-v2.2.x-green)
 
 ![Latest Release](https://img.shields.io/github/v/release/huhwt/huhwt-cce)
 [![Downloads](https://img.shields.io/github/downloads/huhwt/huhwt-cce/total)]()
