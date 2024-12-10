@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: hh 2.0.19\n"
 "Report-Msgid-Bugs-To: hermann@hartenthaler.de\n"
 "POT-Creation-Date: 2021-11-21 12:57+0200\n"
-"PO-Revision-Date: 2024-10-04 07:20+0200\n"
+"PO-Revision-Date: 2024-12-10 06:56+0100\n"
 "Last-Translator: TheDutchJewel <thedutchjewel@gmail.com>\n"
 "Language-Team: \n"
 "Language: nl\n"
@@ -59,7 +59,7 @@ msgid "%1$s, his spouses and descendants (up to %2$s generations)"
 msgstr "%1$s, zijn partners en afstammelingen (tot maximaal %2$s generaties)"
 
 msgid "%s and all linked individuals"
-msgstr "%s en alle verbonden personen"
+msgstr "%s en alle gerelateerde personen"
 
 msgid "Decrement"
 msgstr "Verlagen"
@@ -78,6 +78,12 @@ msgstr "alle partnerketens in deze stamboom"
 
 msgid "all circles of individuals in this tree"
 msgstr "alle cirkels van personen in deze stamboom"
+
+msgid "all connected persons in this family tree - Caution: probably very high number of persons!"
+msgstr "alle gerelateerde personen in deze stamboom - Let op: waarschijnlijk zeer groot aantal personen!"
+
+msgid "all connected persons in this family tree with options - Caution: probably very high number of persons!"
+msgstr "alle gerelateerde personen in deze stamboom met opties - Let op: waarschijnlijk zeer groot aantal personen!"
 
 msgid "all persons/families in this family tree - Caution: probably very high number of persons!"
 msgstr "alle personen/gezinnen in deze stamboom - Let op: waarschijnlijk zeer groot aantal personen!"
@@ -266,10 +272,10 @@ msgid "Reload"
 msgstr "Opnieuw laden"
 
 msgid "all persons to whom '%s' is linked"
-msgstr "alle personen aan wie '%s' is gekoppeld"
+msgstr "alle personen aan wie '%s' is gerelateerd"
 
 msgid "all families to whom '%s' is linked"
-msgstr "alle gezinnen waaraan '%s' is gekoppeld"
+msgstr "alle gezinnen waaraan '%s' is gerelateerd"
 
 msgid "Add '%s' to the clippings cart"
 msgstr "'%s' toevoegen aan de knipselverzameling"
@@ -284,7 +290,7 @@ msgid "No saved cart files found"
 msgstr "Geen opgeslagen verzamelingsbestanden gevonden"
 
 msgid "all persons to whom '%s' is linked with their parents"
-msgstr "alle personen aan wie '%s' is gekoppeld met hun ouders"
+msgstr "alle personen aan wie '%s' is gerelateerd met hun ouders"
 
 msgid "File-imports included in cart"
 msgstr "Bestandsimports inbegrepen in stamboomknipsels"
@@ -294,3 +300,24 @@ msgstr "Bestandsimport"
 
 msgid "Filekey"
 msgstr "Bestandsidentificatie"
+
+msgid "%s and all to him linked individuals"
+msgstr "%s en alle aan hem gerelateerde personen"
+
+msgid "%s and all to her linked individuals"
+msgstr "%s en alle aan haar gerelateerde personen"
+
+msgid "%1$s and ancestors (up to %2$s generations)"
+msgstr "%1$s en voorouders (tot %2$s generaties)"
+
+msgid "%s and ancestors, up to 4 generations, for H-Tree"
+msgstr "%s en voorouders, tot 4 generaties, voor H-boom"
+
+msgid "%1$s, ancestors and their families (up to %2$s generations)"
+msgstr "%1$s, voorouders en hun gezinnen (tot %2$s generaties)"
+
+msgid "%1$s, spouses and descendants (up to %2$s generations)"
+msgstr "%1$s, partners en nakomelingen (tot %2$s generaties)"
+
+msgid "All linked individuals"
+msgstr "Alle gerelateerde personen"
