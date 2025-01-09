@@ -491,8 +491,12 @@ class ClippingsCartEnhanced extends ClippingsCartModule
         GedcomExportService $gedcom_export_service,
         LinkedRecordService $linked_record_service)
     {
-        $this->gedcom_export_service = $gedcom_export_service;
-        $this->linked_record_service = $linked_record_service;
+        // for exporting gedcom we need the parents's function ...
+        parent::__construct(
+            $gedcom_export_service,
+            $linked_record_service);
+
+        $this->linked_record_service= $linked_record_service; // ... but for connecting to e.g. (S)NOTEs we need our own instance
 
         $this->levelAncestor        = PHP_INT_MAX;
         $this->levelDescendant      = PHP_INT_MAX;
