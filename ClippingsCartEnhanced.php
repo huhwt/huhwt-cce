@@ -136,12 +136,16 @@ use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCEcartActions;
 use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCEdatabaseActions;
 use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCEtagsActions;
 use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCEvizActions;
+use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCEcustomModuleConnect;
 
 use HuHwt\WebtreesMods\TaggingServiceManager\TaggingServiceManager;
 use HuHwt\WebtreesMods\TaggingServiceManager\TaggingServiceManagerAdapter;
 
+// use Jefferson49\Webtrees\Module\ExtendedImportExport\DownloadGedcomWithURL;
+
 // control functions
 use stdClass;
+use Exception;
 use function array_filter;
 use function array_keys;
 use function array_map;
@@ -206,6 +210,8 @@ class ClippingsCartEnhanced extends ClippingsCartModule
     use CCEtagsActions;
     /** All constants and functions related to connecting vizualizations  */
     use CCEvizActions;
+    /** All constants and functions related to connecting to other custom modules */
+    use CCEcustomModuleConnect;
 
     protected const ROUTE_URL = '/tree/{tree}/CCE';
 
@@ -248,8 +254,11 @@ class ClippingsCartEnhanced extends ClippingsCartModule
     // What to execute on records in the clippings cart?
     // EW.H mod ... the second-level-keys are tested for actions in function postExecuteAction()
     private const EXECUTE_ACTIONS = [
+        'Export records ...' => [
+            'EXTENDED_EXPORT_XTE_'      => "... external module 'Extended GEDCOM Export' (will be forwarded)",
+        ],
         'Download records ...' => [
-            'EXECUTE_DOWNLOAD_ZIP'      => '... as GEDCOM zip-file (including media files)',
+            'EXECUTE_DOWNLOAD_ZIP'      => '... as GEDCOM zip-file (including media files) [wt-core]',
             'EXECUTE_DOWNLOAD_PLAIN'    => '... as GEDCOM file (all Tags, no media files)',
             'EXECUTE_DOWNLOAD_IF'       => '... as GEDCOM file (only INDI and FAM)',
         ],
@@ -479,7 +488,17 @@ class ClippingsCartEnhanced extends ClippingsCartModule
 
     private ModuleService $module_service;
 
+    /**
+     * huhwt-tsm installed?
+     * @var bool
+     */
     private bool $TSMok = false;
+
+    /**
+     * _extended_import_export installed?   ... we will only use the export part 
+     * @var bool
+     */
+    private bool $_XTE_ok = false;
 
     /** 
      * ClippingsCartModule constructor.
@@ -1034,17 +1053,22 @@ class ClippingsCartEnhanced extends ClippingsCartModule
         $tree = Validator::attributes($request)->tree();
         $user = Validator::attributes($request)->user();
 
-        $first = ' -> Webtrees Standard action';
+        $wt_core = ' -> Webtrees Standard action';
         $options_arr = array();
         foreach (self::EXECUTE_ACTIONS as $opt => $actions) {
-            $actions_arr = array();
-            foreach ($actions as $action => $text) {
-                $atxt = I18N::translate($text);
-                $atxt = $atxt . $first;
-                $first = '';
-                $actions_arr[$action] = $atxt;
+            if ( $opt != 'Export records ...' || $this->_XTE_ok) {
+                $actions_arr = array();
+                foreach ($actions as $action => $text) {
+                    $atxt = I18N::translate($text);
+                    if (str_contains($text, '[wt-core]')) {
+                        $text = trim(str_replace('[wt-core]','',$text));
+                        $atxt = I18N::translate($text);
+                        $atxt = $atxt . $wt_core;
+                    }
+                    $actions_arr[$action] = $atxt;
+                }
+                $options_arr[$opt] = $actions_arr;
             }
-            $options_arr[$opt] = $actions_arr;
         }
 
         $title = I18N::translate('Execute an action on records in the clippings cart');
@@ -1082,6 +1106,11 @@ class ClippingsCartEnhanced extends ClippingsCartModule
         }
 
         switch ($option) {
+        // We want to use foreign module 'ExtendedImportExport' ...
+            // ... we use only download-action
+            case 'EXTENDED_EXPORT_XTE_':
+                return $this->route_to_XTE_($tree);
+
         // We want to download gedcom as zip ...
             // ... we use the default download-action
             case 'EXECUTE_DOWNLOAD_ZIP':
@@ -1994,6 +2023,8 @@ class ClippingsCartEnhanced extends ClippingsCartModule
         Session::put('CCEtable-actions.css', $CCEcss);
 
         $this->TSMok = class_exists(TaggingServiceManager::class, true);
+
+        $this->_XTE_ok = $this->test_XTE_();
 
         foreach (self::OTHER_MENUES as $lkey => $actions) {
             $sess_key = 'CCElist-' . $lkey;

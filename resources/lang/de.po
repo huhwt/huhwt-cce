@@ -323,5 +323,11 @@ msgstr "%1$s, Ehepartner und Nachkommen (bis zu %2$s Generationen)"
 msgid "All linked individuals"
 msgstr "ALLE verbundene Personen"
 
+msgid "Export records ..."
+msgstr "Datensätze exportieren ..."
+
+msgid "... external module 'Extended GEDCOM Export' (will be forwarded)"
+msgstr "... externes Modul 'Erweiterter GEDCOM Export' (wird weitergeleitet)"
+
 msgid ""
 msgstr ""

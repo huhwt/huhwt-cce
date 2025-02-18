@@ -57,6 +57,8 @@ An action initiated by the user then takes place on the records in the clippings
 * the transfer of the records in the clippings cart to new functions that visualize this data or analyze it statistically.
   * Such a function could be for example a link-node-diagram like [TAM](https://github.com/huhwt/huhwt-wttam) (Topographic Attribute Map) or [LIN/Lineage](https://github.com/huhwt/huhwt-wtlin).
 * the transfer of the records in the clippings cart to new function [TSM](https://github.com/huhwt/huhwt-tsm) (Tagging Service Manager) providing the capability to handle appropriately structured 'Shared Notes' at a high abstract level.
+* the transfer of the records in the clippings cart to an other custom module:
+  * [ExtendedImportExport](https://github.com/Jefferson49/ExtendedImportExport) with lots of options for filtering or modifying Gedcom content. 
 
 The [TAM], [LIN] and [TSM] functions are provided as their own independent modules.
 
@@ -130,12 +132,14 @@ at the [webtrees forum](http://www.webtrees.net/)
 
 Special thanks to [hartenthaler](https://github.com/hartenthaler/) for providing this valuable module.
 
+Special thanks to [Jefferson49](https://github.com/Jefferson49/ExtendedImportExport) for adding the support to export clippings cart to his extraordinary module.
+
 <a name="license"></a>
 ## License
 
 This module was originally derived from the [Vesta clippings cart](https://github.com/vesta-webtrees-2-custom-modules/vesta_clippings_cart) module.
 
-* Copyright (C) 2022/2024 huhwt - EW.H
+* Copyright (C) 2022/2025 huhwt - EW.H
 * Copyright (C) 2021 Hermann Hartenthaler
 * Copyright (C) 2021 Richard Cissée. All rights reserved.
 * Derived from **webtrees** - Copyright 2024 webtrees development team.
