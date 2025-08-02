@@ -91,6 +91,7 @@ use Fisharebest\Webtrees\Registry;
 use Fisharebest\Webtrees\Repository;
 use Fisharebest\Webtrees\Services\GedcomExportService;
 use Fisharebest\Webtrees\Services\LinkedRecordService;
+use Fisharebest\Webtrees\Services\PhpService;
 use Fisharebest\Webtrees\Services\UserService;
 use Fisharebest\Webtrees\Session;
 use Fisharebest\Webtrees\Source;
@@ -505,15 +506,19 @@ class ClippingsCartEnhanced extends ClippingsCartModule
      *
      * @param GedcomExportService $gedcom_export_service
      * @param LinkedRecordService $linked_record_service
+     * @param PhpService          $php_service
      */
     public function __construct(
         GedcomExportService $gedcom_export_service,
-        LinkedRecordService $linked_record_service)
+        LinkedRecordService $linked_record_service,
+        PhpService          $php_service
+        )
     {
         // for exporting gedcom we need the parents's function ...
         parent::__construct(
             $gedcom_export_service,
-            $linked_record_service);
+            $linked_record_service,
+            $php_service);
 
         $this->linked_record_service= $linked_record_service; // ... but for connecting to e.g. (S)NOTEs we need our own instance
 
