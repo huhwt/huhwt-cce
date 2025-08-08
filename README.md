@@ -15,7 +15,9 @@ This custom module is primarily based on the hh_clippings_cart_enhanced by Herma
 (https://github.com/hartenthaler/hh_clippings_cart_enhanced)
 For features and background of this module please have a look at the above given link.
 
-This custom module is only executable with webtrees-2.2.
+This custom module is only executable with webtrees-2.3.
+
+For webtress-2.2 use the release 2.2.x.x.
 
 For webtrees-2.1 use the latest release of the huhwt-cce 2.1 Branch; for webtrees-2.0 use huhwt-cce20.
 
@@ -133,6 +135,8 @@ at the [webtrees forum](http://www.webtrees.net/)
 Special thanks to [hartenthaler](https://github.com/hartenthaler/) for providing this valuable module.
 
 Special thanks to [Jefferson49](https://github.com/Jefferson49/ExtendedImportExport) for adding the support to export clippings cart to his extraordinary module.
+
+Special thanks to both of them for adapting CCE to the wt-2.3 environment so quickly. 
 
 <a name="license"></a>
 ## License
