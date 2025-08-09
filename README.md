@@ -15,9 +15,9 @@ This custom module is primarily based on the hh_clippings_cart_enhanced by Herma
 (https://github.com/hartenthaler/hh_clippings_cart_enhanced)
 For features and background of this module please have a look at the above given link.
 
-This custom module is only executable with webtrees-2.3.
+This custom module is only executable with webtrees-2.2.3 onwards.
 
-For webtress-2.2 use the release 2.2.x.x.
+For webtress-2.2.1/-2.2.2 use the release 2.2.1.2.
 
 For webtrees-2.1 use the latest release of the huhwt-cce 2.1 Branch; for webtrees-2.0 use huhwt-cce20.
 
@@ -89,7 +89,7 @@ echo view('lists/surnames-tableCCE', [
 ## Requirements
 
 This module requires **PHP 8.3** at least.
-This module requires **webtrees** version 2.2.0 at least.
+This module requires **webtrees** version 2.2.3 at least.
 This module has the same general requirements as [webtrees#system-requirements](https://github.com/fisharebest/webtrees#system-requirements).
 
 <a name="installation"></a>
@@ -136,7 +136,7 @@ Special thanks to [hartenthaler](https://github.com/hartenthaler/) for providing
 
 Special thanks to [Jefferson49](https://github.com/Jefferson49/ExtendedImportExport) for adding the support to export clippings cart to his extraordinary module.
 
-Special thanks to both of them for adapting CCE to the wt-2.3 environment so quickly. 
+Special thanks to both of them for adapting CCE to the wt-2.2.3 environment so quickly. 
 
 <a name="license"></a>
 ## License
