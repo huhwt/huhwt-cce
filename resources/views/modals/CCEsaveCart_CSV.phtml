@@ -1,0 +1,104 @@
+<?php
+
+/**
+ * webtrees - clippings cart enhanced
+ *
+ * Copyright (C) 2024 huhwt. All rights reserved.
+ *
+ */
+
+ declare(strict_types=1);
+
+namespace HuHwt\WebtreesMods\ClippingsCartEnhanced;
+
+use Fisharebest\Webtrees\I18N;
+use Fisharebest\Webtrees\Tree;
+use Fisharebest\Webtrees\View;
+
+use HuHwt\WebtreesMods\ClippingsCartEnhanced\ClippingsCartEnhancedModule;
+
+/**
+ * @var Tree    $tree
+ * @var string  $label
+ * @var string  $fnameCA
+ * @var string  $cArouteAjax
+ * @var array<string,array>  $optionsCCE
+ * @var array<string,string> $CSVsettings
+ */
+
+$CSVsaveAction     = e(route(ClippingsCartEnhancedModule::class, ['tree' => $tree->name(), 'action' => 'CSVsaveAjaxAction']));
+
+?>
+
+<form method="post" action="<?= $CSVsaveAction ?>" id="wt-modal-form">
+    <?= view('modals/header', ['title' => $title]) ?>
+
+    <div class="modal-body">
+        <div class="row form-group">
+            <div class="col-sm-5 col-form-label wt-page-options-label">
+                <span><?= $label ?></span>
+            </div>
+            <div class="col-sm-5 wt-page-options-value" title="<?= I18N::translate('File name') ?>">
+                <span id="CAfname"><?= $fnameCA ?></span>
+            </div>
+            <div class="col-sm-1 wt-page-options-value" title="<?= I18N::translate('Timestamp is set as UTC ...') ?>">
+                <span>(UTC)</span>
+            </div>
+        </div>
+        <div class="row form-group">
+            <div class="col-sm-5 wt-page-options-label">
+                <span><?= I18N::translate('Optional: Set own identifier'); ?></span>
+            </div>
+            <div class="col-sm-5 wt-page-options-value">
+                <label>
+                    <span class="visually-hidden">
+                        <?= I18N::translate('Filename') ?>
+                    </span>
+                    <input type="text" class="form-control" name="title" id="CAfname_own" value="" placeholder="<?= I18N::translate('(Own identifier)') ?>" data-url="<?= $cArouteAjax ?>" action="CAfname">
+                </label>
+            </div>
+            <div class="col-sm-2 wt-page-options-value">
+                <input class="mbutton" type="button" style="border:1px solid gray" value="<?= I18N::translate('Accept'); ?>" id="btn_CAfname" />
+            </div>
+        </div>
+        <div class="row form-group">
+            <div class="col-sm-5 col-form-label wt-page-options-label">
+                <span><?= I18N::translate('Defaults for saving Clippings Cart XREFs to local CSV file') . ':' ?></span>
+            </div>
+            <div>&nbsp;</div>
+        </div>
+        <div class="row form-group">
+            <div class="col-sm-5 wt-page-options-value wt-page-options-value">
+                <span class="cce-page-options-value-r"><?= I18N::translate('Encoding') ?></span>
+            </div>
+            <div class="col-sm-5 wt-page-options-value">UTF-8</div>
+        </div>
+        <div class="row form-group">
+            <div class="col-sm-5 wt-page-options-value wt-page-options-value">
+                <span class="cce-page-options-value-r"><?= I18N::translate('Separator') ?></span>
+            </div>
+            <div class="col-sm-5 wt-page-options-value"><?= $CSVsettings['separator'] ?></div>
+        </div>
+        <div class="row form-group">
+            <div class="col-sm-5 wt-page-options-value wt-page-options-value">
+                <span class="cce-page-options-value-r"><?= I18N::translate('Enclosure') ?></span>
+            </div>
+            <div class="col-sm-5 wt-page-options-value"><?= $CSVsettings['enclosure'] ?></div>
+        </div>
+        <div class="row form-group">
+            <div class="col-sm-5 wt-page-options-value wt-page-options-value">
+                <span class="cce-page-options-value-r"><?= I18N::translate('Escape') ?></span>
+            </div>
+            <div class="col-sm-5 wt-page-options-value"><?= $CSVsettings['escape'] ?></div>
+        </div>
+    </div>
+
+    <?= view('modals/footer-continue-cancelCCE') ?>
+
+    <?= csrf_field() ?>
+</form>
+
+<script>
+  document.getElementById('btn_CAfname').addEventListener('click', setOwnFname);
+  document.getElementById('btn_CCEsubmit').addEventListener('click', clickCSVexport);
+</script>

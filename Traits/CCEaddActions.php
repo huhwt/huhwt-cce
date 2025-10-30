@@ -3,7 +3,7 @@
 /**
  * webtrees - clippings cart enhanced
  *
- * Copyright (C) 2023 huhwt. All rights reserved.
+ * Copyright (C) 2025 huhwt. All rights reserved.
  * Copyright (C) 2021 Hermann Hartenthaler. All rights reserved.
  * Copyright (C) 2021 Richard Cissée. All rights reserved.
  *
@@ -46,22 +46,34 @@ use HuHwt\WebtreesMods\ClippingsCartEnhanced\CompleteGED;
 use HuHwt\WebtreesMods\ClippingsCartEnhanced\PartnerChains;
 use HuHwt\WebtreesMods\ClippingsCartEnhanced\PartnerChainsGlobal;
 
+use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CC_addActionsConsts;
+
 /**
  * Trait CCEaddActions - bundling all add-Actions related to enhanced clipping
  */
 trait CCEaddActions
 {
+    use CC_addActionsConsts;
+
     // What to add to the cart?
     // HH.mod - additional actions --
     private const ADD_PARTNER_CHAINS     = 'add partner chains for this individual or a family';
     private const ADD_ALL_PARTNER_CHAINS = 'all partner chains in this tree';
-    private const ADD_ALL_CIRCLES        = 'all circles - clean version';
+    private const ADD_ALL_CIRCLES        = 'all circles of individuals in this tree'; // clean version
     private const ADD_ALL_LINKED_PERSONS = 'all connected persons in this family tree - Caution: probably very high number of persons!';
     private const ADD_ALL_LNKD_PRSNS_WO  = 'all connected persons in this family tree with options - Caution: probably very high number of persons!';
-    private const ADD_COMPLETE_GED       = 'all persons in this family tree - Caution: probably very high number of persons!';
+    private const ADD_COMPLETE_GED       = 'all persons/families in this family tree - Caution: probably very high number of persons!';
     private const ADD_LINKED_INDIS       = 'all persons to whom this note is linked';
     private const ADD_LINKED_INDIS_wp    = 'all persons to whom this note is linked with their parents';
     private const ADD_LINKED_FAMS        = 'all families to whom this note is linked';
+
+    private const GLOBAL_ACTIONS = [
+        'ADD_ALL_PARTNER_CHAINS'         => self::ADD_ALL_PARTNER_CHAINS,
+        'ADD_ALL_CIRCLES'                => self::ADD_ALL_CIRCLES,
+        'ADD_ALL_LINKED_PERSONS'         => self::ADD_ALL_LINKED_PERSONS,
+        'ADD_ALL_LNKD_PRSNS_WO'          => self::ADD_ALL_LNKD_PRSNS_WO,
+        'ADD_COMPLETE_GED'               => self::ADD_COMPLETE_GED,
+    ];
 
     private array $Dfams;
     private array $Afams;
@@ -911,17 +923,49 @@ trait CCEaddActions
             $this->addFamilyOtherRecordsToCart($family);
         }
     }
+    /**
+     * @param Family $family
+     */
+    public function addFamilyToCart_noDeceased(Family $family): void
+    {
+        // if ($addAct) 
+            // $this-put_CartActs($family->tree(),"ADD_FAM~",  $family->xref());
+
+        foreach ($family->spouses() as $spouse) {
+            $isDead = $spouse->isDead();
+            if (!$isDead) {
+                $this->addIndividualToCart($spouse);
+            }
+        }
+        $this->addFamilyWithoutSpousesToCart($family);
+
+        $this->addMediaLinksToCart($family);
+
+        if ( $this->all_RecTypes) {                                // EW.H mod ...
+            $this->addFamilyOtherRecordsToCart($family);
+        }
+    }
 
     /**
      * @param Individual $individual
      */
-    public function addIndividualToCart(Individual $individual): void
+    public function addIndividualToCart_only(Individual $individual): void
     {
         $tree = $individual->tree();
         $xref = $individual->xref();
 
         $do_cart = $this->put_Cart($tree, $xref);
-        if ($do_cart) {
+    }
+    /**
+     * @param Individual $individual
+     */
+    public function addIndividualToCart(Individual $individual, bool $do_media = true): void
+    {
+        $tree = $individual->tree();
+        $xref = $individual->xref();
+
+        $do_cart = $this->put_Cart($tree, $xref);
+        if ($do_cart && $do_media) {
             $this->addMediaLinksToCart($individual);
 
             if ( $this->all_RecTypes) {                                // EW.H mod ...
@@ -934,13 +978,13 @@ trait CCEaddActions
     /**
      * @param Individual $individual
      */
-    public function addIndividualToCart_b(Individual $individual): bool
+    public function addIndividualToCart_b(Individual $individual, bool $do_media = true): bool
     {
         $tree = $individual->tree();
         $xref = $individual->xref();
 
         $do_cart = $this->put_Cart($tree, $xref);
-        if ($do_cart) {
+        if ($do_cart && $do_media) {
             $this->addMediaLinksToCart($individual);
 
             if ( $this->all_RecTypes) {                                // EW.H mod ...

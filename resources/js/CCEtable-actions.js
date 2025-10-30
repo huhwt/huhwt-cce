@@ -32,9 +32,6 @@ function CCEprepEvents(mElem, _dtNNjq, _wt_table_id) {
 function CCEexecRequest(event, _boolWp, _listType, _clipAction, _boolWs, _boolWc, _boolWa, _dt_ind, _CCE_key, _dtNNjq, _wt_table_id) {
     let elem = event.target;
     let actURL = window.location.href;
-    let indTypeInd = 5;                                         // Index of List-Indicator - assumed PrettyUrl ...
-    if (actURL.includes('index.php?route='))                    // ... but may be UglyUrl
-        indTypeInd = 6;
     let actSEARCH = decodeURIComponent(window.location.search);
     actSEARCH = actSEARCH.substring(actSEARCH.indexOf("&"));
 
@@ -46,11 +43,18 @@ function CCEexecRequest(event, _boolWp, _listType, _clipAction, _boolWs, _boolWc
     // let dt = document.querySelector(dt_Tid);
     let dtb = dt.querySelector("tbody");
     let dtb_Fs = dtb.querySelectorAll("a");
+    let dtb_Fs0 = decodeURIComponent(dtb_Fs[0]);
+    let _Fes0 = dtb_Fs0.split('/');
+    let indTypeInd = 5;                                         // Index of List-Indicator - assumed PrettyUrl ...
+    if (actURL.includes('index.php?route='))                    // ... but may be UglyUrl
+        indTypeInd = 6;
+    if (_Fes0[indTypeInd] == 'tree')                            // ... in case of localhost we'll have to look 2 positions after
+        indTypeInd += 2;
     for (let i = 0; i < dtb_Fs.length; i++) {
         let _Fe     = dtb_Fs[i].href;
         let _Fed    = decodeURIComponent(_Fe);
         let _Fes    = _Fed.split("/");
-        if (_Fes[indTypeInd] == _listType) {                     // if it is this type of list ...
+        if (_Fes[indTypeInd] == _listType) {                    // if it is this type of list ...
             let XREF    = _Fes[indTypeInd+1];                       // ... we'll find the Xref in the next slot
             if (XREF != fXREF) {
                 if ( XREFs.indexOf(XREF) < 0 ) {

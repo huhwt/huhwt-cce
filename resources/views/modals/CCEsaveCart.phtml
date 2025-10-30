@@ -21,11 +21,12 @@ use HuHwt\WebtreesMods\ClippingsCartEnhanced\ClippingsCartEnhancedModule;
  * @var string  $label
  * @var string  $fnameCA
  * @var string  $cArouteAjax
+ * @var array<string,array>  $optionsCCE
  */
 
 ?>
 
-<form method="post" action="<?= e(route(ClippingsCartEnhancedModule::class, ['tree' => $tree->name(), 'action' => 'doCartSaveAction'])) ?>" id="wt-modal-form">
+<form method="post" action="<?= e(route(ClippingsCartEnhancedModule::class, ['tree' => $tree->name(), 'action' => 'CCEsaveAction'])) ?>" id="wt-modal-form">
     <?= view('modals/header', ['title' => I18N::translate('Save cart to file')]) ?>
 
     <div class="modal-body">
@@ -57,7 +58,6 @@ use HuHwt\WebtreesMods\ClippingsCartEnhanced\ClippingsCartEnhancedModule;
             </div>
         </div>
     </div>
-
     <?= view('modals/footer-save-cancelCCE') ?>
 
     <?= csrf_field() ?>

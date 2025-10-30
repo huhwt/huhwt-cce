@@ -1,0 +1,25 @@
+<?php
+
+/**
+ * webtrees - clippings cart enhanced
+ *
+ * Copyright (C) 2025 huhwt. All rights reserved.
+ *
+ */
+
+ declare(strict_types=1);
+
+use Fisharebest\Webtrees\I18N;
+
+?>
+
+<div class="modal-footer">
+    <button type="button" id="btn_CCEsubmit" class="btn btn-primary">
+        <?= view('icons/save') ?>
+        <?= I18N::translate('continue') ?>
+    </button>
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+        <?= view('icons/cancel') ?>
+        <?= I18N::translate('cancel') ?>
+    </button>
+</div>

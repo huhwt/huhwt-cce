@@ -1,0 +1,69 @@
+<?php
+
+/**
+ * webtrees - clippings cart enhanced
+ *
+ * Copyright (C) 2025 huhwt. All rights reserved.
+ *
+ */
+
+use Fisharebest\Webtrees\I18N;
+use Fisharebest\Webtrees\Tree;
+
+/**
+ * @var string              $module
+ * @var array<>             $cartActionsFilter
+ * @var string              $cArouteAjax
+ * @var Tree                $tree
+ */
+
+asort($cartActionsFilter);
+
+?>
+
+<?php if ($cartActionsFilter === []) : ?>
+    <p><?= I18N::translate('No actions executed.'); ?></p>
+<?php else : ?>
+    <?php $count = count($cartActionsFilter); ?>
+    <?php $TheaderF = 'CCE-CartActions Filter' ?>
+    <?php $Theader_body = 'CCE-CAFbody' ?>
+    <?php $Ttitle = I18N::translate('Click here to switch between viewing single actions or combined filter actions'); ?>
+    <?php $Ctitle = I18N::translate('Click here to toggle highlighting of relevant records on or off'); ?>
+    <table id="<?= $TheaderF ?>" class="table wt-facts-table CCE-actions-table">
+        <colgroup>
+            <col span="1" style="width: 90%;">
+            <col span="1" style="width: 10%;">
+        </colgroup>
+        <thead>
+            <tr>
+                <th name="<?= $TheaderF ?>" title="<?= $Ttitle ?>" class="CCE_Theader" ><?= I18N::translate('Records') . ' - ' . I18N::translate($TheaderF) . ' (' . view('components/badge', ['count' => $count]) . ')'; ?></th>
+                <th class="CCE_Theader"><?= I18N::translate('Action'); ?></th>
+            </tr>
+        </thead>
+        <tbody id="<?= $Theader_body ?>" name="<?= $TheaderF ?>" style="display:none" colorsFOn="" colorsFOff="_;colorF1;colorF2;colorF3;colorF4;colorF5;colorF6">
+            <?php foreach ($cartActionsFilter as $cartactFilter) : ?>
+                <tr color="">
+                    <td>
+                        <div>
+                            <span class="cce-icon-basket"><i class="fas fa-shopping-basket fa-fw" aria-hidden="true"></i></span>
+                            <span class="b-filter" badges="<?= $cartactFilter ?>" title="<?= $Ctitle ?>">
+                                <?php $xrefActions = explode(";",$cartactFilter);
+                                        foreach ($xrefActions as $xAction) : ?>
+                                        <?= view('components/CCEbadgedText', ['text' => $xAction]); ?>
+                                <?php endforeach; ?>
+                            </span>
+                        </div>
+                    </td>
+                    <td>
+                        <a href="#" rel="nofollow" data-url="<?= $cArouteAjax ?>" action="RemoveCartActFilter" tree="<?= $tree->name() ?>", cartactfilter ="<?= $cartactFilter ?>">
+                            <button type="submit" class="btn btn-link" title="<?= I18N::translate('Remove'); ?>">
+                                <?= view('icons/delete'); ?>
+                            </button>
+                        </a>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
+<?php endif; ?>
+<?php /** view('modals/ajax') */ ?>

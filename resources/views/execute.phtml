@@ -11,12 +11,15 @@ use Fisharebest\Webtrees\I18N;
 use Fisharebest\Webtrees\Tree;
 
 /**
- * @var array<string,array>  $options
- * @var string               $title
- * @var string               $label
- * @var bool                 $is_manager
- * @var bool                 $is_member
- * @var Tree                 $tree
+ * @var array<string,array>     $options
+ * @var array<string,string>    $options_idx
+ * @var array<string,array>     $options_pl
+ * @var array<string,string>    $options_plidx
+ * @var string                  $title
+ * @var string                  $label
+ * @var bool                    $is_manager
+ * @var bool                    $is_member
+ * @var Tree                    $tree
  */
 
 ?>
@@ -27,7 +30,7 @@ use Fisharebest\Webtrees\Tree;
     <?= csrf_field() ?>
 
     <?php foreach ($options as $opt => $actions) : ?>
-        <?php $optInfo = I18N::translate($opt) ?>
+        <?php $optInfo = I18N::translate($options_idx[$opt]) ?>
         <div class="row form-group">
             <div class="col-sm-3 col-form-label wt-page-options-label">
                 <?= $optInfo ?>
@@ -37,7 +40,19 @@ use Fisharebest\Webtrees\Tree;
             </div>
         </div>
     <?php endforeach ?>
-
+<!--
+    <   ?php foreach ($options_pl as $opt => $actions) : ?>
+        <   ?php $optInfo = I18N::translate($options_plidx[$opt]) ?>
+        <div class="row form-group">
+            <div class="col-sm-3 col-form-label wt-page-options-label">
+                <   ?= $optInfo ?>
+            </div>
+            <div class="col-sm-9 wt-page-options-value">
+                <   ?= view('components/radios', ['name' => 'option', 'options' => $actions, 'selected' => '_NIX_']) ?>
+            </div>
+        </div>
+    <   ?php endforeach ?>
+-->
     <?= view($module . '::' . 'privatize-options', ['label' => $label, 'is_manager'=> $is_manager, 'is_member'=> $is_member ]) ?>
 
     <div class="row mb-3">

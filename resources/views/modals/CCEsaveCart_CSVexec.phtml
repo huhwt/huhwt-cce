@@ -1,0 +1,64 @@
+<?php
+
+/**
+ * webtrees - clippings cart enhanced
+ *
+ * Copyright (C) 2024 huhwt. All rights reserved.
+ *
+ */
+
+ declare(strict_types=1);
+
+namespace HuHwt\WebtreesMods\ClippingsCartEnhanced;
+
+use Fisharebest\Webtrees\I18N;
+use Fisharebest\Webtrees\Tree;
+use Fisharebest\Webtrees\View;
+
+use HuHwt\WebtreesMods\ClippingsCartEnhanced\ClippingsCartEnhancedModule;
+
+/**
+ * @var Tree    $tree
+ * @var string  $title
+ * @var string  $label
+ * @var string  $fnameCA
+ * @var string  $cArouteAjax
+ */
+
+$CSVsaveAction     = e(route(ClippingsCartEnhancedModule::class, ['tree' => $tree->name(), 'action' => 'CSVsaveExec']));
+$id = 0;
+?>
+
+<form method="post" action="<?= $CSVsaveAction ?>" id="wt-modal-form">
+    <?= view('modals/header', ['title' => $title]) ?>
+
+    <div class="modal-body">
+        <div class="row form-group">
+            <div class="col-sm-5 col-form-label wt-page-options-label">
+                <span><?= $label ?></span>
+            </div>
+            <div class="col-sm-5 wt-page-options-value" title="<?= I18N::translate('File name') ?>">
+                <span id="CAfname"><?= $fnameCA ?></span>
+            </div>
+            <div class="col-sm-1 wt-page-options-value" title="<?= I18N::translate('Timestamp is set as UTC ...') ?>">
+                <span>(UTC)</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-footer">
+        <button type="button" id="CCE_btnEXPORT" class="btn btn-primary" data-bs-toggle="modal" data-bs-backdrop="static" data-bs-target="#wt-ajax-modal" data-wt-href="<?=  $cArouteAjax ?>" data-wt-select-id="<?= $id ?>" title="<?= I18N::translate('Download plain XREF list to CSV-file') ?>">
+            <?= I18N::translate('save') ?>
+        </button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            <?= view('icons/cancel') ?>
+            <?= I18N::translate('cancel') ?>
+        </button>
+    </div>
+
+    <?= csrf_field() ?>
+</form>
+
+<script>
+  document.getElementById('CCE_btnEXPORT').addEventListener('click', clickCSVexportExec);
+</script>

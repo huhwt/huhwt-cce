@@ -28,6 +28,8 @@ use Fisharebest\Webtrees\I18N;
 use Fisharebest\Webtrees\Individual;
 use Fisharebest\Webtrees\Session;
 use Fisharebest\Webtrees\Tree;
+use Fisharebest\Webtrees\Webtrees;
+use Fisharebest\Webtrees\Services\GedcomExportService;
 
 use Illuminate\Database\Capsule\Manager as DB;
 use Illuminate\Database\Query\Builder;
@@ -40,10 +42,16 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
+use HuHwt\WebtreesMods\ClippingsCartEnhanced\CCEexportService;
+
+use HuHwt\WebtreesMods\ClippingsCartEnhanced;
 use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CC_addActions;
 use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCEaddActions;
 use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCEcartActions;
+use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCEdatabaseActions;
 use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCEvizActions;
+use SplFileObject;
+use SplTempFileObject;
 
 
 /**
@@ -52,6 +60,7 @@ use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCEvizActions;
  * @author  EW.H <GIT@HuHnetz.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/huhwt/huhwt-cce/
+ *
  */
 
  class ClippingsCartEnhancedModule extends AbstractModule implements RequestHandlerInterface
@@ -65,6 +74,8 @@ use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCEvizActions;
     }
     /** All constants and functions related to handling the Cart  */
     use CCEcartActions;
+    /** bundling all actions regarding DB::table */
+    use CCEdatabaseActions;
     /** All constants and functions related to connecting vizualizations  */
     use CCEvizActions;
 
@@ -86,14 +97,55 @@ use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCEvizActions;
      */
     private array $CIfileData;
 
-    public function __construct() {
-         $this->huh = json_decode('"\u210D"');
+    /**
+     * the module's name for accessing the module_settings
+     * @var string $Mname
+     */
+    private string $Mname;
 
-         $this->cart = $this->get_Cart();
+    /**
+     * Short Label for internal use.
+     *
+     * @return string
+     */
+    public function description_short(): string
+    {
+        return 'justCCEmod';
+    }
 
-         $this->all_RecTypes        = true;
+    /**
+     * Store other CCE files // EW.H - MOD ... if you want to change, take care: primarily defined logical and physical in CCE main module
+     */
+    private const CCEothersdir     = Webtrees::DATA_DIR . '_CCEothers';
 
-         $this->CIfileData          = [];
+    /** @var GedcomExportService */
+    private GedcomExportService $gedcom_export_service;
+
+    public function __construct()
+        // GedcomExportService $gedcom_export_service)
+    {
+        // $this->gedcom_export_service    = $gedcom_export_service;
+
+        $this->huh = json_decode('"\u210D"');
+
+        $this->cart = $this->get_Cart();
+
+        $this->all_RecTypes        = true;
+
+        $this->CIfileData          = [];
+
+        $_CCEclassName      = Session::get('CCEclassName');
+        $this->Mname        = $_CCEclassName;
+    }
+
+    /**
+     * We need the referring class name.
+     *
+     * @return string
+     */
+    private function getMname(): string
+    {
+        return $this->Mname;
     }
 
     /**
@@ -120,19 +172,39 @@ use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCEvizActions;
             return response($this->doRemoveCartAct($request));
         }
 
-        if ( $action == 'RemoveCAfile' ) {
-            return response($this->doRemoveCAfile($request));
+        if ( $action == 'RemoveCartActFilter' ) {
+            return response($this->doRemoveCartActFilter($request));
         }
 
-        if ( $action == 'CAsave' ) {
+        if ( $action == 'RemoveCAfile' ) {
+            return $this->doRemoveCAfile($request);
+        }
+
+        if ( $action == 'CCEsave' ) {
             return $this->doCartSave($request);
         }
 
-        if ( $action == 'doCartSaveAction' ) {
-            return $this->doCartSaveAction($request);
+        if ( $action == 'CCEsaveAction' ) {
+            return $this->CCEsaveAction($request);
         }
 
-        if ( $action == 'CAload' ) {
+        if ( $action == 'CSVsettings') {
+            return $this->getCSVsettings($request);
+        }
+
+        if ( $action == 'CSVsaveAjax' ) {
+            return response($this->doCartsave_CSVAjax($request));
+        }
+
+        if ( $action == 'CSVsaveAjaxAction' ) {
+            return response($this->CSVsaveAjaxAction($request));
+        }
+
+        if ( $action == 'CSVsaveExec' ) {
+            return response($this->CSVsaveExec($request));
+        }
+
+        if ( $action == 'CCEload' ) {
             return $this->doCartLoad($request);
         }
 
@@ -148,7 +220,14 @@ use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCEvizActions;
             return $this->doSetCAfname($request);
         }
 
-        return response('_NIX_');
+        if ( $action == 'CCEload_CSV' ) {
+            return $this->doCartLoad_CSV($request);
+        }
+
+        if ( $action == 'doCartLoadAction_CSV' ) {
+            return $this->doCartLoadAction_CSV($request);
+        }
+        return response('_NIX_ ->' . $action);
     }
 
     /**
@@ -156,7 +235,7 @@ use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCEvizActions;
      *
      * @param ServerRequestInterface $request
      *
-     * @return string
+     * @return ResponseInterface
      */
     private function doCartSave(ServerRequestInterface $request): ResponseInterface
     {
@@ -175,12 +254,12 @@ use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCEvizActions;
 
         $cAroute_ajax     = e(route(ClippingsCartEnhancedModule::class, ['module' => $this->name(), 'tree' => $tree->name()]));
 
-        return response(view(name: 'modals/saveCart', data: [
+        return response( view(name: 'modals/saveCart', data: [
             'tree'       => $tree,
             'title'      => $title,
             'label'      => $label,
             'fnameCA'    => $fnameCA,
-            'cArouteAjax' => $cAroute_ajax,
+            'cArouteAjax'   => $cAroute_ajax,
         ]));
     }
 
@@ -189,15 +268,95 @@ use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCEvizActions;
      *
      * @param ServerRequestInterface $request
      *
-     * @return string
+     * @return ResponseInterface
      */
-    private function doCartSaveAction(ServerRequestInterface $request): ResponseInterface
+    private function CCEsaveAction(ServerRequestInterface $request): ResponseInterface
     {
-        $tree = Validator::attributes($request)->tree();
+        $tree           = Validator::attributes($request)->tree();
 
+        $fnameCA        = Session::get('CAsave_fname');
+
+        $_html = $this->SaveCart_CCE($tree, $fnameCA);
+
+        $_response = [
+            'value' => '_',
+            'text'  => '_',
+            'html'  => $_html,
+        ];
+        return response($_response);
+
+    }
+
+    private function getCSVsettings(ServerRequestInterface $request): ResponseInterface
+    {
+
+        $CSVsettings = $this->readCSVsettings();
+
+        $_CSVsettings = implode('|',$CSVsettings);
+
+        return response(json_encode($_CSVsettings)); 
+
+    }
+    private function readCSVsettings(): array
+    {
+        $line_endings       = $this->getPreferenceNamed($this->getMname(),'line_endings', 'LF');
+        $separator          = $this->getPreferenceNamed($this->getMname(),'separator', 'semi_colon');
+        $enclosure          = $this->getPreferenceNamed($this->getMname(),'enclosure', 'none');
+        $escape             = $this->getPreferenceNamed($this->getMname(),'escape', 'backslash');
+
+        $CSVsettings = [];
+        $CSVsettings['line_endings']    = $line_endings;
+        $CSVsettings['separator']       = $separator;
+        $CSVsettings['enclosure']       = $enclosure;
+        $CSVsettings['escape']          = $escape;
+
+        return $CSVsettings;
+
+    }
+    private function CSVsettings_Vals($CSVsettings): array
+    {
+        $_line_endings  = $CSVsettings['line_endings'];
+        switch ($_line_endings) {
+            case 'CRLF':                    // legacy Windows
+                $_line_endings = chr(13) . chr(10);
+                break;
+            case 'LF':
+            default:
+                $_line_endings = chr(10);
+            }
+        $_separator     = $CSVsettings['separator'];
+        switch ($_separator) {
+            case 'tab':
+                $_separator = chr(9);
+                break;
+            case 'comma':
+                $_separator = ',';
+                break;
+            case 'semi_colon':
+            default:
+                $_separator = ';';
+            }
+        $_enclosure     = $CSVsettings['enclosure'];
+        switch ($_enclosure) {
+            case 'quotation':
+                $_enclosure = '"';
+                break;
+            case 'apostroph':
+                $_enclosure = "'";
+                break;
+            case 'none':
+            default:
+                $_enclosure = '';
+            }
+        $_escape        = '\\\\'; // $CSVsettings['escape'];      // EW.H - MOD ... there is only 1 option
+
+        return [$_line_endings, $_separator, $_enclosure, $_escape];
+    }
+
+    private function SaveCart_CCE(Tree $tree, string $fnameCA):  string
+    {
         $CFuserDir      = Session::get('userDir');
         $timestamp      = (int) Session::get('CAsave_ts');
-        $fnameCA        = Session::get('CAsave_fname');
         $fpathCA        = $CFuserDir . '/' . $fnameCA . '.txt';
 
         $CIfileData     = [];
@@ -230,30 +389,172 @@ use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCEvizActions;
 
         file_put_contents($fpathCA, json_encode($CAfileData));
 
+        $title          = I18N::translate('Cart is saved to file');
+
         $SinfoJson      = $this->count_CartTreeDataReport($tree);
 
         $_html = view('modals/CartSavedCCE', [
-            'title'     => I18N::translate('Cart is saved to file'),
+            'title'     => $title,
             'filename'  => $fnameCA,
             'SinfoJson' => $SinfoJson,
         ]);
 
-        $_response = response([
+        return $_html;
+    }
+
+    /**
+     * save the cart-xrefs to file
+     *
+     * @param ServerRequestInterface $request
+     *
+     * @return string
+     */
+    private function doCartsave_CSVAjax(ServerRequestInterface $request): string
+    {
+        $tree = Validator::attributes($request)->tree();
+
+        $title = I18N::translate('Download plain XREF list to CSV-file') . ' - ' . I18N::translate('only visible') . ' [INDI,FAM]';
+        $label = I18N::translate('File name');
+
+        $timestamp      = time();
+        Session::put('CAsave_ts',(string) $timestamp);
+        $fnameCA        = 'Cart(' . date("Ymd_His", $timestamp) . ')';
+        Session::put('CAsave_fname', $fnameCA);
+
+        $CSVsettings = $this->readCSVsettings();
+
+        $cAroute_ajax     = e(route(ClippingsCartEnhancedModule::class, ['tree' => $tree->name()]));
+
+        return view(name: 'modals/saveCart_CSV', data: [
+            'tree'       => $tree,
+            'title'      => $title,
+            'label'      => $label,
+            'fnameCA'    => $fnameCA,
+            'cArouteAjax'   => $cAroute_ajax,
+            'CSVsettings'   => $CSVsettings,
+        ]);
+    }
+
+    private function CSVsaveAjaxAction(ServerRequestInterface $request): string|array
+    {
+        function make_line($xr,$xt,$xn,$sep,$encl): string
+        {
+            $_ret = '';
+            if ($encl) {
+                $_ret = $encl . $xr . $encl . $sep . $encl . $xt . $encl . $sep . $encl . $xn . $encl;
+            } else {
+                $_ret = $xr . $sep . $xt . $sep . $xn;
+            }
+            return $_ret;
+        }
+
+        $tree = Validator::attributes($request)->tree();
+
+        // the XREFs
+        $xrefs = Validator::parsedBody($request)->string('xrefs', '');
+
+        if ($xrefs > '') {
+            $XREFs = explode(';', $xrefs);
+        } else {
+            $XREFs = [];
+        }
+        if ( $XREFs == [] ) { return '_NIX_ -> (no XREFs)'; }
+
+        [ $_line_ending, $_separator, $_enclosure, $_escape ]    = $this->CSVsettings_Vals($this->readCSVsettings());
+
+        $outLine = make_line('XREF','tag','NAME',$_separator,$_enclosure);
+        // foreach ($records as $xref => $actions) {
+        foreach ($XREFs as $xref) {
+            $record = Registry::gedcomRecordFactory()->make($xref, $tree);
+            if ($record instanceof Individual || $record instanceof Family) {
+                $_tag   = $record->tag();
+                $_names = $record->getAllNames()[0];
+                $_oL    = make_line($xref,$_tag,$_names['sort'],$_separator,$_enclosure);
+                $outLine .= $_line_ending . $_oL;
+            }
+        }
+        $Xoutline       = new Collection([$outLine]);
+        Session::put('CAsave_CSVoutline',$Xoutline);
+
+        $title = I18N::translate('Download plain XREF list to CSV-file') . ' - ' . I18N::translate('Execute');
+        $label = I18N::translate('File name');
+
+        $timestamp      = time();
+        Session::put('CAsave_ts',(string) $timestamp);
+        $fnameCA        = $tree->name() . '-CSV(' . date("Ymd_His", $timestamp) . ')';
+        Session::put('CAsave_fname', $fnameCA);
+
+        $CSVsaveExec     = e(route(ClippingsCartEnhancedModule::class, ['module' => $this->name(), 'tree' => $tree->name(), 'action' => 'CSVsaveExec']));
+
+        $_html = view(name: 'modals/saveCart_CSVexec', data: [
+            'tree'       => $tree,
+            'title'      => $title,
+            'label'      => $label,
+            'fnameCA'    => $fnameCA,
+            'cArouteAjax'   => $CSVsaveExec,
+        ]);
+
+        $_response = [
             'value' => '_',
             'text'  => '_',
             'html'  => $_html,
-        ]);
+        ];
         return $_response;
-        ;
-
     }
+
+    /**
+     * save the cart-xrefs to file
+     *
+     * @param ServerRequestInterface $request
+     *
+     * @return string
+     */
+    private function CSVsaveExec(ServerRequestInterface $request): string|array
+    {
+        $tree           = Validator::attributes($request)->tree();
+
+        $fnameCA        = Session::pull('CAsave_fname');
+
+        $encoding       = 'UTF-8';
+        $line_endings   = 'LF';
+
+        $Xoutline        = Session::pull('CAsave_CSVoutline');
+        if (!$Xoutline) {
+            return '_NO_XREFS_FOUND_';
+        }
+
+        $download_filename = $fnameCA;
+
+        $CCEexportService = Registry::container()->get(CCEexportService::class);
+        [$_dlresp, $encoded_records] = $CCEexportService->downloadResponse($tree, $encoding, $line_endings, $download_filename, 'csv', $Xoutline);
+
+        //Save the CSV file.
+        $_fPath = SELF::CCEothersdir . DIRECTORY_SEPARATOR . $fnameCA . '.csv';
+        file_put_contents($_fPath, $encoded_records, LOCK_EX);
+
+        $_csv = [];
+        $_csv['content-type'] = 'text/csv;'; // charset=' . $encoding;
+        $_csv['content-filename'] = $download_filename . '.csv';
+        $_csv['content-filepath'] = $_fPath;
+        $_csv['content-data'] = $encoded_records;
+        $_csv['content-data64'] = base64_encode($encoded_records);
+
+        $_response = [
+            'value' => '_',
+            'text'  => '_',
+            'html'  => '',
+            'csv'  => $_csv
+        ];
+        return $_response;
+    }
+
 
     /**
      * load cart-xrefs from file
      *
      * @param ServerRequestInterface $request
      *
-     * @return string
+     * @return ResponseInterface
      */
     private function doCartLoad(ServerRequestInterface $request): ResponseInterface
     {
@@ -283,29 +584,31 @@ use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCEvizActions;
             $this->CIfileData = $CIfileData;
             Session::put('CIfileData', $CIfileData);
 
-            return response(view('modals/loadCart', [
+            $_response = view('modals/loadCart', [
                 'tree'        => $tree,
                 'title'       => $title,
                 'legend'      => $legend,
                 'CIfiData'    => $CIfileData,
                 'calledBy'    => $called_by,
-            ]));
+            ]);
         } else {
-            return response(view('modals/noneCartFile', [
+            $_response = view('modals/noneCartFile', [
                 'tree'        => $tree,
                 'title'       => $title,
-            ]));
+                'CartLoadAction' => 'CartLoad',
+            ]);
 
         }
+        return response($_response);
 
     }
 
     /**
-     * save the cart-xrefs to file
+     * load the cart with xrefs from file
      *
      * @param ServerRequestInterface $request
      *
-     * @return string
+     * @return ResponseInterface
      */
     private function doCartLoadAction(ServerRequestInterface $request): ResponseInterface
     {
@@ -349,12 +652,12 @@ use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCEvizActions;
             'tree'      => $tree,
         ]);
 
-        $_response = response([
+        $_response = [
             'value' => '_',
             'text'  => '_',
             'html'  => $_html,
-        ]);
-        return $_response;
+        ];
+        return response($_response);
     }
     private function execCartLoad(Tree $tree, string $fKey, array $fActs, array $fxrefs) : void
     {
@@ -422,27 +725,6 @@ use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCEvizActions;
         Session::put('cart', $S_cart);
 
     }
-    private function put_CartActs_var(Tree $tree, string $fKey): string
-    {
-        $V_keys = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
-
-        $cartActsVariants  = Session::get('cartActsVariants', []);
-        $cactVar           = $cartActsVariants[$tree->name()] ?? [];
-        $iV                = count($cactVar);
-        $caV               = $V_keys[$iV];
-        if ( in_array($fKey, $cactVar) ) {
-            $iV                 = array_search($fKey, $cactVar);
-            $caV                = $V_keys[$iV];
-        } else {
-            $cactVar[]          = $fKey;
-        }
-        $caV = '::'. $caV .'::_';
-        $cartActsVariants[$tree->name()]    = $cactVar;
-        Session::put('cartActsVariants', $cartActsVariants);
-
-        return $caV;
-    }
-
     private function put_CIfileData(Tree $tree, string $fKey, string $caV): bool
     {
         $this->CIfileData   = Session::get('CIfileData');
@@ -465,7 +747,7 @@ use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCEvizActions;
      *
      * @param ServerRequestInterface $request
      *
-     * @return string
+     * @return ResponseInterface
      */
     private function doKillFileAction(ServerRequestInterface $request): ResponseInterface
     {
@@ -517,11 +799,127 @@ use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCEvizActions;
     }
 
     /**
+     * load cart-xrefs from plain list
+     *
+     * @param ServerRequestInterface $request
+     *
+     * @return ResponseInterface
+     */
+    private function doCartLoad_CSV(ServerRequestInterface $request): ResponseInterface
+    {
+
+        $tree           = Validator::attributes($request)->tree();
+
+        $title          = I18N::translate('Upload plain XREF list from CSV-file to cart');
+
+        $CSVsettings    = $this->readCSVsettings();
+
+        return response(view('modals/loadCart_CSV', [
+            'tree'          => $tree,
+            'title'         => $title,
+            'line_ending'   => $CSVsettings['line_endings'],
+            'separator'     => $CSVsettings['separator'],
+            'enclosure'     => $CSVsettings['enclosure'],
+            'escape'        => $CSVsettings['escape'],
+        ]));
+    }
+
+    /**
+     * load the cart with xrefs from file
+     *
+     * @param ServerRequestInterface $request
+     *
+     * @return ResponseInterface
+     */
+    private function doCartLoadAction_CSV(ServerRequestInterface $request): ResponseInterface
+    {
+        $tree = Validator::attributes($request)->tree();
+
+        $CAfiKeys       = [];
+        $CAfiActs       = [];
+        $CSVsettings    = [];
+
+        $CSVsettings['line_endings']    = Validator::parsedBody($request)->string('line_ending', 'LF');;
+        $CSVsettings['separator']       = Validator::parsedBody($request)->string('separator', 'semi_colon');
+        $CSVsettings['enclosure']       = Validator::parsedBody($request)->string('enclosure', 'none');
+        $CSVsettings['escape']          = Validator::parsedBody($request)->string('escape', '\\');
+
+        [$line_endings, $separator, $enclosure, $escape] = $this->CSVsettings_Vals($CSVsettings);
+
+        $contents       = file_get_contents($_FILES['client_file']['tmp_name']);
+        $fk             = $_FILES['client_file']['name'];
+        $CAfiKeys[]     = $fk;
+
+        $SinfoAstold    = $this->count_CartTreeCacts($tree);
+        $SinfoCstold    = $this->count_CartTreeXrefs($tree);
+
+        $this->put_CartActs($tree, 'CSV', $fk, 'Import');
+
+        $CAfixrefs      = [];
+        $lines          = [];
+
+        $lines          = explode($line_endings, $contents);
+        foreach($lines as $line) {
+            if (str_contains($line, $separator)) {
+                $fields         = explode($separator, $line);
+                $xref           = $fields[0];
+            } else {
+                $xref           = $line;
+            }
+            $CAfixrefs[]    = $xref;
+        }
+
+        $records = array_map(static function (string $xref) use ($tree): ?GedcomRecord {
+            return Registry::gedcomRecordFactory()->make($xref, $tree);
+        }, $CAfixrefs);
+
+        $all_RT = $this->all_RecTypes;
+        $this->all_RecTypes = false;
+
+        foreach ($records as $record) {
+            if ($record instanceof Individual) {
+                $this->addIndividualToCart_only($record);
+            } else if ($record instanceof Family) {
+                $this->addFamilyToCart($record);
+            }
+        }
+
+        $this->all_RecTypes = $all_RT;
+
+        $SinfoCstnew    = $this->count_CartTreeXrefs($tree);
+        $SinfoAstnew    = $this->count_CartTreeCacts($tree);
+
+        $Sinfo          = [];
+        $Sinfo[]        = I18N::translate('Number of CartActs:');
+        $Sinfo[]        = $SinfoAstnew;
+        $Sinfo[]        = I18N::translate('of which are new:');
+        $Sinfo[]        = $SinfoAstnew - $SinfoAstold;
+        $Sinfo[]        = I18N::translate('Number of CartXrefs:');
+        $Sinfo[]        = $SinfoCstnew;
+        $Sinfo[]        = I18N::translate('of which are new:');
+        $Sinfo[]        = $SinfoCstnew - $SinfoCstold;
+        $SinfoJson = json_encode($Sinfo);
+
+        $_html = view('modals/CartLoadedCCE', [
+            'title'     => I18N::translate('Load Cart from file done'),
+            'filenames' => $CAfiKeys,
+            'SinfoJson' => $SinfoJson,
+            'tree'      => $tree,
+        ]);
+
+        return response([
+            'value' => '_',
+            'text'  => '_',
+            'html'  => $_html,
+        ]);
+    }
+
+    /**
      * put the individual fname to session
      *
      * @param ServerRequestInterface $request
      *
-     * @return string
+     * @return ResponseInterface
      */
     private function doSetCAfname(ServerRequestInterface $request): ResponseInterface
     {
@@ -554,7 +952,7 @@ use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCEvizActions;
 
         // the actual search parameters of origin request
         $actSEARCH = $this->cleanSearch(Validator::queryParams($request)->string('actSEARCH', ''));
-        $actSEARCH_p = $this->getSearch($actSEARCH);
+        $actSEARCH_p = $this->grepSearch($actSEARCH);
 
         // the actual page in DataTable
         $actPage_ = Validator::queryParams($request)->string('actPage','');
@@ -628,13 +1026,13 @@ use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCEvizActions;
         if (str_starts_with($CCEkey, 'SEARCH')) {
             $is_search = true;
             if (str_starts_with($CCEkey, 'SEARCH_G')) {
-                $actSEARCH_p = $this->getSearch_G($actSEARCH);
+                $actSEARCH_p = $this->grepSearch_G($actSEARCH);
             } else if (str_starts_with($CCEkey, 'SEARCH_A')) {
-                $actSEARCH_p = $this->getSearch_A($actSEARCH);
+                $actSEARCH_p = $this->grepSearch_A($actSEARCH);
             }
         } else {
             // the actual search parameters of origin request
-            $actSEARCH_p = $this->getSearch($actSEARCH);
+            $actSEARCH_p = $this->grepSearch($actSEARCH);
         }
 
         // the actual page in DataTable
@@ -798,8 +1196,11 @@ use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCEvizActions;
         if ($XREFs == [])
             return (string) $xrefsCold;
 
-        // $XREFs = explode(';', $xrefs);
-
+        $WithDeceased = true;
+        if ($XREFs[0] == 'noDeceased') {
+            $WithDeceased = false;
+            array_shift($XREFs);
+        }
         $records = array_map(static function (string $xref) use ($tree): ?GedcomRecord {
             return Registry::gedcomRecordFactory()->make($xref, $tree);
         }, $XREFs);
@@ -816,7 +1217,11 @@ use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCEvizActions;
             if ($record instanceof Individual) {
                 $this->addIndividualToCart($record);
             } else if ($record instanceof Family) {
-                $this->addFamilyToCart($record);
+                if ($WithDeceased) {
+                    $this->addFamilyToCart($record);
+                } else {
+                    $this->addFamilyToCart_noDeceased($record);
+                }
             }
         }
 
@@ -881,7 +1286,7 @@ use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCEvizActions;
      * 
      * @return array<string,string>         key     search term         value   search parm
      */
-    private function getSearch($p_actSearch) : array
+    private function grepSearch($p_actSearch) : array
     {
         if ($p_actSearch == '')
             return [''];
@@ -911,7 +1316,7 @@ use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCEvizActions;
      * 
      * @return array<string,string>         key     search term         value   search parm
      */
-    private function getSearch_G($p_actSearch) : array
+    private function grepSearch_G($p_actSearch) : array
     {
         if ($p_actSearch == '')
             return [''];
@@ -950,7 +1355,7 @@ use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCEvizActions;
      * 
      * @return array<string,string>         key     search term         value   search parm
      */
-    private function getSearch_A($p_actSearch) : array
+    private function grepSearch_A($p_actSearch) : array
     {
         if ($p_actSearch == '')
             return [''];
@@ -992,8 +1397,7 @@ use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCEvizActions;
         $tree = Validator::attributes($request)->tree();
 
         // the actual page in DataTable
-        $cartAct = (Validator::queryParams($request)->string('cartact',''));
-        // $cAct = $cartAct.str_contains($cartAct,'|') ? substr($cartAct,0,stripos($cartAct,'|')) : $cartAct;
+        $cartAct = Validator::queryParams($request)->string('cartact','');
         if (str_contains($cartAct,'|')) {
             $cAct = substr($cartAct,0,stripos($cartAct,'|'));
         } else {
@@ -1031,6 +1435,64 @@ use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCEvizActions;
 
         return (string) $this->count_CartTreeXrefs($tree);
 
+    }
+
+    private function doRemoveCartActFilter(ServerRequestInterface $request): string
+    {
+        $tree = Validator::attributes($request)->tree();
+
+        // the actual page in DataTable
+        $cActs = Validator::queryParams($request)->string('cartactfilter','');
+        if ( str_contains($cActs, ';')) {
+            $cActs = $this->split_cActs($cActs);
+        } else {
+            if ( str_contains($cActs, '|')) {
+                $cActs = $this->clean_cact($cActs);
+            }
+        }
+
+        // the XREFs
+        $xrefs = Validator::queryParams($request)->string('xrefs', '');
+
+        if ($xrefs > '') {
+            $XREFs = explode(';', $xrefs);
+            $S_cart = Session::get('cart', []);
+            $_tree = $tree->name();
+            foreach ($XREFs as $xref) {
+                if (($S_cart[$_tree][$xref] ?? '_NIX_') != '_NIX_') {
+                    $xref_action = $S_cart[$_tree][$xref];
+                    if ($xref_action == $cActs) {;
+                        unset($S_cart[$_tree][$xref]);
+                    }
+                }
+            }
+            Session::put('cart', $S_cart);
+        }
+
+        // if ($cActs > '') {
+        //     $this->clean_CartActs_cact($tree, $cActs);
+        // }
+
+        return (string) $this->count_CartTreeXrefs($tree);
+
+    }
+    private function split_cActs($cActs): string
+    {
+        $_Acts_ar = [];
+        $cActs_ar = explode(';', $cActs);
+        foreach($cActs_ar as $cact) {
+            $_act = $cact;
+            if (str_contains($cact, '|')) {
+                $_act = $this->clean_cact($cact);
+            }
+            $_Acts_ar[] = $_act;
+        }
+        return implode(';',$_Acts_ar);
+    }
+    private function clean_cact($cact): string
+    {
+        $_act = substr($cact,stripos( $cact,'|')-1);
+        return $_act;
     }
 
     /**
@@ -1096,7 +1558,7 @@ use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCEvizActions;
         $url = route('module', [
             'module'      => $this->name(),
             'action'      => 'ShowCart',
-            'description' => $this->description(),
+            'description' => $this->description_short(),
             'tree'        => $tree->name(),
         ]);
 

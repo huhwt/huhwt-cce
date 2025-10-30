@@ -6,7 +6,7 @@
  *
  * 
  *
- * Copyright (C) 2022-2024 huhwt. All rights reserved.
+ * Copyright (C) 2022-2025 huhwt. All rights reserved.
  * Copyright (C) 2021 Hermann Hartenthaler. All rights reserved.
  * Copyright (C) 2021 Richard Cissée. All rights reserved.
  *
@@ -51,7 +51,6 @@
  * other module - test with all other themes: Rural, Argon, ...
  * other module - admin/control panel module "unconnected individuals": add button to each group "send to clippings cart"
  * other module - custom modul extended family: send filtered INDI and FAM records to clippings cart
- * other module - search: send search results to clippings cart
  * other module - list of persons with one surname: send them to clippings cart
  */
 declare(strict_types=1);
@@ -79,8 +78,10 @@ use Fisharebest\Webtrees\Http\RequestHandlers\SearchGeneralPage;
 use Fisharebest\Webtrees\Http\RequestHandlers\SearchAdvancedPage;
 
 use Fisharebest\Localization\Translation;
-use Fisharebest\Webtrees\I18N;
+
+use Fisharebest\Webtrees\Exceptions\FileUploadException;
 use Fisharebest\Webtrees\FlashMessages;
+use Fisharebest\Webtrees\I18N;
 use Fisharebest\Webtrees\Individual;
 use Fisharebest\Webtrees\Location;
 use Fisharebest\Webtrees\Media;
@@ -122,10 +123,11 @@ use Fisharebest\Webtrees\Module\ModuleConfigInterface;
 use Fisharebest\Webtrees\Module\ModuleConfigTrait;
 use Fisharebest\Webtrees\Module\ModuleMenuInterface;
 use Fisharebest\Webtrees\View;
-use SebastianBergmann\Type\VoidType;
 
 use Fisharebest\Webtrees\Module\ModuleInterface;
 use Fisharebest\Webtrees\Module\ModuleListInterface;
+
+use HuHwt\WebtreesMods\ClippingsCartEnhanced\CCEexportService;
 use HuHwt\WebtreesMods\ClippingsCartEnhanced\ListProcessor;
 use HuHwt\WebtreesMods\ClippingsCartEnhanced\ClippingsCartEnhancedModule;
 
@@ -252,20 +254,39 @@ class ClippingsCartEnhanced extends ClippingsCartModule
     public const SHOW_RECORDS       = 'Records in clippings cart - Execute an action on them.';
     public const SHOW_ACTIONS       = 'Performed actions fo fill the cart.';
 
+    public const SHOW_FILTER        = 'Combinations of actions.';
+
     // What to execute on records in the clippings cart?
     // EW.H mod ... the second-level-keys are tested for actions in function postExecuteAction()
-    private const EXECUTE_ACTIONS = [
-        'Export records ...' => [
+    public const EXECUTE_ACTIONS_INDEX = [
+        'EXPORT_RECORDS'            => 'Export records ...',
+        'DOWNLOAD_RECORDS'          => 'Download records ...',
+
+        'VISUALIZE_RECORDS'         => 'Visualize records in a diagram ...',
+    ];
+
+    public const EXECUTE_ACTIONS = [
+        'EXPORT_RECORDS'            => [
             'EXTENDED_EXPORT_XTE_'      => "... external module 'Extended GEDCOM Export' (will be forwarded)",
         ],
-        'Download records ...' => [
+        'DOWNLOAD_RECORDS'          => [
             'EXECUTE_DOWNLOAD_ZIP'      => '... as GEDCOM zip-file (including media files) [wt-core]',
             'EXECUTE_DOWNLOAD_PLAIN'    => '... as GEDCOM file (all Tags, no media files)',
             'EXECUTE_DOWNLOAD_IF'       => '... as GEDCOM file (only INDI and FAM)',
         ],
-        'Visualize records in a diagram ...' => [
+        'VISUALIZE_RECORDS'         => [
             'EXECUTE_VISUALIZE_TAM'     => '... using TAM',
             'EXECUTE_VISUALIZE_LINEAGE' => '... using Lineage',
+        ],
+    ];
+
+    public const EXECUTE_PLAINLIST_INDEX = [
+        'HANDLE_PLAIN_LISTS'        => 'Plain list (only xref[INDI|FAM]) ...'
+    ];
+    public const EXECUTE_PLAINLIST = [
+        'HANDLE_PLAIN_LISTS'        => [
+            'LOCAL_DOWNLOAD_IF'         => '... download clipped XREFs to local file',
+            'LOCAL_UPLOAD_IF'           => '... upload XREFs from local file to clippings cart',
         ],
     ];
 
@@ -277,14 +298,16 @@ class ClippingsCartEnhanced extends ClippingsCartModule
 
     // Routes that have a record which can be added to the clipboard
     private const ROUTES_WITH_RECORDS = [
-        'Family'     => FamilyPage::class,
-        'Individual' => IndividualPage::class,
-        'Media'      => MediaPage::class,
-        'Location'   => LocationPage::class,
-        'Note'       => NotePage::class,
-        'Repository' => RepositoryPage::class,
-        'Source'     => SourcePage::class,
-        'Submitter'  => SubmitterPage::class,
+        // standard
+        'Family'                => FamilyPage::class,
+        'Individual'            => IndividualPage::class,
+        'Media'                 => MediaPage::class,
+        'Location'              => LocationPage::class,
+        'Note'                  => NotePage::class,
+        'Repository'            => RepositoryPage::class,
+        'Source'                => SourcePage::class,
+        'Submitter'             => SubmitterPage::class,
+        // CCE add-on
         'FamilyListModule'      => FamilyListModule::class,
         'IndividualListModule'  => IndividualListModule::class,
         'Search-General'        => SearchGeneralPage::class,
@@ -367,35 +390,6 @@ class ClippingsCartEnhanced extends ClippingsCartModule
         'Submitter'  => Submitter::class,
     ];
 
-    // Types of records for further visualizing actions
-    // This structure defines the categories which will be 
-    // relevant in visualizing tools.
-    private const FILTER_RECORDS = [
-        'TAM' => [
-                'Individual' => Individual::class,
-                'Family'     => Family::class,
-                ],
-        'ONLY_IF' => [
-                'Individual' => Individual::class,
-                'Family'     => Family::class,
-                ],
-        'ONLY_IFN' => [
-                'Individual' => Individual::class,
-                'Family'     => Family::class,
-                'Note'       => Note::class,
-            ],
-        'ONLY_IFS' => [
-                'Individual' => Individual::class,
-                'Family'     => Family::class,
-                'Source'     => Source::class,
-                ],
-        'ONLY_IFL' => [
-                'Individual' => Individual::class,
-                'Family'     => Family::class,
-                'Location'   => Location::class,
-                ],
-    ];
-
     /** @var int The default access level for this module.  It can be changed in the control panel. */
     protected int $access_level = Auth::PRIV_USER;
 
@@ -404,6 +398,9 @@ class ClippingsCartEnhanced extends ClippingsCartModule
 
     /** @var LinkedRecordService */
     private LinkedRecordService $linked_record_service;
+
+    /** @var PhpService */
+    private PhpService $php_service;
 
     /** @var UserService */
     private $user_service;
@@ -434,12 +431,23 @@ class ClippingsCartEnhanced extends ClippingsCartModule
     private const CARTdir          = Webtrees::DATA_DIR . DIRECTORY_SEPARATOR . '_CART';
 
     /**
+     * Store other CCE files // EW.H - MOD ... if you want to change, take care: redundant but necessary definition in CCEModule.php
+     */
+    private const CCEothersdir     = Webtrees::DATA_DIR . '_CCEothers';
+
+     /**
      * The label ...
      * @var string
      */
     private string $huh;
 
     /**
+     * The label ...
+     * @var string
+     */
+    private string $huh_short;
+
+   /**
      * Check for huhwt/huhwt-wttam done?
      * @var boolean
      */
@@ -481,12 +489,6 @@ class ClippingsCartEnhanced extends ClippingsCartModule
      */
     private string $callingURI = '';
 
-    /**
-     * the active tag descriptor
-     * @var string $activeTAG
-     */
-    private string $activeTAG = '';
-
     private ModuleService $module_service;
 
     /**
@@ -501,38 +503,43 @@ class ClippingsCartEnhanced extends ClippingsCartModule
      */
     private bool $_XTE_ok = false;
 
+    /**
+     * array of typed gedcom-records for use in several places
+     */
+    private array $recordTypes;
+
     /** 
      * ClippingsCartModule constructor.
      *
      * @param GedcomExportService $gedcom_export_service
      * @param LinkedRecordService $linked_record_service
-     * @param PhpService          $php_service
+     * @param PhpService $php_service
      */
     public function __construct(
         GedcomExportService $gedcom_export_service,
         LinkedRecordService $linked_record_service,
-        PhpService          $php_service
-        )
+        PhpService          $php_service)
     {
         // for exporting gedcom we need the parents's function ...
         parent::__construct(
             $gedcom_export_service,
             $linked_record_service,
-            $php_service);
+                      $php_service
+        );
 
+        $this->gedcom_export_service= $gedcom_export_service;
         $this->linked_record_service= $linked_record_service; // ... but for connecting to e.g. (S)NOTEs we need our own instance
 
         $this->levelAncestor        = PHP_INT_MAX;
         $this->levelDescendant      = PHP_INT_MAX;
         $this->exportFilenameDOWNL  = self::FILENAME_DOWNL;
         $this->exportFilenameVIZ    = self::FILENAME_VIZ;
-        $this->huh = json_decode('"\u210D"') . "&" . json_decode('"\u210D"') . "wt";
+        $this->huh = '-' . json_decode('"\u210D"') . "&" . json_decode('"\u210D"') . "wt -" ;
+        $this->huh_short = json_decode('"\u210D"');
         $this->huhwttam_checked     = false;
         $this->huhwtlin_checked     = false;
         $this->all_RecTypes         = true;
         $this->add_sNOTE            = false;
-        $tagOptions                 = $this->TAGconfigOptions();
-        $this->activeTAG            = $tagOptions[(int) $this->getPreference('TAG_Option', '0')];
 
         // EW.H mod ... read TAM-Filename from Session, otherwise: Initialize
         if (Session::has('FILENAME_VIZ')) {
@@ -555,6 +562,23 @@ class ClippingsCartEnhanced extends ClippingsCartModule
             mkdir(self::CARTdir, 0755);
         }
 
+        // A subdir of Webtrees::DATA_DIR for storing other CCE related files - e.g. XREF-CSV-lists
+        if(!is_dir(self::CCEothersdir)){
+            //Directory does not exist, so lets create it.
+            mkdir(self::CCEothersdir, 0755);
+        }
+
+    }
+
+    /**
+     * How should this module be identified in the control panel, etc.?
+     *
+     * @return string
+     */
+    public function title_short(): string
+    {
+        /* I18N: Name of a module */
+        return json_decode('"\u210D"') . ' ' . I18N::translate(self::CUSTOM_TITLE);
     }
 
 
@@ -615,9 +639,13 @@ class ClippingsCartEnhanced extends ClippingsCartModule
         $submenus = [$this->addMenuClippingsCart($tree, $cart)];        // add cart-overview - counter
 
         $REQ_URI = rawurldecode($_SERVER['REQUEST_URI']);                   // we need to do so because some server might have that encoded ...
-        $TSMok = ($this->TSMok && str_contains($REQ_URI, '/ShowCart/'));        // ... and we want to show this entrance only in certain case
-        if ($TSMok && $count > 0)
-            $submenus[] = $this->addMenuTaggingService($tree);
+        $TSMok = ($this->TSMok && str_contains($REQ_URI, 'ShowCart'));      // ... and we want to show this entrance only in certain case
+        if ($TSMok && $count > 0) {
+            $TSMsub = $this->addMenuTaggingService($tree);                                  // ... there will be only a submenu for INDI or FAM 
+            if ($TSMsub) {
+                $submenus[] = $TSMsub;
+            }
+        }
 
         $action = array_search($route->name, self::ROUTES_WITH_RECORDS, true);
 
@@ -643,7 +671,7 @@ class ClippingsCartEnhanced extends ClippingsCartModule
             $submenus[] = $this->addMenuExecuteAction($tree);
         }
 
-        return new Menu($this->title(), '#', 'menu-clippings CCE_Menue', ['rel' => 'nofollow'], $submenus);
+        return new Menu($this->title_short(), '#', 'menu-clippings CCE_Menue', ['rel' => 'nofollow'], $submenus);
     }
 
     /**
@@ -669,18 +697,41 @@ class ClippingsCartEnhanced extends ClippingsCartModule
      * @param Tree $tree
      * @param array $cart
      *
-     * @return Menu
+     * @return Menu | null              // transfer to TSM will only be done for INDI and FAM
      */
-    private function addMenuTaggingService (Tree $tree): Menu
+    private function addMenuTaggingService (Tree $tree): Menu | null
     {
         $TSMname = "_huhwt-tsm_"; // app(TaggingServiceManagerModule::class)->name();
 
-        return new Menu(I18N::translate('Transfer to tagging service'),
-            route('module', [
-                'module'      => $TSMname,
-                'action'      => 'TaggingService',
-                'tree'        => $tree->name(),
-            ]), 'menu-clippings-cart', ['rel' => 'nofollow']);
+        $tags = Session::get('tags', []);
+        $tags[$tree->name()] = [];
+        Session::put('tags', $tags);
+
+        $menu_label = I18N::translate('Transfer to tagging service');
+        $do_Tagging = false;
+        $sep = ' -> ';
+        foreach (self::TYPES_OF_RECORDS as $key => $class) {
+            if (array_key_exists($key, $this->recordTypes)) {
+                if ($key == 'Individual' || $key == 'Family') {
+                    $Theader = 'CCE-' . $key;
+                    $Theader = I18N::translate($Theader);
+                    $Thbadge = view('components/CCEbadgedText', ['text' => $Theader]);
+                    $menu_label .= $sep . $Thbadge;
+                    $sep = ',';
+                    $do_Tagging = true;
+                }
+            }
+        }
+        if ($do_Tagging) {
+            return new Menu($menu_label,
+                route('module', [
+                    'module'      => $TSMname,
+                    'action'      => 'TaggingService',
+                    'tree'        => $tree->name(),
+                ]), 'menu-clippings-cart', ['rel' => 'nofollow']);
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -780,6 +831,9 @@ class ClippingsCartEnhanced extends ClippingsCartModule
             $a_type     = $mparms['action-type'];
             $a_pref     = $mparms['action-pref'];
             $dt_grep    = $mparms['grep-id'];
+            $listType   = '';
+            $clipAction = '';
+            $_menu      = new Menu('_NIX_');
             $list_type  = self::OTHER_MENUES_TYPES[$a_type];
             foreach($list_type as $lopt => $loparms) {
                 if ($lopt == '0') {
@@ -887,29 +941,39 @@ class ClippingsCartEnhanced extends ClippingsCartModule
         assert($tree instanceof Tree);
 
         $recordTypes      = $this->collectRecordsInCart($tree, self::TYPES_OF_RECORDS);
+        $this->recordTypes  = $recordTypes;
 
         $this->cartXREFs  = $this->getXREFstruct($tree);
 
         $cartActs         = $this->get_CartActs($tree);
 
+        $cartActsFilter   = $this->getCactsFilter($this->cartXREFs);
+
         $CAfiles          = $this->getCactfilesInCart($tree);
 
         $cAroute_ajax     = e(route(ClippingsCartEnhancedModule::class, ['module' => $this->name(), 'tree' => $tree->name()]));
 
+        $title            = $this->huh_short . ' ' . I18N::translate('Family tree clippings cart');
+
+        $ptitle           = $this->huh . I18N::translate('Family tree clippings cart');
+
         return $this->viewResponse($this->name() . '::' . 'showCart/showCart', [
-            'module'      => $this->name(),
-            'types'       => self::TYPES_OF_RECORDS,
-            'recordTypes' => $recordTypes,
-            'title'       => I18N::translate('Family tree clippings cart'),
-            'header_recs' => I18N::translate(self::SHOW_RECORDS),
-            'header_acts' => I18N::translate(self::SHOW_ACTIONS),
-            'cartActions' => $cartActs,
-            'CAfiles'     => $CAfiles,
-            'cArouteAjax' => $cAroute_ajax,
-            'cartXREFs'   => $this->cartXREFs,
-            'tree'        => $tree,
-            'stylesheet'  => $this->assetUrl('css/cce.css'),
-            'javascript'  => $this->assetUrl('js/cce.js'),
+            'module'            => $this->name(),
+            'types'             => self::TYPES_OF_RECORDS,
+            'recordTypes'       => $recordTypes,
+            'title'             => $title,
+            'ptitle'            => $ptitle,
+            'header_recs'       => I18N::translate(self::SHOW_RECORDS),
+            'header_acts'       => I18N::translate(self::SHOW_ACTIONS),
+            'header_filter'     => I18N::translate(self::SHOW_FILTER),
+            'cartActions'       => $cartActs,
+            'cartActionsFilter' => $cartActsFilter,
+            'CAfiles'           => $CAfiles,
+            'cArouteAjax'       => $cAroute_ajax,
+            'cartXREFs'         => $this->cartXREFs,
+            'tree'              => $tree,
+            'stylesheet'        => $this->assetUrl('css/cce.css'),
+            'javascript'        => $this->assetUrl('js/cce.js'),
         ]);
     }
 
@@ -945,11 +1009,26 @@ class ClippingsCartEnhanced extends ClippingsCartModule
         $tree = Validator::attributes($request)->tree();
         assert($tree instanceof Tree);
 
-        $options[self::ADD_ALL_PARTNER_CHAINS] = I18N::translate('all partner chains in this tree');
-        $options[self::ADD_ALL_CIRCLES]        = I18N::translate('all circles of individuals in this tree');
-        $options[self::ADD_ALL_LINKED_PERSONS] = I18N::translate('all connected persons in this family tree - Caution: probably very high number of persons!');
-        $options[self::ADD_ALL_LNKD_PRSNS_WO]  = I18N::translate('all connected persons in this family tree with options - Caution: probably very high number of persons!');
-        $options[self::ADD_COMPLETE_GED]       = I18N::translate('all persons/families in this family tree - Caution: probably very high number of persons!');
+        $options = array();
+
+        foreach (self::GLOBAL_ACTIONS as $opt => $action) {
+            $options[$opt] = I18N::translate($action);
+        }
+
+        // $cart_empty = $this->isCartEmpty($tree);
+
+        // $options_ce = array();
+
+        // if ($cart_empty) {
+        //     $add_option_0 = self::EXECUTE_ACTIONS_INDEX['HANDLE_PLAIN_LISTS'];
+        //     $add_option_0 = I18N::translate($add_option_0);
+        //     $add_option_x = self::EXECUTE_ACTIONS['HANDLE_PLAIN_LISTS'];
+        //     $add_option_1 = $add_option_x['LOCAL_UPLOAD_IF'];
+        //     $add_option_1 = I18N::translate($add_option_1);
+        //     $action       = $add_option_0 . $add_option_1;
+        //     $action = str_replace('......', '-', $action);
+        //     $options_ce['HANDLE_PLAIN_LISTS'] = $action;
+        // }
 
         $title = I18N::translate('Add global record sets to the clippings cart');
         $label = I18N::translate('Add to the clippings cart');
@@ -957,6 +1036,7 @@ class ClippingsCartEnhanced extends ClippingsCartModule
         return $this->viewResponse($this->name() . '::' . 'global', [
             'module'        => $this->name(),
             'options'       => $options,
+            // 'options_ce'    => $options_ce,
             'title'         => $title,
             'label'         => $label,
             'tree'          => $tree,
@@ -978,36 +1058,43 @@ class ClippingsCartEnhanced extends ClippingsCartModule
         $option = Validator::parsedBody($request)->string('option');
 
         switch ($option) {
-            case self::ADD_ALL_PARTNER_CHAINS:
+            case 'ADD_ALL_PARTNER_CHAINS':
                 $this->put_CartActs($tree, 'ALL_PARTNER_CHAINS', 'allPC');
                 $_dname = 'wtVIZ-DATA~all partner chains';
                 $this->putVIZdname($_dname);
                 $this->addPartnerChainsGlobalToCart($tree);
                 break;
 
-            case self::ADD_COMPLETE_GED:
+            case 'ADD_COMPLETE_GED':
                 $this->put_CartActs($tree, 'COMPLETE', 'GED');
                 $_dname = 'wtVIZ-DATA~complete GED';
                 $this->putVIZdname($_dname);
                 $this->addCompleteGEDtoCart($tree);
                 break;
 
-            case self::ADD_ALL_LINKED_PERSONS:
+            case 'ADD_ALL_LINKED_PERSONS':
                 $this->put_CartActs($tree, 'ALL_LINKED', 'allLP');
                 $_dname = 'wtVIZ-DATA~all linked';
                 $this->putVIZdname($_dname);
                 $this->addAllLinked($tree, $user);
                 break;
 
-            case self::ADD_ALL_LNKD_PRSNS_WO:
+            case 'ADD_ALL_LNKD_PRSNS_WO':
                 $this->put_CartActs($tree, 'ALL_LINKED_WO', 'allLPwo');
                 $_dname = 'wtVIZ-DATA~all linked-wo';
                 $this->putVIZdname($_dname);
                 $this->addAllLinked_wo($tree, $user);
                 break;
 
+            case 'HANDLE_PLAIN_LISTS':
+                $this->put_CartActs($tree, 'CSV', 'allC');
+                $_dname = 'wtVIZ-DATA~all circles';
+                $this->putVIZdname($_dname);
+                $this->addAllCirclesToCart($tree);
+                break;
+
                 default;
-            case self::ADD_ALL_CIRCLES:
+            case 'ADD_ALL_CIRCLES':
                 $this->put_CartActs($tree, 'ALL_CIRCLES', 'allC');
                 $_dname = 'wtVIZ-DATA~all circles';
                 $this->putVIZdname($_dname);
@@ -1018,7 +1105,7 @@ class ClippingsCartEnhanced extends ClippingsCartModule
         $url = route('module', [
             'module'      => $this->name(),
             'action'      => 'ShowCart',
-            'description' => $this->description(),
+            'description' => $this->description_short(),
             'tree'        => $tree->name(),
         ]);
 
@@ -1061,7 +1148,8 @@ class ClippingsCartEnhanced extends ClippingsCartModule
         $wt_core = ' -> Webtrees Standard action';
         $options_arr = array();
         foreach (self::EXECUTE_ACTIONS as $opt => $actions) {
-            if ( $opt != 'Export records ...' || $this->_XTE_ok) {
+            $_opt = self::EXECUTE_ACTIONS_INDEX[$opt];
+            if ( $_opt != 'Export records ...' || $this->_XTE_ok) {
                 $actions_arr = array();
                 foreach ($actions as $action => $text) {
                     $atxt = I18N::translate($text);
@@ -1075,18 +1163,31 @@ class ClippingsCartEnhanced extends ClippingsCartModule
                 $options_arr[$opt] = $actions_arr;
             }
         }
+        $options_pl_arr = array();
+        foreach (self::EXECUTE_PLAINLIST as $opt => $actions) {
+            $_opt = self::EXECUTE_PLAINLIST_INDEX[$opt];
+            $actions_arr = array();
+            foreach ($actions as $action => $text) {
+                $atxt = I18N::translate($text);
+                $actions_arr[$action] = $atxt;
+            $options_pl_arr[$opt] = $actions_arr;
+            }
+        }
 
         $title = I18N::translate('Execute an action on records in the clippings cart');
         $label = I18N::translate('Privatize options');
 
         return $this->viewResponse($this->name() . '::' . 'execute', [
-            'options'    => $options_arr,
-            'title'      => $title,
-            'label'      => $label,
-            'is_manager' => Auth::isManager($tree, $user),
-            'is_member'  => Auth::isMember($tree, $user),
-            'module'     => $this->name(),
-            'tree'       => $tree,
+            'options'       => $options_arr,
+            'options_idx'   => self::EXECUTE_ACTIONS_INDEX,
+            'options_pl'    => $options_pl_arr,
+            'options_plidx' => self::EXECUTE_PLAINLIST_INDEX,
+            'title'         => $title,
+            'label'         => $label,
+            'is_manager'    => Auth::isManager($tree, $user),
+            'is_member'     => Auth::isMember($tree, $user),
+            'module'        => $this->name(),
+            'tree'          => $tree,
         ]);
     }
 
@@ -1129,21 +1230,29 @@ class ClippingsCartEnhanced extends ClippingsCartModule
 
         // From hereon we are dealing with plain textual gedcom 
 
-            // all kinds of records in CCE - download as file
+            // all kinds of records in CCE - download GEDCOM as file
             case 'EXECUTE_DOWNLOAD_PLAIN':
-                return $this->cceDownloadAction($request, 'PLAIN', 'DOWNLOAD');
+                return $this->cceExecuteAction($request, 'PLAIN', 'DOWNLOAD', 'DOWNLOAD');
 
-            // only INDI and FAM records from CCE - download as file
+            // only INDI and FAM records from CCE - download GEDCOM as file
             case 'EXECUTE_DOWNLOAD_IF':
-                return $this->cceDownloadAction($request, 'ONLY_IF', 'DOWNLOAD');
+                return $this->cceExecuteAction($request, 'ONLY_IF', 'DOWNLOAD', 'DOWNLOAD');
 
-            // only INDI and FAM records - postprocessing in TAM
+            // only INDI and FAM records - postprocessing GEDCOM partially in TAM
             case 'EXECUTE_VISUALIZE_TAM':
-                return $this->cceDownloadAction($request, $viz_filter, 'VIZ=TAM');
+                return $this->cceExecuteAction($request, $viz_filter, 'VIZ', 'TAM');
 
-            // only INDI and FAM records - postprocessing in LINEAGE
+            // only INDI and FAM records - postprocessing GEDCOM partially in LINEAGE
             case 'EXECUTE_VISUALIZE_LINEAGE':
-                return $this->cceDownloadAction($request, $viz_filter, 'VIZ=LINEAGE');
+                return $this->cceExecuteAction($request, $viz_filter, 'VIZ', 'LINEAGE');
+
+            // only INDI and FAM records - download XREFs to local file
+            case 'LOCAL_DOWNLOAD_IF':
+                return $this->cceExecuteAction($request, 'ONLY_IF', 'PLAINLIST', 'LOCAL_DOWNLOAD');
+
+            //  only INDI and FAM records - upload XREFs from local file to CCE
+            case 'LOCAL_UPLOAD_IF':
+                return $this->cceExecuteAction($request, 'ONLY_IF', 'PLAINLIST', 'LOCAL_UPLOAD');
 
             default;
                 break;
@@ -1171,7 +1280,7 @@ class ClippingsCartEnhanced extends ClippingsCartModule
     //  * @throws \League\Flysystem\FileExistsException
     //  * @throws \League\Flysystem\FileNotFoundException
      */
-    public function cceDownloadAction(ServerRequestInterface $request, string $todo, string $action): ResponseInterface
+    public function cceExecuteAction(ServerRequestInterface $request, string $todo, string $action, string $exec): ResponseInterface
     {
         $tree = Validator::attributes($request)->tree();
 
@@ -1207,11 +1316,64 @@ class ClippingsCartEnhanced extends ClippingsCartModule
             }
         }
 
+        switch ($action) {
+            case 'DOWNLOAD':
+                return $this->cceExecuteDownload($request, $tree, $exec, $recordTypes, $xrefs, $todo,
+                                                 $privatizeExport, $accessLevel, $encoding, $line_endings);
+                // break;
+            case 'VIZ':
+                return $this->cceExecuteViz($request, $tree, $exec, $recordTypes, $xrefs, $todo,
+                                                 $privatizeExport, $accessLevel, $encoding, $line_endings);
+                // break;
+            case 'PLAINLIST':
+                return $this->cceExecutePlainlist($request, $tree, $exec, $recordTypes, $xrefs, 
+                                                 $encoding, $line_endings);
+                // break;
+        }
+
+        // We try to execute something that is not known by now ...
+        FlashMessages::addMessage(I18N::translate("You have tried '%s' - it is not implemented yet.", e($action)));
+        $url = route('module', [
+            'module' => $this->name(),
+            'action' => 'Execute',
+            'tree'   => $tree->name(),
+        ]);
+        return redirect($url);
+
+    }
+
+    /**
+     * postprocessing GEDCOM:
+     * - download as plain file 
+     *   - complete as is from ClippingsCart
+     *   - reduced, only INDI and FAM
+     * - preparation for and call of VIZ=TAM
+     * - preparation for and call of VIZ=LINEAGE
+     *
+     * @param ServerRequestInterface $request
+     * @param Tree      $tree
+     * @param string    $exec
+     * @param array     $recordTypes
+     * @param array     $xrefs
+     * @param string    $todo
+     * @param string    $privatizeExport
+     * @param int       $accessLevel
+     * @param string    $encoding
+     * @param string    $line_endings
+     * 
+     * @return ResponseInterface
+     *
+    //  * @throws \League\Flysystem\FileExistsException
+    //  * @throws \League\Flysystem\FileNotFoundException
+     */
+    public function cceExecuteDownload(ServerRequestInterface $request, Tree $tree, string $exec, array $recordTypes, array $xrefs, string $todo,
+                                       string $privatizeExport, int $accessLevel, string $encoding, string $line_endings): ResponseInterface
+    {
         /**
          *  We want to download the plain gedcom ...
          */
 
-        if ( $action == 'DOWNLOAD' ) {
+        if ( $exec == 'DOWNLOAD' ) {
             $records = $this->getRecordsForDownload($tree, $xrefs, $accessLevel);
 
             $download_filename = $this->exportFilenameDOWNL;
@@ -1221,19 +1383,43 @@ class ClippingsCartEnhanced extends ClippingsCartModule
             $download_filename .= '(' . $xrefs[0] . ')';
 
             return $this->gedcom_export_service->downloadResponse($tree, false, $encoding, 'none', $line_endings, $download_filename, 'gedcom', $records);
-
         }
 
-        /**
-         * We want to postprocess the gedcom in a Vizualising-Tool ...
-         * 
-         * ... and there we want to have additional information in the gedcom ...
-         * ... which has to be protected from filtering 
-         */
+        $url = route('module', [
+            'module' => $this->name(),
+            'action' => 'Execute',
+            'tree'   => $tree->name(),
+        ]);
+        return redirect($url);
+    }
 
+    /**
+     * We want to postprocess the gedcom in a Vizualising-Tool ...
+     * 
+     * ... and there we want to have additional information in the gedcom ...
+     * ... which has to be protected from filtering 
+     *
+     * @param ServerRequestInterface $request
+     * @param Tree      $tree
+     * @param string    $exec
+     * @param array     $xrefs
+     * @param string    $todo
+     * @param array     $recordTypes
+     * @param string    $privatizeExport
+     * @param int       $accessLevel
+     * @param string    $encoding
+     * @param string    $line_endings
+     * 
+     * @return ResponseInterface
+     *
+    //  * @throws \League\Flysystem\FileExistsException
+    //  * @throws \League\Flysystem\FileNotFoundException
+     */
+    public function cceExecuteViz(ServerRequestInterface $request, Tree $tree, string $exec, array $recordTypes, array $xrefs, string $todo, string $privatizeExport, int $accessLevel, string $encoding, string $line_endings): ResponseInterface
+    {
         $v_xrefs = [];                                      // xrefs for additional information we want to keep in gedcom
 
-         // we have tagged xrefs 
+        // we have tagged xrefs 
         // - so we have to add the regarding note-xref
         $tags = $this->get_TreeTags($tree);
         if (count($tags)>0) {
@@ -1269,7 +1455,7 @@ class ClippingsCartEnhanced extends ClippingsCartModule
                 $xrefi = $xrefs[$i];
                 $arr_items[$xrefi] = $r_items[$i];
             }
-            $this->dumpArray($arr_items, $action . 'records');
+            $this->dumpArray($arr_items, $exec . 'records');
         }
 
         $r_string = implode("\n", $r_items);
@@ -1277,7 +1463,7 @@ class ClippingsCartEnhanced extends ClippingsCartModule
         $arr_string["gedcom"] = $r_string;
 
         // We want to have the gedcom as external file too
-        $this->dumpArray($arr_string,  $action . 'gedcom');
+        $this->dumpArray($arr_string,  $exec . 'gedcom');
 
         /**
          *  ... the record objects must be transformed to json
@@ -1286,9 +1472,9 @@ class ClippingsCartEnhanced extends ClippingsCartModule
         $encodedString = json_encode($arr_string);
         $ecSlength      = strlen($encodedString);
 
-        switch ($action) {
+        switch ($exec) {
 
-            case 'VIZ=TAM':
+            case 'TAM':
                 $ok = class_exists("HuHwt\WebtreesMods\TAMchart\TAMaction", autoload: true);
                 if ( $ok ) {
                     // Save the JSON string to SessionStorage.
@@ -1306,7 +1492,7 @@ class ClippingsCartEnhanced extends ClippingsCartModule
                 }
                 break;
 
-            case 'VIZ=LINEAGE':
+            case 'LINEAGE':
                 $ok = class_exists("HuHwt\WebtreesMods\LINchart\LINaction", autoload: true);
                 if ( $ok ) {
                     Session::put('wt2LINgedcom', $encodedString);
@@ -1326,8 +1512,226 @@ class ClippingsCartEnhanced extends ClippingsCartModule
 
         }
         // We try to execute something that is not known by now ...
-        FlashMessages::addMessage(I18N::translate("You have tried '%s' - it is not implemented yet.", e($action)));
-        return redirect((string) $request->getUri());
+        FlashMessages::addMessage(I18N::translate("You have tried '%s' - it is not implemented yet.", e($exec)));
+        $url = route('module', [
+            'module' => $this->name(),
+            'action' => 'Execute',
+            'tree'   => $tree->name(),
+        ]);
+        return redirect($url);
+    }
+
+    /**
+     * upload a local list of xrefs into CCE
+     *
+     * @param ServerRequestInterface $request
+     * @param Tree      $tree
+     * @param string    $exec
+     * @param string    $encoding
+     * 
+     * @return ResponseInterface
+     *
+     */
+    public function cceExecutePlainlist(ServerRequestInterface $request, Tree $tree, string $exec, array $recordTypes, array $xrefs, string $encoding, string $line_endings): ResponseInterface
+    {
+
+        switch ($exec) {
+            case 'LOCAL_UPLOAD':
+                $url = route('module', [
+                    'module'      => $this->name(),
+                    'action'      => 'CSVupload',
+                    'tree'        => $tree->name(),
+                ]);
+                return redirect($url);
+            /**
+             *  We want to download a plain XREFs list to local file ...
+             */
+            case 'LOCAL_DOWNLOAD':
+                $_line_ending = chr(10);
+
+                $outLine = "XREF;tag;NAME";
+                // foreach ($records as $xref => $actions) {
+                foreach ($recordTypes as $key => $Txrefs) {
+                    foreach ($Txrefs as $xref) {
+                        $record = Registry::gedcomRecordFactory()->make($xref, $tree);
+                        $_tag   = $record->tag();
+                        $_names = $record->getAllNames()[0];
+                        $outLine .= $_line_ending . $xref . ';' . $_tag . ';' . $_names['sort'];
+                    }
+                }
+                $t_xrefs        = new Collection([$outLine]);
+
+                $download_filename = $this->exportFilenameDOWNL;
+
+                $CCEexportService = Registry::container()->get(CCEexportService::class);
+                return $CCEexportService->downloadResponse($tree, $encoding, $line_endings, $download_filename, 'csv', $t_xrefs);
+
+                default:
+            // break;
+        }
+
+        // We try to execute something that is not known by now ...
+        FlashMessages::addMessage(I18N::translate("You have tried '%s' - it is not implemented yet.", e($exec)));
+         $url = route('module', [
+            'module' => $this->name(),
+            'action' => 'Execute',
+            'tree'   => $tree->name(),
+        ]);
+        return redirect($url);
+    }
+
+    /**
+     * upload a local list of xrefs into CCE
+     *
+     * @param ServerRequestInterface $request
+     * @param Tree      $tree
+     * @param string    $exec
+     * @param string    $encoding
+     * 
+     * @return ResponseInterface
+     *
+     */
+    public function getCSVuploadAction(ServerRequestInterface $request): ResponseInterface
+    {
+
+        $tree = Validator::attributes($request)->tree();
+
+        $routeExec      = route('module', ['module' => $this->name(), 'action' => 'CSVupload', 'tree' => $tree->name()]);
+        $url = route('module', [
+            'module' => $this->name(),
+            'action' => 'Execute',
+            'tree'   => $tree->name(),
+        ]);
+        $routeBack      = $url;
+
+        $title = I18N::translate('Choose a file on your computer');
+
+        Session::put('CCEupload_rback',(string) $routeBack);
+
+        return $this->viewResponse($this->name() . '::' . 'csv-import-form', [
+            'tree'       => $tree,
+            'title'      => $title,
+            'module'     => $this->name(),
+            'routeExec'  => $routeExec,
+            'routeBack'  => $routeBack,
+        ]);
+
+    }
+
+    /**
+     * upload xrefs from local file to CCE
+     *
+     * @param ServerRequestInterface $request
+     *
+     * @return ResponseInterface
+     */
+    public function postCSVuploadAction(ServerRequestInterface $request): ResponseInterface
+    {
+        $tree       = Validator::attributes($request)->tree();
+
+        $source     = 'client';
+        // $source     = Validator::parsedBody($request)->isInArray(['client', 'server'])->string('source');
+        $separator  = Validator::parsedBody($request)->string('separator', 'semi_colon');
+        $enclosure  = Validator::parsedBody($request)->string('enclosure', 'none');
+        $escape     = Validator::parsedBody($request)->string('escape', '\\');
+
+        $fp     = null;
+
+        if ($source === 'client') {
+            $client_file = $request->getUploadedFiles()['client_file'] ?? null;
+
+            if ($client_file === null || $client_file->getError() === UPLOAD_ERR_NO_FILE) {
+                FlashMessages::addMessage(I18N::translate('No file was selected.'), 'danger');
+                return redirect((string) $request->getUri());
+            }
+
+            if ($client_file->getError() !== UPLOAD_ERR_OK) {
+                throw new FileUploadException($client_file);
+            }
+
+            $fp = $client_file->getStream()->detach();
+        }
+
+        if ($fp === null) {
+            $routeBack = Session::get('CCEupload_rback');
+            return redirect(route($routeBack));
+        }
+
+        $_separators = [
+            'semi_colon'    => ';',
+            'comma'         => ',',
+            'tab'           => chr(05),
+        ];
+        $separator = $_separators[$separator];
+
+        $_enclosures = [
+            'none'          => null,
+            'quotation'     => '"',
+            'apostroph'     => "'",
+        ];
+        $enclosure = $_enclosures[$enclosure];
+
+        $XREFs = [];
+
+        rewind($fp);
+        while (($row = fgets($fp)) !== false) {
+            if (str_contains($row, $separator)) {
+                $line = explode($separator, $row);
+                $xref = $line[0];
+            } else {
+                $xref = $row;
+            }
+            if ($enclosure) {
+                if (str_starts_with($xref, $enclosure)) {
+                    $xref = str_replace($enclosure, '', $xref);
+                }
+            }
+            // Skip the header
+            if ($xref == 'XREF' || str_starts_with($xref,'#')) {
+                continue;
+            }
+            $XREFs[] = $xref;
+        }
+        fclose($fp);
+
+        if ($XREFs == []) {
+                FlashMessages::addMessage(I18N::translate('No XREF found.'), 'warning');
+                return redirect((string) $request->getUri());
+        }
+        $XREFindi = $XREFs[0];
+
+        $xrefsCold = $this->count_CartTreeXrefs($tree);                // Count of xrefs actual in stock
+
+        // $XREFs = explode(';', $xrefs);
+
+        $records = array_map(static function (string $xref) use ($tree): ?GedcomRecord {
+            return Registry::gedcomRecordFactory()->make($xref, $tree);
+        }, $XREFs);
+
+        $caKey = 'CSVinput';
+        $caKey = $this->put_CartActs($tree, $caKey, $XREFindi, '', false);
+        // $_dname = 'wtVIZ-DATA~' . $caKey;
+        // $this->putVIZdname($_dname);
+
+        $all_RT = $this->all_RecTypes;
+        $this->all_RecTypes = false;
+        
+        foreach ($records as $record) {
+            if ($record instanceof Individual) {
+                $this->addIndividualToCart($record);
+            } else if ($record instanceof Family) {
+                $this->addFamilyToCart($record);
+            }
+        }
+
+        $this->all_RecTypes = $all_RT;
+
+        $url = route('module', [
+            'module' => $this->name(),
+            'action' => 'ShowCart',
+            'tree'   => $tree->name(),
+        ]);
+        return redirect($url);
     }
 
     /**
@@ -1403,7 +1807,7 @@ class ClippingsCartEnhanced extends ClippingsCartModule
         $url = route('module', [
             'module'      => $this->name(),
             'action'      => 'ShowCart',
-            'description' => $this->description(),
+            'description' => $this->description_short(),
             'tree'        => $tree->name(),
         ]);
 
@@ -1446,7 +1850,7 @@ class ClippingsCartEnhanced extends ClippingsCartModule
                 $url = route('module', [
                     'module'      => $this->name(),
                     'action'      => 'ShowCart',
-                    'description' => $this->description(),
+                    'description' => $this->description_short(),
                     'tree'        => $tree->name(),
                 ]);
                 break;
@@ -1456,7 +1860,7 @@ class ClippingsCartEnhanced extends ClippingsCartModule
                 $url = route('module', [
                     'module'      => $this->name(),
                     'action'      => 'ShowCart',
-                    'description' => $this->description(),
+                    'description' => $this->description_short(),
                     'tree'        => $tree->name(),
                 ]);
                 break;
@@ -1466,7 +1870,7 @@ class ClippingsCartEnhanced extends ClippingsCartModule
                 $url = route('module', [
                     'module'      => $this->name(),
                     'action'      => 'ShowCart',
-                    'description' => $this->description(),
+                    'description' => $this->description_short(),
                     'tree'        => $tree->name(),
                 ]);
                 break;
@@ -1582,7 +1986,7 @@ class ClippingsCartEnhanced extends ClippingsCartModule
         $url = route('module', [
             'module'      => $this->name(),
             'action'      => 'ShowCart',
-            'description' => $this->description(),
+            'description' => $this->description_short(),
             'tree'        => $tree->name(),
         ]);
 
@@ -1645,37 +2049,6 @@ class ClippingsCartEnhanced extends ClippingsCartModule
             }
         }
         return $recordTypesCount;
-    }
-
-    /**
-     * Collect the keys of the records of each type in the clippings cart.
-     * The order of the Xrefs in the cart results from the order of
-     * the calls during insertion and is not further separated according to
-     * their origin.
-     * This function distributes the Xrefs according to their origin to a predefined structure.
-     *
-     * @param Tree $tree
-     * @param array $recordTypes
-     *
-     * @return array    // string[] string[]
-     */
-    private function collectRecordKeysInCart(Tree $tree, array $recordTypes): array
-    {
-        $records = $this->getRecordsInCart($tree);
-        $recordKeyTypes = array();                  // type => keys
-        foreach ($recordTypes as $key => $class) {
-            $recordKeyTypeXrefs = [];
-            foreach ($records as $record) {
-                if ($record instanceof $class) {
-                    $xref = $this->getXref_fromRecord($record);
-                    $recordKeyTypeXrefs[] = $xref;
-                }
-            }
-            if ( count($recordKeyTypeXrefs) > 0) {
-                $recordKeyTypes[strval($key) ] = $recordKeyTypeXrefs;
-            }
-        }
-        return $recordKeyTypes;
     }
 
     /**
@@ -1945,6 +2318,17 @@ class ClippingsCartEnhanced extends ClippingsCartModule
     }
 
     /**
+     * Short Label for internal use.
+     *
+     * @return string
+     */
+    public function description_short(): string
+    {
+        /* I18N: Description of the module */
+        return 'justCCE';
+    }
+
+    /**
      * Where does this module store its resources?
      *
      * @return string
@@ -1987,6 +2371,7 @@ class ClippingsCartEnhanced extends ClippingsCartModule
                 ->allows(RequestMethodInterface::METHOD_POST);
 
             $router->get(ClippingsCartEnhanced::class, '');
+                // ->allows(RequestMethodInterface::METHOD_POST);
 
         });
 
@@ -2001,31 +2386,47 @@ class ClippingsCartEnhanced extends ClippingsCartModule
         View::registerCustomView('::components/CCEbadge', $this->name() . '::components/CCEbadge');
 
         View::registerCustomView('::lists/families-table', $this->name() . '::lists/CCEfamilies-table');
-        // View::registerCustomView('::lists/CCEfamilies-table-js', $this->name() . '::lists/CCEfamilies-table-js');
 
         View::registerCustomView('::lists/individuals-table', $this->name() . '::lists/CCEindividuals-table');
-        // View::registerCustomView('::lists/CCEindividuals-table-js', $this->name() . '::lists/CCEindividuals-table-js');
 
         View::registerCustomView('::lists/CCEtable-IL-js', $this->name() . '::lists/CCEtable-IL-js');
         View::registerCustomView('::lists/CCEtable-FL-js', $this->name() . '::lists/CCEtable-FL-js');
-
-        View::registerCustomView('::save-cart', $this->name() . '::save-cart');
-        View::registerCustomView('::modals/saveCart', $this->name() . '::modals/CCEsaveCart');
-        View::registerCustomView('::modals/footer-save-cancelCCE', $this->name() . '::modals/CCEfooter-save-cancel');
-        View::registerCustomView('::modals/footer-checkedCCE', $this->name(). '::modals/CCEfooter-checked');
-        View::registerCustomView('::icons/file-import', $this->name(). '::icons/file-import');
-        View::registerCustomView('::icons/file-export', $this->name(). '::icons/file-export');
-        View::registerCustomView('::icons/redoCCE', $this->name(). '::icons/redo');
-        View::registerCustomView('::modals/CartSavedCCE', $this->name() . '::modals/CCE-CartSaved');
-        View::registerCustomView('::modals/loadCart', $this->name() . '::modals/CCEloadCart');
-        View::registerCustomView('::modals/CartLoadedCCE', $this->name() . '::modals/CCE-CartLoaded');
-        View::registerCustomView('::modals/noneCartFile', $this->name() . '::modals/CCEnoneCartFile');
-        View::registerCustomView('::modals/footer-backCCE', $this->name(). '::modals/CCEfooter-back');
 
         $CCEjs = $this->resourcesFolder() . 'js/CCEtable-actions.js';
         Session::put('CCEtable-actions.js', $CCEjs);
         $CCEcss = $this->resourcesFolder() . 'css/CCEtable-actions.css';
         Session::put('CCEtable-actions.css', $CCEcss);
+        // Option Import/Export driven by menu
+        View::registerCustomView('::csv_import_form', $this->name() . '::csv_import_form');
+        View::registerCustomView('::save-cart', $this->name() . '::save-cart');
+        // Option Export driven by AJAX - Cart structure
+        View::registerCustomView('::modals/saveCart', $this->name() . '::modals/CCEsaveCart');
+        View::registerCustomView('::modals/CartSavedCCE', $this->name() . '::modals/CCE-CartSaved');
+        View::registerCustomView('::icons/file-export', $this->name(). '::icons/file-export');
+        // Option Import driven by AJAX - Cart structure
+        View::registerCustomView('::modals/loadCart', $this->name() . '::modals/CCEloadCart');
+        View::registerCustomView('::modals/CartLoadedCCE', $this->name() . '::modals/CCE-CartLoaded');
+        View::registerCustomView('::modals/noneCartFile', $this->name() . '::modals/CCEnoneCartFile');
+        View::registerCustomView('::icons/file-import', $this->name(). '::icons/file-import');
+        // Option Export driven by AJAX - plain list
+        View::registerCustomView('::modals/saveCart_CSV', $this->name() . '::modals/CCEsaveCart_CSV');
+        View::registerCustomView('::modals/saveCart_CSVexec', $this->name() . '::modals/CCEsaveCart_CSVexec');
+        View::registerCustomView('::modals/CsvCartDownload', $this->name() . '::modals/CCE-CsvCartDownload');
+        View::registerCustomView('::icons/file-export-csv', $this->name(). '::icons/file-export-csv');
+        // Option Import driven by AJAX - plain list
+        View::registerCustomView('::modals/loadCart_CSV', $this->name() . '::modals/CCEloadCart_CSV');
+        View::registerCustomView('::icons/file-import-csv', $this->name(). '::icons/file-import-csv');
+        // Helpers
+        View::registerCustomView('::modals/footer-continue-cancelCCE', $this->name() . '::modals/CCEfooter-continue-cancel');
+        View::registerCustomView('::modals/footer-save-cancelCCE', $this->name() . '::modals/CCEfooter-save-cancel');
+        View::registerCustomView('::modals/footer-checkedCCE', $this->name(). '::modals/CCEfooter-checked');
+        View::registerCustomView('::modals/footer-backCCE', $this->name(). '::modals/CCEfooter-back');
+
+        View::registerCustomView('::icons/redoCCE', $this->name(). '::icons/redo');
+
+        View::registerCustomView('::icons/actions-filter', $this->name(). '::icons/actions-filter');
+
+
 
         $this->TSMok = class_exists(TaggingServiceManager::class, true);
 
@@ -2035,6 +2436,9 @@ class ClippingsCartEnhanced extends ClippingsCartModule
             $sess_key = 'CCElist-' . $lkey;
             Session::put($sess_key, $actions);
         }
+
+        Session::put('CCEclassName', $this->name());               // we need it later
+
     }
 
     /**

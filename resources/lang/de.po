@@ -179,6 +179,9 @@ msgstr "Auflistung Sammelaktionen"
 msgid "CCE-CartActions"
 msgstr "Sammelaktionen"
 
+msgid "CCE-CartActions Filter"
+msgstr "Sammelaktionen - Filter"
+
 msgid "Just a moment"
 msgstr "'nen kleinen Augenblick noch"
 
@@ -221,6 +224,12 @@ msgstr "Personen mit allen Beziehungen zum Sammelbehälter hinzufügen"
 msgid "Click here to toggle highlighting of relevant records on or off"
 msgstr "Klicken Sie hier, um die Hervorhebung der entsprechenden Datensätze ein- oder auszuschalten"
 
+msgid "Click here to switch between viewing single actions or combined filter actions"
+msgstr "Klicken Sie hier, um zwischen Anzeige der Einzel-Aktionen oder der kombinierten Aktions-Filter zu wechseln"
+
+msgid "Click here to show/hide records of this type"
+msgstr "Klicken Sie hier, um die Datensätze dieses Typs ein- oder auszublenden"
+
 msgid "Total number of entries: %s"
 msgstr "Anzahl Einträge gesamt: %s"
 
@@ -229,6 +238,15 @@ msgstr "davon Einträge neu: %s"
 
 msgid "Save cart to file"
 msgstr "Sammelbehälter in Datei speichern"
+
+msgid "Download plain XREF list to CSV-file"
+msgstr "Einfache XREF-Liste im CSV-Format herunterladen"
+
+msgid "only visible"
+msgstr "nur angezeigte"
+
+msgid "Execute"
+msgstr "Ausführung"
 
 msgid "File name"
 msgstr "Datei-Name"
@@ -250,6 +268,9 @@ msgstr "Sammelbehälter in Datei gespeichert"
 
 msgid "Load cart from file"
 msgstr "Aus Datei in Sammelbehälter übernehmen"
+
+msgid "Upload plain XREF list from CSV-file to cart"
+msgstr "Einfache XREF-Liste hochladen und in Sammelbehälter übernehmen"
 
 msgid "Choose saved carts"
 msgstr "Aus gespeicherten Sammelbehältern auswählen"
@@ -328,6 +349,51 @@ msgstr "Datensätze exportieren ..."
 
 msgid "... external module 'Extended GEDCOM Export' (will be forwarded)"
 msgstr "... externes Modul 'Erweiterter GEDCOM Export' (wird weitergeleitet)"
+
+msgid "Export clippings cart ..."
+msgstr "Sammelbehälter exportieren ..."
+
+msgid "structured format -> xref with clipping actions"
+msgstr "Strukturiertes Format -> xref mit Sammelaktionen"
+
+msgid "as plain list -> only xref, consumable by any Spreadsheet"
+msgstr "als einfache Liste -> nur die xref, für jede Tabellenkalkulation lesbar"
+
+msgid "To be used for CSV export"
+msgstr "Beim CSV-Export zu verwenden"
+
+msgid "(to be done via the menu)"
+msgstr "(über das Menü zu erledigen)"
+
+msgid "... download clipped XREFs to local file"
+msgstr "... Sammelbehälter XREFs lokal abspeichern"
+
+msgid "... upload XREFs from local file to clippings cart"
+msgstr "... lokale XREFs in Sammelbehälter übernehmen"
+
+msgid "Plain list (only xref[INDI|FAM]) ..."
+msgstr "Einfache Liste (nur XREF[INDI|FAM]) ..."
+
+msgid "Encoding"
+msgstr "Zeichensatz/Dateiursprung"
+
+msgid "Separator"
+msgstr "Trennzeichen"
+
+msgid "Enclosure"
+msgstr "Textbegrenzung"
+
+msgid "Escape"
+msgstr "Maskenzeichen"
+
+msgid "Choose a file on your computer"
+msgstr "Auswahl einer Datei auf Ihrem Rechner"
+
+msgid "No file was selected."
+msgstr "Es wurde keine Datei ausgewählt."
+
+msgid "Defaults for saving Clippings Cart XREFs to local CSV file"
+msgstr "Standardeinstellungen für das Speichern von Sammelbehälter-XREFs in einer lokalen CSV-Datei"
 
 msgid ""
 msgstr ""

@@ -12,6 +12,7 @@ use Fisharebest\Webtrees\I18N;
 /**
  * @var string               $module
  * @var array<string,string> $options
+ * //@var array<string,string> $options_ce
  * @var string               $title
  * @var string               $label
  */
@@ -29,6 +30,8 @@ use Fisharebest\Webtrees\I18N;
         </div>
         <div class="col-sm-9 wt-page-options-value">
             <?= view('components/radios', ['name' => 'option', 'options' => $options, 'selected' => key($options)]) ?>
+            <div>&nbsp;</div>
+<!--            < ?= view('components/radios', ['name' => 'option', 'options' => $options_ce, 'selected' => '_NIX_']) ? > -->
         </div>
     </div>
 

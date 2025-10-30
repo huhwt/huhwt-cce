@@ -3,7 +3,7 @@
 /**
  * webtrees - clippings cart enhanced
  *
- * Copyright (C) 2024 huhwt. All rights reserved.
+ * Copyright (C) 2025 huhwt. All rights reserved.
  *
  */
 
@@ -17,9 +17,11 @@ use Fisharebest\Webtrees\Tree;
  * @var array<GedcomRecord> $types
  * @var array<>             $recordTypes
  * @var string              $title
+ * @var string              $ptitle
  * @var string              $header_recs
  * @var string              $header_acts
  * @var array<>             $cartActions
+ * @var array<>             $cartActionsFilter
  * @var array<>             $CAfiles
  * @var string              $cArouteAjax
  * @var array<>             $cartXREFs
@@ -34,7 +36,7 @@ $html_subheader = view($module . '::' . 'showCart/showCart-subHeader', [
 $cart_empty = $recordTypes === [] ? true : false;
 ?>
 
-<h2 class="wt-page-title"><?= $title ?></h2>
+<h2 class="wt-page-title"><?= $ptitle ?></h2>
 
 <?php if ($cart_empty) : ?>
     <?php echo $html_subheader; ?>
@@ -54,6 +56,13 @@ $cart_empty = $recordTypes === [] ? true : false;
         'cArouteAjax' => $cArouteAjax,
         'tree'        => $tree
     ]);
+    $html_filter  = view($module . '::' . 'showCart/showCart-ActionsFilter', [
+        'module'      => $module,
+        'header_filter' => $header_filter,
+        'cartActionsFilter' => $cartActionsFilter,
+        'cArouteAjax' => $cArouteAjax,
+        'tree'        => $tree
+    ]);
     $html_table = view($module . '::' . 'showCart/showCart-Types', [
         'module'      => $module,
         'types'       => $types,
@@ -69,6 +78,7 @@ $cart_empty = $recordTypes === [] ? true : false;
     ?>
     <?php echo $html_files ?>
     <?php echo $html_actions ?>
+    <?php echo $html_filter ?>
     <br>
     <p id="prepInfo"><?= I18N::translate("Just a moment") . " ..." ?></p>
     <h4><?= $header_recs ?></h4>

@@ -10,6 +10,11 @@
 .cce-page-options {
     display: flex;
 }
+.cce-page-options-value-r {
+    min-width: 80%;
+    text-align: right;
+ 
+}
 
 .cce_buttongroup {
     display: flex;
@@ -86,18 +91,34 @@
     align-items: center;
 }
     .cce-shb1 {
-        min-width: 20%;
+        min-width: 30%;
     }
     .cce-shb2 {
         display: flex;
         flex-direction: row;
         justify-content: space-evenly;
         align-items: center;
-        min-width: 14%;
+        min-width: 30%;
     }
+
+.cce_thflex {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.cce-btn-w {
+    width: 100%;
+}
 .cce-btn:hover {
     color: white;
     box-shadow: 3px 1px 3px var(--bs-teal);
+}
+
+.cce-icon-group {
+    display: flex;
+    flex-direction: row;
 }
 
 .cce-cb {
@@ -141,6 +162,10 @@ table {
     background-color: rgba(194, 194, 250, 0.623) !important;
     text-align: left !important;
     font-size: 1.1rem !important;
+}
+
+.is-hidden {
+    display: none;
 }
 
 .dontShow {
@@ -191,6 +216,43 @@ table {
     color: goldenrod;
 }
 
+div.CCEhighlightedF > span.CCEbadge{
+    font-size: 0.9rem !important;
+}
+td.CCEhighlightedF > span.CCEbadge{
+    font-size: 0.9rem !important;
+}
+div.CCEcolorF1>span.b-filter{
+    border-color: blue !important;
+    border-width: 2px;
+}
+div.CCEcolorF2>span.b-filter {
+    border-color: red !important;
+    border-width: 2px;
+}
+div.CCEcolorF3>span.b-filter {
+    border-color: green !important;
+    border-width: 2px;
+}
+div.CCEcolorF4>span.b-filter {
+    border-color: darkmagenta !important;
+    border-width: 2px;
+}
+div.CCEcolorF5>span.b-filter {
+    border-color: darkturquoise !important;
+    border-width: 2px;
+}
+div.CCEcolorF6>span.b-filter {
+    border-color: goldenrod !important;
+    border-width: 2px;
+}
+
+.b-filter {
+    border-width: 0px;
+    border-radius: 0.375rem;
+    border-style: double;
+}
+
 .CCEpopup {
     display: block;
     border: 2px dashed darkblue;
@@ -203,4 +265,13 @@ table {
     left: 40%;
     min-width: 310px;
     z-index: 199;
+}
+
+.col-sm-0 {
+    flex: 0 0 auto;
+    width: 0.33333333%;
+}
+
+[dir] .form-control::file-selector-button {
+    background-color: var(--bs-tertiary-color) !important;
 }

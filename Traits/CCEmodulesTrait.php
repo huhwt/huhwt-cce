@@ -30,7 +30,7 @@ trait CCEmodulesTrait
     public const CUSTOM_MODULE      = 'huhwt-cce';
     public const CUSTOM_AUTHOR      = 'EW.H / Hermann Hartenthaler';
     public const CUSTOM_WEBSITE     = 'https://github.com/huhwt/' . self::CUSTOM_MODULE . '/';
-    public const CUSTOM_VERSION     = '2.2.3.0';
+    public const CUSTOM_VERSION     = '2.4.1.0';
     public const CUSTOM_LAST        = 'https://github.com/huhwt/' .
                                         self::CUSTOM_MODULE. '/blob/master/latest-version.txt';
 
@@ -81,7 +81,7 @@ trait CCEmodulesTrait
     public function title(): string
     {
         /* I18N: Name of a module */
-        return json_decode('"\u210D"') . ' ' . I18N::translate(self::CUSTOM_TITLE);
+        return $this->huh_short . ' ' . I18N::translate(self::CUSTOM_TITLE);
     }
 
     /**

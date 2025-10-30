@@ -29,29 +29,14 @@ use Fisharebest\Webtrees\Session;
 use Fisharebest\Webtrees\Source;
 use Fisharebest\Webtrees\Submitter;
 
+use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CC_addActionsConsts;
+
 /**
  * Trait CC_addActions - bundling all add-Actions of origin ClippingsCart
  */
 trait CC_addActions
 {
-    private const ADD_RECORD_ONLY        = 'add only this record';
-    private const ADD_CHILDREN           = 'add children';
-    private const ADD_DESCENDANTS        = 'add descendants';
-    private const ADD_PARENT_FAMILIES    = 'add parents';
-    private const ADD_SPOUSE_FAMILIES    = 'add spouses';
-    private const ADD_ANCESTORS          = 'add ancestors';
-    private const ADD_ANCESTOR_FAMILIES  = 'add families';
-    private const ADD_LINKED_INDIVIDUALS = 'add linked individuals';
-    private const TYPES_OF_RECORDS = [
-        'Individual' => Individual::class,
-        'Family'     => Family::class,
-        'Media'      => Media::class,
-        'Location'   => Location::class,
-        'Note'       => Note::class,
-        'Repository' => Repository::class,
-        'Source'     => Source::class,
-        'Submitter'  => Submitter::class,
-    ];
+    use CC_addActionsConsts;
 
     /**
      * Recursive function to traverse the tree and add the ancestors and their families

@@ -22,18 +22,6 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 trait CCEconfigTrait {
 
-    /**
-     * Filter on n_type
-     *
-     * @return array<int,string>
-     */
-    public function TAGconfigOptions(): array
-    {
-        return [
-            0   => 'TAG',
-            1   => 'CCE',
-        ];
-    }
 
     /**
      * @param ServerRequestInterface $request
@@ -44,10 +32,17 @@ trait CCEconfigTrait {
     {
         $this->layout = 'layouts/administration';
 
+        $_line_endings      = $this->getPreference('line_endings', 'LF');
+        $_separator         = $this->getPreference('separator', 'semi_colon');
+        $_enclosure         = $this->getPreference('enclosure', 'none');
+        $_escape            = $this->getPreference('escape', 'backslash');
+
         return $this->viewResponse($this->name() . '::settings', [
-            'TAGoption'         => (int) $this->getPreference('TAG_Option', '0'),
-            'TAG_options'       => $this->TAGconfigOptions(),
-            'title'             => I18N::translate('Tagging preferences') . ' — ' . $this->title(),
+            'line_endings'  => $_line_endings,
+            'separator'     => $_separator,
+            'enclosure'     => $_enclosure,
+            'escape'        => $_escape,
+            'title'         => $this->title(),
         ]);
     }
 
@@ -58,9 +53,14 @@ trait CCEconfigTrait {
      */
     public function postAdminAction(ServerRequestInterface $request): ResponseInterface
     {
-        $TAGoption = Validator::parsedBody($request)->integer('TAGoption');
-
-        $this->setPreference('TAG_Option', (string) $TAGoption);
+        $exec_setting = function(ServerRequestInterface $request, string $key, string $default) {
+            $_setting = Validator::parsedBody($request)->string($key, $default);
+            $this->setPreference($key, $_setting);
+        };
+        $exec_setting($request, 'line_endings', 'LF');
+        $exec_setting($request, 'separator', 'semi_colon');
+        $exec_setting($request, 'enclosure', 'none');
+        $exec_setting($request, 'escape', 'backslash');
 
         FlashMessages::addMessage(I18N::translate('The preferences for the module “%s” have been updated.', $this->title()), 'success');
 

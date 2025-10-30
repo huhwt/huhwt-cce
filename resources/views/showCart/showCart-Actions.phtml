@@ -34,24 +34,26 @@ $html_subheader = view($module . '::' . 'showCart/showCart-subHeader', [
 <?php else : ?>
     <?php $count = count($cartActions); ?>
     <?php $Theader = 'CCE-CartActions' ?>
-    <?php $Ttitle = I18N::translate('Click here to toggle highlighting of relevant records on or off'); ?>
-    <table class="table wt-facts-table CCE-actions-table">
+    <?php $Theader_body = 'CCE-CAbody' ?>
+    <?php $Ttitle = I18N::translate('Click here to switch between viewing single actions or combined filter actions'); ?>
+    <?php $Ctitle = I18N::translate('Click here to toggle highlighting of relevant records on or off'); ?>
+    <table id="<?= $Theader ?>" class="table wt-facts-table CCE-actions-table">
         <colgroup>
             <col span="1" style="width: 90%;">
             <col span="1" style="width: 10%;">
         </colgroup>
         <thead>
             <tr>
-                <th name="<?= $Theader ?>" class="CCE_Theader" ><?= I18N::translate('Records') . ' - ' . I18N::translate($Theader) . ' (' . view('components/badge', ['count' => $count]) . ')'; ?></th>
+                <th name="<?= $Theader ?>" title="<?= $Ttitle ?>" class="CCE_Theader" ><?= I18N::translate('Records') . ' - ' . I18N::translate($Theader) . ' (' . view('components/badge', ['count' => $count]) . ')'; ?></th>
                 <th class="CCE_Theader"><?= I18N::translate('Action'); ?></th>
             </tr>
         </thead>
-        <tbody name="<?= $Theader ?>" style="display:visible" colorsOn="" colorsOff="_;color1;color2;color3;color4;color5;color6">
+        <tbody id="<?= $Theader_body ?>" name="<?= $Theader ?>" style="display:visible" colorsOn="" colorsOff="_;color1;color2;color3;color4;color5;color6">
             <?php foreach ($cartActions as $cartact) : ?>
                 <tr color="">
                     <td>
                         <span class="cce-icon-basket"><i class="fas fa-shopping-basket fa-fw" aria-hidden="true"></i></span>
-                        <span title="<?= $Ttitle ?>"><?= $cartact ?></span>
+                        <span title="<?= $Ctitle ?>"> <?= $cartact ?></span>
                     </td>
                     <td>
                         <a href="#" rel="nofollow" data-url="<?= $cArouteAjax ?>" action="RemoveCartAct" tree="<?= $tree->name() ?>", cartact ="<?= $cartact ?>">

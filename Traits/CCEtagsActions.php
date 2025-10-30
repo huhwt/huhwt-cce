@@ -92,7 +92,7 @@ trait CCEtagsActions
        return $t_tags;
    }
 
-private function remove_Tags(Tree $tree, $xref) : void
+    private function remove_Tags(Tree $tree, $xref) : void
    {
         $tags = Session::get('tags', []);
         unset($tags[$tree->name()][$xref]);
@@ -115,27 +115,27 @@ private function remove_Tags(Tree $tree, $xref) : void
        return $tagsacts;
    }
 
-   private function clean_TagsActs(Tree $tree) : array
-    {
-        $tagsAct = Session::get('tagsActs', []);
-        $tagsAct[$tree->name()] = [];
-        Session::put('tagsActs', $tagsAct);
+//    private function clean_TagsActs(Tree $tree) : array
+//     {
+//         $tagsAct = Session::get('tagsActs', []);
+//         $tagsAct[$tree->name()] = [];
+//         Session::put('tagsActs', $tagsAct);
 
-        $tagsActsDiversity = Session::get('tagsActsDiversity', []);
-        $tagsActsDiversity[$tree->name()] = [];
-        $tagsActsDiversity[$tree->name()][0] = 0;
-        Session::put('tagsActsDiversity', $tagsActsDiversity);
+//         $tagsActsDiversity = Session::get('tagsActsDiversity', []);
+//         $tagsActsDiversity[$tree->name()] = [];
+//         $tagsActsDiversity[$tree->name()][0] = 0;
+//         Session::put('tagsActsDiversity', $tagsActsDiversity);
 
-        return $tagsAct;
-    }
+//         return $tagsAct;
+//     }
 
-    private function clean_TagsActs_cact(Tree $tree, string $cact) : array
-    {
-        $tagsAct = Session::get('tagsActs', []);
-        unset($tagsAct[$tree->name()][$cact]);
-        Session::put('tagsActs', $tagsAct);
-        return $tagsAct;
-    }
+    // private function clean_TagsActs_cact(Tree $tree, string $cact) : array
+    // {
+    //     $tagsAct = Session::get('tagsActs', []);
+    //     unset($tagsAct[$tree->name()][$cact]);
+    //     Session::put('tagsActs', $tagsAct);
+    //     return $tagsAct;
+    // }
 
     private function put_TagsActs(Tree $tree, string $action, string $Key, string $altKey = '', bool $doDiversity = true) : string
     {

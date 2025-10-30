@@ -1,0 +1,97 @@
+<?php
+
+/**
+ * webtrees - clippings cart enhanced
+ *
+ * Copyright (C) 2025 huhwt. All rights reserved.
+ *
+ */
+
+declare(strict_types=1);
+
+namespace HuHwt\WebtreesMods\ClippingsCartEnhanced;
+
+use Fisharebest\Webtrees\I18N;
+use Fisharebest\Webtrees\Tree;
+use Fisharebest\Webtrees\View;
+
+use HuHwt\WebtreesMods\ClippingsCartEnhanced\ClippingsCartEnhancedModule;
+
+/**
+ * @var Tree                $tree
+ * @var string              $title
+ * @var string              $module
+ * @var string              $line_ending
+ * @var string              $separator
+ * @var string              $enclosure
+ * @var string              $escape
+ */
+
+$routeExec     = e(route(ClippingsCartEnhancedModule::class, ['tree' => $tree->name(), 'action' => 'doCartLoadAction_CSV']));
+
+$none_file     = I18N::translate('No file selected');
+$mult_files    = I18N::translate('Only 1 file allowed');
+?>
+
+<form method="post" action="<?= $routeExec ?>" id="wt-modal-form">
+    <?= view('modals/header', ['title' => I18N::translate('Load cart from file')]) ?>
+    <div class="row mb-3">
+        <label class="col-form-label col-sm-0" for="import-client-file">
+        </label>
+        <div class="col-sm-8">
+            <input id="import-client-file" type="file" name="client_file" class="form-control" style="font-weight: 800">
+        </div>
+    </div>
+
+    <div id="none_file" class="alert alert-info alert-dismissible is-hidden" role="alert">
+        <?= $none_file ?>
+    </div>
+    <div id="mult_files" class="alert alert-dark alert-dismissible is-hidden" role="alert">
+        <?= $none_file ?>
+    </div>
+
+
+    <div class="row mb-3">
+        <label class="col-sm-3" for="line_ending">
+            <?= I18N::translate('Line endings') ?>
+        </label>
+        <div class="col-sm-9">
+            <?= view('components/radios-inline', ['name' => 'line_ending', 'options' => ['LF' => 'LF (unix/win10ff/OSX)', 'CRLF' => 'CR/LF (legacy windows)', 'CR' => 'CR (legacy MacOS)'], 'selected' => $line_ending]) ?>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <label class="col-sm-3" for="separator">
+            <?= I18N::translate('Separator') ?>
+        </label>
+        <div class="col-sm-9">
+            <?= view('components/radios-inline', ['name' => 'separator', 'options' => ['semi_colon' => ';', 'comma' => ',', 'tab' => '(tab)'], 'selected' => $separator]) ?>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <label class="col-sm-3" for="enclosure">
+            <?= I18N::translate('Enclosure') ?>
+        </label>
+        <div class="col-sm-9">
+            <?= view('components/radios-inline', ['name' => 'enclosure', 'options' => ['none' => '(none)', 'quotation' => '"', 'apostroph' => "'"], 'selected' => $enclosure]) ?>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <label class="col-sm-3" for="escape">
+            <?= I18N::translate('Escape') ?>
+        </label>
+        <div class="col-sm-9">
+            <?= view('components/radios-inline', ['name' => 'escape', 'options' => ['backslash' => '\\'], 'selected' => $escape]) ?>
+        </div>
+    </div>
+
+    <?= view('modals/footer-continue-cancelCCE') ?>
+
+    <?= csrf_field() ?>
+</form>
+
+<script>
+  document.getElementById('btn_CCEsubmit').addEventListener('click', clickCSVimport);;
+</script>

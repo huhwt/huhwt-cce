@@ -25,7 +25,10 @@ use Fisharebest\Webtrees\Tree;
  * @var Tree                $tree
  */
 
+
 ?>
+
+<?php $Ttitle = I18N::translate('Click here to show/hide records of this type'); ?>
 
 <?php foreach ($types as $key => $class) :      // test if there are records for this type ... ?>
     <?php if (array_key_exists($key, $recordTypes)) : ?>
@@ -40,7 +43,7 @@ use Fisharebest\Webtrees\Tree;
             </colgroup>
             <thead>
                 <tr>
-                    <th name="<?= $Theader ?>"  class="CCE_Theader CCE_Rheader"><?= I18N::translate('Records') . ' - ' . I18N::translate($Theader) . ' (' . view('components/CCEbadge', ['count' => $count, 'total' => $count]) . ')'; ?></th>
+                    <th name="<?= $Theader ?>" title="<?= $Ttitle ?>" class="CCE_Theader CCE_Rheader"><?= I18N::translate('Records') . ' - ' . I18N::translate($Theader) . ' (' . view('components/CCEbadge', ['count' => $count, 'total' => $count]) . ')'; ?></th>
                     <th class="dontShow">...</th>
                     <th class="CCE_Theader"><?= I18N::translate('Action'); ?></th>
                 </tr>
@@ -54,12 +57,12 @@ use Fisharebest\Webtrees\Tree;
                                 <?= $record->fullName(); ?>
                             </a>
                         </td>
-                        <td>
                             <?php $xref= (string) $record->xref();
-                                    $cAction = $cartXREFs[$xref];
-                                    $xrefActions = explode(";",$cAction);
-                                    foreach ($xrefActions as $xAction) : ?>
-                                    <?= view('components/CCEbadgedText', ['text' => $xAction]); ?>
+                            $cAction = $cartXREFs[$xref];
+                            $xrefActions = explode(";",$cAction); ?>
+                        <td name="<?= $cAction ?>">
+                            <?php foreach ($xrefActions as $xAction) : ?>
+                                <?= view('components/CCEbadgedText', ['text' => $xAction]); ?>
                             <?php endforeach; ?>
                         </td>
                         <td>

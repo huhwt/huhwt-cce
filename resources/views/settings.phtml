@@ -9,9 +9,11 @@ use Fisharebest\Webtrees\Tree;
 use Illuminate\Support\Collection;
 
 /**
- * @var array<int,string>    $TAG_options
- * @var int                  $TAGoption
  * @var string               $title
+ * @var string               $line_endings
+ * @var string               $separator
+ * @var string               $enclosure
+ * @var string               $escape
  */
 
 ?>
@@ -20,17 +22,43 @@ use Illuminate\Support\Collection;
 
 <h1><?= $title ?></h1>
 <p>
-    <?= I18N::translate('Define the preferred tagging-clause') ?>
+    <?= I18N::translate('Defaults for saving Clippings Cart XREFs to local CSV file') ?>
 </p>
 
 <form method="post">
     <div class="row mb-3">
-        <legend class="col-sm-3 col-form-label">
-            <?= /* I18N: Configuration option */
-            I18N::translate("TAG Definition - Choose a prefix") ?>
-        </legend>
-        <div class="col-sm-9">
-            <?= view('components/radios', ['name' => 'TAGoption', 'selected' => $TAGoption, 'options' => $TAG_options]) ?>
+        <label class="col-sm-4" for="line_endings">
+            <?= I18N::translate('To be used for CSV export') . ' ... ' . I18N::translate('Line endings') ?>
+        </label>
+        <div class="col-sm-8">
+            <?= view('components/radios-inline', ['name' => 'line_endings', 'options' => ['CRLF' => 'CR/LF (legacy windows)', 'LF' => 'LF (unix/win10ff/OSX)', 'CR' => 'CR (legacy MacOS)'], 'selected' => $line_endings]) ?>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <label class="col-sm-4" for="separator">
+            <?= I18N::translate('Separator') ?>
+        </label>
+        <div class="col-sm-8">
+            <?= view('components/radios-inline', ['name' => 'separator', 'options' => ['semi_colon' => ';', 'comma' => ',', 'tab' => '(tab)'], 'selected' => $separator]) ?>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <label class="col-sm-4" for="enclosure">
+            <?= I18N::translate('Enclosure') ?>
+        </label>
+        <div class="col-sm-8">
+            <?= view('components/radios-inline', ['name' => 'enclosure', 'options' => ['none' => '(none)', 'quotation' => '"', 'apostroph' => "'"], 'selected' => $enclosure]) ?>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <label class="col-sm-4" for="escape">
+            <?= I18N::translate('Escape') ?>
+        </label>
+        <div class="col-sm-8">
+            <?= view('components/radios-inline', ['name' => 'escape', 'options' => ['backslash' => '\\'], 'selected' => $escape]) ?>
         </div>
     </div>
 
