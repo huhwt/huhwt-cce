@@ -1,9 +1,11 @@
+# webtrees CLIPPINGS CART.
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: hh 2.0.19\n"
 "Report-Msgid-Bugs-To: hermann@hartenthaler.de\n"
 "POT-Creation-Date: 2021-11-21 12:57+0200\n"
-"PO-Revision-Date: 2025-02-19 17:06+0100\n"
+"PO-Revision-Date: 2025-10-31 08:29+0100\n"
 "Last-Translator: TheDutchJewel <thedutchjewel@gmail.com>\n"
 "Language-Team: \n"
 "Language: nl\n"
@@ -11,7 +13,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Poedit 3.5\n"
+"X-Generator: Poedit 3.8\n"
 
 msgid "Replacement for the original 'Clippings Cart' module."
 msgstr "Vervanging voor de originele 'Stamboomknipsel'-module."
@@ -178,6 +180,9 @@ msgstr "Uitgevoerde acties om de knipselverzameling te vullen."
 msgid "CCE-CartActions"
 msgstr "CCE-Knipselverzamelingacties"
 
+msgid "CCE-CartActions Filter"
+msgstr "CCE-Knipselverzamelingactiesfilter"
+
 msgid "Just a moment"
 msgstr "Een ogenblik geduld"
 
@@ -220,6 +225,12 @@ msgstr "personen en alle relaties toevoegen aan de knipselverzameling"
 msgid "Click here to toggle highlighting of relevant records on or off"
 msgstr "Klik hier om het markeren van relevante records aan of uit te zetten"
 
+msgid "Click here to switch between viewing single actions or combined filter actions"
+msgstr "Klik hier om te schakelen tussen de weergave van afzonderlijke acties of de gecombineerde actiefilters"
+
+msgid "Click here to show/hide records of this type"
+msgstr "Klik hier om de records van dit type weer te geven of te verbergen."
+
 msgid "Total number of entries: %s"
 msgstr "Totaal aantal vermeldingen: %s"
 
@@ -228,6 +239,15 @@ msgstr "waarvan nieuwe vermeldingen: %s"
 
 msgid "Save cart to file"
 msgstr "Verzameling opslaan in bestand"
+
+msgid "Download plain XREF list to CSV-file"
+msgstr "Download gewone XREF-lijst naar CSV-bestand"
+
+msgid "only visible"
+msgstr "alleen weergegeven"
+
+msgid "Execute"
+msgstr "Uitvoeren"
 
 msgid "File name"
 msgstr "Bestandsnaam"
@@ -249,6 +269,9 @@ msgstr "Verzameling opgeslagen in bestand"
 
 msgid "Load cart from file"
 msgstr "Verzameling laden vanuit bestand"
+
+msgid "Upload plain XREF list from CSV-file to cart"
+msgstr "Upload gewone XREF-lijst vanuit CSV-bestand naar verzameling"
 
 msgid "Choose saved carts"
 msgstr "Kies opgeslagen verzamelingen"
@@ -323,7 +346,52 @@ msgid "All linked individuals"
 msgstr "Alle gerelateerde personen"
 
 msgid "Export records ..."
-msgstr "Records exporteren ..."
+msgstr "Exporteer records ..."
 
 msgid "... external module 'Extended GEDCOM Export' (will be forwarded)"
 msgstr "... externe module 'Uitgebreide GEDCOM-export' (wordt doorgestuurd)"
+
+msgid "Export clippings cart ..."
+msgstr "Exporteer knipselverzameling ..."
+
+msgid "structured format -> xref with clipping actions"
+msgstr "gestructureerd formaat -> XREF met knipselacties"
+
+msgid "as plain list -> only xref, consumable by any Spreadsheet"
+msgstr "als gewone lijst -> alleen XREF, leesbaar voor elk rekenbladprogramma"
+
+msgid "To be used for CSV export"
+msgstr "Te gebruiken voor CSV-export"
+
+msgid "(to be done via the menu)"
+msgstr "(te doen via het menu)"
+
+msgid "... download clipped XREFs to local file"
+msgstr "... download verzamelde XREFs naar lokaal bestand"
+
+msgid "... upload XREFs from local file to clippings cart"
+msgstr "... upload XREF's van lokaal bestand naar knipselverzameling"
+
+msgid "Plain list (only xref[INDI|FAM]) ..."
+msgstr "Gewone lijst (alleen XREF[INDI|FAM]) ..."
+
+msgid "Encoding"
+msgstr "Codering"
+
+msgid "Separator"
+msgstr "Scheidingsteken"
+
+msgid "Enclosure"
+msgstr "Omsluiting"
+
+msgid "Escape"
+msgstr "Maskeringsteken"
+
+msgid "Choose a file on your computer"
+msgstr "Kies een bestand op uw computer"
+
+msgid "No file was selected."
+msgstr "Er is geen bestand geselecteerd."
+
+msgid "Defaults for saving Clippings Cart XREFs to local CSV file"
+msgstr "Standaardinstellingen voor het opslaan van knipselverzameling-XREF's naar een lokaal CSV-bestand"
