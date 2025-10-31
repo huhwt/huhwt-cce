@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: hh 2.0.19\n"
 "Report-Msgid-Bugs-To: hermann@hartenthaler.de\n"
 "POT-Creation-Date: 2021-11-21 12:57+0200\n"
-"PO-Revision-Date: 2025-10-31 08:29+0100\n"
+"PO-Revision-Date: 2025-10-31 10:23+0100\n"
 "Last-Translator: TheDutchJewel <thedutchjewel@gmail.com>\n"
 "Language-Team: \n"
 "Language: nl\n"
@@ -229,7 +229,7 @@ msgid "Click here to switch between viewing single actions or combined filter ac
 msgstr "Klik hier om te schakelen tussen de weergave van afzonderlijke acties of de gecombineerde actiefilters"
 
 msgid "Click here to show/hide records of this type"
-msgstr "Klik hier om de records van dit type weer te geven of te verbergen."
+msgstr "Klik hier om de records van dit type weer te geven of te verbergen"
 
 msgid "Total number of entries: %s"
 msgstr "Totaal aantal vermeldingen: %s"
