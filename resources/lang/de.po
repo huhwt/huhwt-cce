@@ -20,6 +20,9 @@ msgstr "Ersatz für das ursprüngliche \"Sammelbehälter\"-Modul."
 msgid "Clippings cart enhanced"
 msgstr "Sammelbehälter"
 
+msgid "Webtrees standard action"
+msgstr "Webtrees Standard Aktion"
+
 msgid "Add records from your family tree to the clippings cart and execute an action on them."
 msgstr "Datensätze aus dem Stammbaum dem Sammelbehälter hinzufügen und dann weitere Aktionen damit ausführen."
 

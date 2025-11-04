@@ -473,6 +473,7 @@ use SplTempFileObject;
                 $outLine .= $_line_ending . $_oL;
             }
         }
+        $outLine .= $_line_ending;
         $Xoutline       = new Collection([$outLine]);
         Session::put('CAsave_CSVoutline',$Xoutline);
 

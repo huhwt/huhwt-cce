@@ -1145,7 +1145,7 @@ class ClippingsCartEnhanced extends ClippingsCartModule
         $tree = Validator::attributes($request)->tree();
         $user = Validator::attributes($request)->user();
 
-        $wt_core = ' -> Webtrees Standard action';
+        $wt_core = ' -> ' . I18N::translate('Webtrees standard action');
         $options_arr = array();
         foreach (self::EXECUTE_ACTIONS as $opt => $actions) {
             $_opt = self::EXECUTE_ACTIONS_INDEX[$opt];
