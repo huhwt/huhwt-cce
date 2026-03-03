@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: hh 2.0.19\n"
 "Report-Msgid-Bugs-To: hermann@hartenthaler.de\n"
 "POT-Creation-Date: 2021-11-21 12:57+0200\n"
-"PO-Revision-Date: 2025-10-31 10:23+0100\n"
+"PO-Revision-Date: 2026-03-03 06:52+0100\n"
 "Last-Translator: TheDutchJewel <thedutchjewel@gmail.com>\n"
 "Language-Team: \n"
 "Language: nl\n"
@@ -21,6 +21,12 @@ msgstr "Vervanging voor de originele 'Stamboomknipsel'-module."
 msgid "Clippings cart enhanced"
 msgstr "Uitgebreide stamboomknipsels"
 
+msgid "Clippings cart"
+msgstr "Stamboomknipsels"
+
+msgid "Webtrees standard action"
+msgstr "webtrees-standaardactie"
+
 msgid "Add records from your family tree to the clippings cart and execute an action on them."
 msgstr "Voeg records uit uw stamboom toe aan de knipselverzameling en voer er een actie op uit."
 
@@ -35,6 +41,9 @@ msgstr "Records in %s "
 
 msgid "Add this record to the clippings cart"
 msgstr "Voeg dit record toe aan de knipselverzameling"
+
+msgid "Add these records to the clippings cart"
+msgstr "Voeg deze records toe aan de knipselverzameling"
 
 msgid "%1$s and her ancestors (up to %2$s generations)"
 msgstr "%1$s en haar voorouders (tot maximaal %2$s generaties)"
@@ -116,6 +125,12 @@ msgstr "CCE-Bron"
 
 msgid "CCE-Submitter"
 msgstr "CCE-Indiener"
+
+msgid "Show %s as list"
+msgstr "Weergeven %s als lijst"
+
+msgid "List of the Individuals in clippings cart"
+msgstr "Lijst van personen in knipselverzameling"
 
 msgid "Delete all records, a set of records of the same type, or selected records"
 msgstr "Verwijder alle records, een set van records van hetzelfde type of geselecteerde records"
@@ -206,6 +221,9 @@ msgstr "gezinnen en personen toevoegen aan de knipselverzameling"
 
 msgid "add families and individuals with parents to the clippings cart"
 msgstr "gezinnen en personen met ouders toevoegen aan de knipselverzameling"
+
+msgid "add individuals with direct relations to the clippings cart"
+msgstr "voeg personen toe die een directe relatie hebben met de knipselverzameling"
 
 msgid "add individuals to the clippings cart"
 msgstr "personen toevoegen aan de knipselverzameling"
@@ -395,3 +413,9 @@ msgstr "Er is geen bestand geselecteerd."
 
 msgid "Defaults for saving Clippings Cart XREFs to local CSV file"
 msgstr "Standaardinstellingen voor het opslaan van knipselverzameling-XREF's naar een lokaal CSV-bestand"
+
+msgid "Add relationships between %1$s and %2$s to the clippings cart"
+msgstr "Relaties tussen %1$s en %2$s toevoegen aan de knipselverzameling"
+
+msgid "Show only individuals with surname beginning with “%s”"
+msgstr "Toon alleen personen met een achternaam die begint met “%s”"
