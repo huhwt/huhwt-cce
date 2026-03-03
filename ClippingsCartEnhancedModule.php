@@ -20,12 +20,16 @@ namespace HuHwt\WebtreesMods\ClippingsCartEnhanced;
 use Fisharebest\Webtrees\Module\IndividualListModule;
 
 use Fisharebest\Webtrees\Auth;
+use Fisharebest\Webtrees\Contracts\UserInterface;
+use Fisharebest\Webtrees\Http\Exceptions\HttpAccessDeniedException;
+
 use Fisharebest\Webtrees\Module\AbstractModule;
 use Fisharebest\Webtrees\Registry;
 use Fisharebest\Webtrees\GedcomRecord;
 use Fisharebest\Webtrees\Family;
 use Fisharebest\Webtrees\I18N;
 use Fisharebest\Webtrees\Individual;
+use Fisharebest\Webtrees\Services\ModuleService;
 use Fisharebest\Webtrees\Session;
 use Fisharebest\Webtrees\Tree;
 use Fisharebest\Webtrees\Webtrees;
@@ -37,6 +41,7 @@ use Illuminate\Database\Query\Expression;
 use Illuminate\Database\Query\JoinClause;
 use Illuminate\Support\Collection;
 
+use Fisharebest\Webtrees\FlashMessages;
 use Fisharebest\Webtrees\Validator;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -45,14 +50,13 @@ use Psr\Http\Server\RequestHandlerInterface;
 use HuHwt\WebtreesMods\ClippingsCartEnhanced\CCEexportService;
 
 use HuHwt\WebtreesMods\ClippingsCartEnhanced;
+use HuHwt\WebtreesMods\ClippingsCartEnhanced\Module\hhEFadapter;
 use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CC_addActions;
 use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCEaddActions;
 use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCEcartActions;
 use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCEdatabaseActions;
 use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCEvizActions;
-use SplFileObject;
-use SplTempFileObject;
-
+use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCErecordActions;
 
 /**
  * Class ClippingsCartEnhancedModule
@@ -74,12 +78,14 @@ use SplTempFileObject;
     }
     /** All constants and functions related to handling the Cart  */
     use CCEcartActions;
+    /** Record related functions  */
+    use CCErecordActions;
     /** bundling all actions regarding DB::table */
     use CCEdatabaseActions;
     /** All constants and functions related to connecting vizualizations  */
     use CCEvizActions;
 
-     private $huh;
+    private $huh;
 
     /**
      * Retrieve all Record-Types
@@ -118,24 +124,41 @@ use SplTempFileObject;
      */
     private const CCEothersdir     = Webtrees::DATA_DIR . '_CCEothers';
 
+    private string $dump_dir = __DIR__ . DIRECTORY_SEPARATOR . '_doku';
+
+    /**
+     * executing hh_ExtendedFamily ...
+     * @var hhEFadapter $hhEFadapter
+     */
+    private hhEFadapter    $hhEFadapter;
+
     /** @var GedcomExportService */
     private GedcomExportService $gedcom_export_service;
+
+    /**
+     * _huhwt-cce_ accessible?      must be tested because of this module's actions are by default not covered by wt access checks
+     * @var bool
+     */
+    private bool $CCEok = false;
+
 
     public function __construct()
         // GedcomExportService $gedcom_export_service)
     {
         // $this->gedcom_export_service    = $gedcom_export_service;
 
-        $this->huh = json_decode('"\u210D"');
+        $this->huh          = json_decode('"\u210D"');
 
-        $this->cart = $this->get_Cart();
+        $this->cart         = $this->get_Cart();
 
-        $this->all_RecTypes        = true;
+        $this->all_RecTypes = true;
 
-        $this->CIfileData          = [];
+        $this->CIfileData   = [];
 
         $_CCEclassName      = Session::get('CCEclassName');
         $this->Mname        = $_CCEclassName;
+
+        $this->hhEFadapter  = new hhEFadapter();
     }
 
     /**
@@ -149,6 +172,25 @@ use SplTempFileObject;
     }
 
     /**
+     * @param Tree              $tree
+     * @param UserInterface     $user
+     *
+     * @return bool
+     * 
+     * test if _huhwt-cce_ is accessible
+     */
+    private function test_CCE_ (Tree $tree, UserInterface $user) : bool
+    {
+        $retval = false;
+        $module_service = new ModuleService();
+        $CCE_module = $module_service->findByName('_huhwt-cce_');
+        if ($CCE_module !== null ) {
+            $retval =  $CCE_module->accessLevel($tree, 'Fisharebest\Webtrees\Module\ModuleMenuInterface') >= Auth::accessLevel($tree, $user);
+        }
+        return $retval;
+    }
+
+    /**
      * Catch the different ClippingsCart-Actions - called by listing-modules
     *
     * @param ServerRequestInterface $request
@@ -158,6 +200,13 @@ use SplTempFileObject;
     */
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
+
+        $tree = Validator::attributes($request)->tree();
+        $user = Validator::attributes($request)->user();
+        if (!$this->test_CCE_($tree, $user)) {
+            throw new HttpAccessDeniedException();
+        }
+
         $action = Validator::queryParams($request)->string('action');
 
         if ( $action == 'clipFamilies' ) {
@@ -166,6 +215,14 @@ use SplTempFileObject;
 
         if ( $action == 'clipIndividuals' ) {
             return response($this->clip_individuals($request));
+        }
+
+        if ( $action == 'clip_vER' ) {
+            return response($this->clip_vER($request));
+        }
+
+        if ( $action == 'clip_hhEF' ) {
+            return $this->clip_hhEF($request);
         }
 
         if ( $action == 'RemoveCartAct' ) {
@@ -227,7 +284,86 @@ use SplTempFileObject;
         if ( $action == 'doCartLoadAction_CSV' ) {
             return $this->doCartLoadAction_CSV($request);
         }
+
+        if ( $action == 'CCElist' ) {
+            return $this->doCCElist($request);
+        }
+
+        if ( $action == 'CCElistXREFs' ) {
+            return $this->doCCElistXREFs($request);
+        }
+
         return response('_NIX_ ->' . $action);
+    }
+
+    /**
+     * save the cart-xrefs to file
+     *
+     * @param ServerRequestInterface $request
+     *
+     * @return ResponseInterface
+     */
+    private function doCCElist(ServerRequestInterface $request) {
+        $tree = Validator::attributes($request)->tree();
+
+        $accessLevel = Auth::PRIV_HIDE;
+
+        $type = Validator::queryParams($request)->string('type');
+
+        $CCEmodule      = Session::get('CCEclassName');
+
+        $_html      = '';
+        if ( $type == 'Individual') {
+            $Theader    = 'CCE-' . $type;
+            $Theader_t  = I18N::translate($Theader);
+            $title      = I18N::translate("Show %s as list", $Theader_t);
+            $route_CCElistINDI  = route('module', [
+                                                        'module' => $CCEmodule,
+                                                        'action' => 'CCElist',
+                                                        'tree' => $tree->name(),
+                                                        'type' => 'Individual'
+                                                        ]
+                                        );
+
+            $_html  = view($CCEmodule . '::modals/CCElistXREFs', [
+                                                        'tree'       => $tree,
+                                                        'title'      => $title,
+                                                        'cAroute'    => $route_CCElistINDI,
+                                                        ]
+                                        );
+        }
+        return response($_html);
+    }
+
+    /**
+     * save the cart-xrefs to session
+     *
+     * @param ServerRequestInterface $request
+     *
+     * @return ResponseInterface
+     */
+    private function doCCElistXREFs(ServerRequestInterface $request) {
+        $tree = Validator::attributes($request)->tree();
+
+
+        $type = Validator::queryParams($request)->string('type');
+
+        // the XREFs
+        $xrefs = Validator::parsedBody($request)->string('xrefs', '');
+
+        if ( $type == 'Individual') {
+            Session::put('CCE_LISTrecsINDI', $xrefs);
+        }
+
+        $CCEmodule      = Session::get('CCEclassName');
+        $_html  = view($CCEmodule . '::icons/dummy', data: []);
+
+        $_response = [
+            'value'  => '_',
+            'text'   => '_',
+            'html'   => $_html,
+        ];
+        return response($_response);
     }
 
     /**
@@ -279,7 +415,7 @@ use SplTempFileObject;
         $_html = $this->SaveCart_CCE($tree, $fnameCA);
 
         $_response = [
-            'value' => '_',
+            'value' => 'DO_HTML',
             'text'  => '_',
             'html'  => $_html,
         ];
@@ -496,7 +632,7 @@ use SplTempFileObject;
         ]);
 
         $_response = [
-            'value' => '_',
+            'value' => 'DO_HTML',
             'text'  => '_',
             'html'  => $_html,
         ];
@@ -543,7 +679,7 @@ use SplTempFileObject;
         $_response = [
             'value' => '_',
             'text'  => '_',
-            'html'  => '',
+            'html'  => '_',
             'csv'  => $_csv
         ];
         return $_response;
@@ -654,7 +790,7 @@ use SplTempFileObject;
         ]);
 
         $_response = [
-            'value' => '_',
+            'value' => 'DO_HTML',
             'text'  => '_',
             'html'  => $_html,
         ];
@@ -1176,7 +1312,6 @@ use SplTempFileObject;
         return $this->count_CartTreeXrefsReport($tree, $xrefsCold);
     }
 
-
     /**
      * Fetch a list of individuals with specified names - called by chart-modules
      *
@@ -1227,6 +1362,193 @@ use SplTempFileObject;
         }
 
         $this->all_RecTypes = $all_RT;
+
+        return $this->count_CartTreeXrefsReport($tree, $xrefsCold);
+    }
+
+    /**
+     * Fetch a list of individuals with specified names - called by hh_ExtendedFamily
+     *
+     *
+     * @param ServerRequestInterface $request
+     * 
+     * @return ResponseInterface     back to calling module
+     */
+    public function clip_hhEF(ServerRequestInterface $request): ResponseInterface
+    {
+        $tree           = Validator::attributes($request)->tree();
+
+        $xref           = Validator::queryParams($request)->string('xref');
+
+        $part           = Validator::queryParams($request)->string('part');
+
+        $called_by      = Session::pull('hhEF-act-route');
+        $url            = Validator::attributes($request)->string('base_url');
+        $redUri         = $url . $called_by;
+        // $server         = $_SERVER['SERVER_NAME'];
+        // $request_scheme = $_SERVER['REQUEST_SCHEME'];
+        // $redUri         = $request_scheme . '://' . $server . $called_by;
+
+        $xrefsCold      = $this->count_CartTreeXrefs($tree);                // Count of xrefs actual in stock
+
+        $this->add_hhEFtoCart($tree, $xref, $part);
+
+        $Cinfo          = json_decode($this->count_CartTreeXrefsReport($tree, $xrefsCold));
+        $Cinfo_message  = $Cinfo[2] . ' <---> ' . $Cinfo[3];
+        $Cinfo_message  = I18N::translate('Clippings cart') . ' : ' . $Cinfo_message;
+        FlashMessages::addMessage($Cinfo_message);
+
+        return redirect($redUri);
+
+
+    }
+
+    /**
+     * Fetch a list of individuals with specified names - called by Vesta Extended Relationships
+     *
+     *
+     * @param ServerRequestInterface $request
+     * 
+     * @return string           number of records in cart
+     */
+    public function clip_vER(ServerRequestInterface $request): string
+    {
+        $tree       = Validator::attributes($request)->tree();
+
+        $action_key = Validator::queryParams($request)->string('action-key');
+        // with parents?
+        $boolWp     = str_ends_with($action_key, 'wp');
+        // with spouses?
+        $boolWs     = str_ends_with($action_key, 'ws');
+        // with children?
+        $boolWc     = str_ends_with($action_key, 'wc');
+        // with all relations?
+        $boolWa     = str_ends_with($action_key, 'wa');
+
+        $xref       = Validator::queryParams($request)->string('xref', null);
+        $xref2      = Validator::queryParams($request)->string('xref2', null);
+        $ancestors  = Validator::queryParams($request)->string('ancestors', '5');
+        $recursion  = Validator::queryParams($request)->string('recursion', '99');
+
+        // // the XREFs
+        // $xrefs = Validator::queryParams($request)->string('xrefs', '');
+        $xrefsCold = $this->count_CartTreeXrefs($tree);                // Count of xrefs actual in stock
+        // if ($xrefs == '')
+        //     return (string) $xrefsCold;
+
+        // $XREFs = explode(';', $xrefs);
+
+        // $individuals = $this->make_GedcomRecords($tree, $XREFs);
+
+        // $caKey = 'INDI-vERs';
+        // $caKey = $this->put_CartActs($tree, $caKey, $XREFindi);
+        // $_dname = 'wtVIZ-DATA~' . $caKey;
+        // $this->putVIZdname($_dname);
+
+        // foreach($individuals  as $individual) {
+        //     $this->addIndividualToCart($individual);
+        // }
+
+        // if ($boolWp) {
+        //     foreach($individuals  as $individual) {
+        //         $this->toCartParents($individual);
+        //     }
+        // }
+        // if ($boolWs) {
+        //     foreach($individuals  as $individual) {
+        //         foreach ($individual->spouseFamilies() as $family) {
+        //             $this->addFamilyToCart($family);
+        //         }
+        //     }
+        // }
+        // if ($boolWc) {
+        //     foreach($individuals  as $individual) {
+        //         foreach ($individual->spouseFamilies() as $family) {
+        //             $this->addFamilyAndChildrenToCart($family);
+        //         }
+        //     }
+        // }
+        // if ($boolWa) {
+        //     foreach($individuals  as $individual) {
+        //         $this->toCartParents($individual);
+        //         foreach ($individual->spouseFamilies() as $family) {
+        //             $this->addFamilyAndChildrenToCart($family);
+        //         }
+        //     }
+        // }
+
+        return $this->count_CartTreeXrefsReport($tree, $xrefsCold);
+    }
+
+    /**
+     * Fetch a list of individuals with specified names - called by chart-modules
+     *
+     *
+     * @param ServerRequestInterface $request
+     * 
+     * @return string           number of records in cart
+     */
+    public function clip_relations(ServerRequestInterface $request): string
+    {
+        $tree = Validator::attributes($request)->tree();
+
+        // with parents?
+        $boolWp = (Validator::queryParams($request)->string('boolWp', 'no') == 'yes');
+        // with spouses?
+        $boolWs = (Validator::queryParams($request)->string('boolWs', 'no') == 'yes');
+        // with children?
+        $boolWc = (Validator::queryParams($request)->string('boolWc', 'no') == 'yes');
+        // with all relations?
+        $boolWa = (Validator::queryParams($request)->string('boolWa', 'no') == 'yes');
+
+        $XREFindi   = Validator::queryParams($request)->string('XREFindi', '');
+
+        // the XREFs
+        $xrefs = Validator::queryParams($request)->string('xrefs', '');
+        $xrefsCold = $this->count_CartTreeXrefs($tree);                // Count of xrefs actual in stock
+        if ($xrefs == '')
+            return (string) $xrefsCold;
+
+        $XREFs = explode(';', $xrefs);
+
+        $individuals = $this->make_GedcomRecords($tree, $XREFs);
+
+        $caKey = 'INDI-vERs';
+        $caKey = $this->put_CartActs($tree, $caKey, $XREFindi);
+        $_dname = 'wtVIZ-DATA~' . $caKey;
+        $this->putVIZdname($_dname);
+
+        foreach($individuals  as $individual) {
+            $this->addIndividualToCart($individual);
+        }
+
+        if ($boolWp) {
+            foreach($individuals  as $individual) {
+                $this->toCartParents($individual);
+            }
+        }
+        if ($boolWs) {
+            foreach($individuals  as $individual) {
+                foreach ($individual->spouseFamilies() as $family) {
+                    $this->addFamilyToCart($family);
+                }
+            }
+        }
+        if ($boolWc) {
+            foreach($individuals  as $individual) {
+                foreach ($individual->spouseFamilies() as $family) {
+                    $this->addFamilyAndChildrenToCart($family);
+                }
+            }
+        }
+        if ($boolWa) {
+            foreach($individuals  as $individual) {
+                $this->toCartParents($individual);
+                foreach ($individual->spouseFamilies() as $family) {
+                    $this->addFamilyAndChildrenToCart($family);
+                }
+            }
+        }
 
         return $this->count_CartTreeXrefsReport($tree, $xrefsCold);
     }

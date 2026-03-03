@@ -5,7 +5,7 @@
  *
  */
 
-function CCEprepEvents(mElem, _dtNNjq, _wt_table_id) {
+function CCEprepListEvents(mElem, _dtNNjq, _wt_table_id) {
     // 'listType' => $listType, 'clipAction' => $clipAction, 'action-key' => $action_key,
     // 'dt_id' => $dt_id, 'dt_grep' => $dt_grep]);
     let boolWp = "";

@@ -1,0 +1,37 @@
+<?php
+
+/**
+ * webtrees - clippings cart enhanced
+ *
+ * Copyright (C) 2026 huhwt. All rights reserved.
+ *
+ */
+
+declare(strict_types=1);
+
+namespace HuHwt\WebtreesMods\ClippingsCartEnhanced;
+
+use Fisharebest\Webtrees\I18N;
+use Fisharebest\Webtrees\Tree;
+
+use HuHwt\WebtreesMods\ClippingsCartEnhanced\ClippingsCartEnhancedModule;
+
+/**
+ * @var Tree    $tree
+ * @var string  $title
+ * @var string  $cAroute
+ * @var array<string,array>  $optionsCCE
+ */
+
+    $classList  = "'.modal-footer > .btn.btn-secondary'";
+?>
+
+<form method="get" action="<?= $cAroute ?>" target="_blank">
+    <div class="modal-header">
+        <h3 class="modal-title" id="wt-ajax-modal-title">
+            <?= $title ?>
+        </h3>
+    </div>
+    <?= view('modals/footer-submit-cancelCCE', [ 'classList' => $classList ]) ?>
+    <?= csrf_field() ?>
+</form>

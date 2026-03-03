@@ -48,6 +48,10 @@ use HuHwt\WebtreesMods\ClippingsCartEnhanced\PartnerChainsGlobal;
 
 use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CC_addActionsConsts;
 
+use HuHwt\WebtreesMods\ClippingsCartEnhanced\Module\VestaERadapter;
+
+use Throwable;
+
 /**
  * Trait CCEaddActions - bundling all add-Actions related to enhanced clipping
  */
@@ -118,8 +122,8 @@ trait CCEaddActions
             'record'        => $family,
             'title'         => $title,
             'tree'          => $tree,
-            'stylesheet'    => $this->assetUrl('css/cce.css'),
-            'javascript'    => $this->assetUrl('js/cce.js'),
+            'stylesheet'    => $this->assetUrl('css/CCE.css'),
+            'javascript'    => $this->assetUrl('js/CCE.js'),
         ]);
     }
 
@@ -260,8 +264,8 @@ trait CCEaddActions
             'generations' => $generations,
             'title'       => $title,
             'tree'        => $tree,
-            'stylesheet'    => $this->assetUrl('css/cce.css'),
-            'javascript'    => $this->assetUrl('js/cce.js'),
+            'stylesheet'    => $this->assetUrl('css/CCE.css'),
+            'javascript'    => $this->assetUrl('js/CCE.js'),
     ]);
     }
     /**
@@ -378,8 +382,8 @@ trait CCEaddActions
             'record'        => $note,
             'title'         => $title,
             'tree'          => $tree,
-            'stylesheet'    => $this->assetUrl('css/cce.css'),
-            'javascript'    => $this->assetUrl('js/cce.js'),
+            'stylesheet'    => $this->assetUrl('css/CCE.css'),
+            'javascript'    => $this->assetUrl('js/CCE.js'),
         ]);
     }
 
@@ -490,6 +494,110 @@ trait CCEaddActions
         }
 
         return redirect($source->url());
+    }
+
+    /**
+     *
+     * @param ServerRequestInterface $request
+     *
+     * @return ResponseInterface
+     */
+    public function getAddExtendedRelationshipAction(ServerRequestInterface $request): ResponseInterface
+    {
+        $tree = Validator::attributes($request)->tree();
+
+        $xref       = Validator::queryParams($request)->isXref()->string('xref');
+        $xref2      = Validator::queryParams($request)->isXref()->string('xref2');
+        $ancestors  = Validator::queryParams($request)->integer('ancestors');
+        $recursion  = Validator::queryParams($request)->string('recursion');
+
+        $individual = Registry::individualFactory()->make($xref, $tree);
+        $individual = Auth::checkIndividualAccess($individual);
+        $individual2= Registry::individualFactory()->make($xref2, $tree);
+        $individual2= Auth::checkIndividualAccess($individual2);
+
+        $vERdata   = [];
+        $ER_struct = [];
+        $do_vER = false;
+        $vestaERadapter = $this->vERadapter;
+        $vERdata = $vestaERadapter->make_path($individual, $individual2, $ancestors);
+        $do_vER = is_array($vERdata) && count($vERdata) > 0;
+        if ($do_vER) {
+            $ER_struct = $vestaERadapter->update_vERstruct($tree);
+        } else {
+            $parameters = [
+                'ancestors' => $ancestors,
+                'recursion' => $recursion,
+                'tree'      => $tree->name(),
+                'xref'      => $xref,
+                'xref2'     => $xref2,
+            ];
+            $ERclass        = 'Cissee\Webtrees\Module\ExtendedRelationships\ExtendedRelationshipModule';
+            return redirect(route($ERclass, $parameters));
+        }
+
+        Session::put('CCEvERdata-path', $vERdata['path']);
+        Session::put('CCEvERdata-struct', $vERdata['vERstruct']);
+        Session::put('CCE_ERstruct', $ER_struct['parts']);
+
+        $options    = [
+            'INDI_vERswr'   => I18N::translate('add individuals with direct relations to the clippings cart'),
+            'INDI_vERs'     => I18N::translate('add individuals to the clippings cart'),
+            'INDI_vERswp'   => I18N::translate('add individuals with parents to the clippings cart'),
+            'INDI_vERsws'   => I18N::translate('add individuals and spouses to the clippings cart'),
+            'INDI_vERswc'   => I18N::translate('add individuals and children to the clippings cart'),
+            'INDI_vERswa'   => I18N::translate('add individuals and all relations to the clippings cart'),
+        ];
+        $title = I18N::translate('Add relationships between %1$s and %2$s to the clippings cart', $individual->fullName(), $individual2->fullName());
+
+        return $this->viewResponse($this->name() . '::' . 'add-optionsER', [
+            'options'       => $options,
+            'xref'          => $xref,
+            'xref2'         => $xref2,
+            'ancestors'     => $ancestors,
+            'recursion'     => $recursion,
+            'title'         => $title,
+            'tree'          => $tree,
+            'vERdata'       => $vERdata,
+            'ER_struct'     => $ER_struct,
+        ]);
+    }
+
+    /**
+     *
+     * @param ServerRequestInterface $request
+     *
+     * @return ResponseInterface
+     */
+    public function postAddExtendedRelationshipAction(ServerRequestInterface $request): ResponseInterface
+    {
+        $tree = Validator::attributes($request)->tree();
+
+        $xref           = Validator::parsedBody($request)->string('xref');
+        $xref2          = Validator::parsedBody($request)->string('xref2');
+        $ancestors      = Validator::parsedBody($request)->integer('ancestors');
+        $recursion      = Validator::parsedBody($request)->integer('recursion');
+        $option         = Validator::parsedBody($request)->string('option');
+        $cce_button     = Validator::parsedBody($request)->string('cce_button');
+
+        if ($cce_button == 'continue') {
+            if ($option == 'INDI_vERswr') {
+                $this->addERtoCart_vERpath($tree, $xref, $xref2, $ancestors, $option);
+            } else {
+                $this->addERtoCart_ERstruct($tree, $xref, $xref2, $ancestors, $option);
+            }
+        }
+
+        $parameters = [
+            'ancestors' => $ancestors,
+            'recursion' => $recursion,
+            'tree'      => $tree->name(),
+            'xref'      => $xref,
+            'xref2'     => $xref2,
+        ];
+
+        $ERclass        = 'Cissee\Webtrees\Module\ExtendedRelationships\ExtendedRelationshipModule';
+        return redirect(route($ERclass, $parameters));
     }
 
 #endregion
@@ -895,6 +1003,142 @@ trait CCEaddActions
         $this->addSubmitterLinksToCart($family);
     }
 
+    public function add_hhEFtoCart(Tree $tree, string $xref, string $part): void
+    {
+        $individual         = Registry::gedcomRecordFactory()->make($xref, $tree);
+
+        $extendedFamily     = $this->hhEFadapter->make_efObject($individual);
+        // $EFobj_ar           = $this->hhEFadapter->serializer($extendedFamily);
+        // $eF_serial          = json_encode($EFobj_ar);
+        // $fileName           = 'hhEFstruct-' . $xref . '.txt';
+        // $this->write_dump( $eF_serial, $fileName, $this->dump_dir);
+
+        $opt_info   = $xref . '-' . $part;
+        $this->put_CartActs($tree, 'INDI_hhEF', $opt_info);
+
+        $this->addIndividualToCart($individual);
+
+        $EFpart             = $extendedFamily->filters[$part]->efp;
+        if ($EFpart->summary->allCount > 0) {
+            foreach ($EFpart as $propName => $propValue) {
+                if ($propName !== 'summary') {
+                    if ($EFpart->$propName->allCount) {
+                        foreach ($EFpart->$propName->groups as $_group)  {
+                            foreach ($_group->members as $indi)  {
+                                if ($indi->canShow()) {
+                                    $this->addIndividualToCart($indi);
+                                }
+                            }
+                            $has_families  = true;
+                            try {
+                                foreach ($_group->families as $family)  {
+                                    if ($family->canShow()) {
+                                        $this->addFamilyToCart_noSpouses($family);
+                                    }
+                                }
+                            } catch (Throwable $th) {
+                                $has_families  = false;
+                            }
+                            if (!$has_families) {
+                                try {
+                                    if ($_group->family->canShow()) {
+                                        $this->addFamilyToCart_noSpouses($_group->family);
+                                    }
+                                } catch (Throwable $th) {
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public function addERtoCart_ERstruct(Tree $tree, string $xref, string $xref2, int $find, string $option): void
+    {
+        $opt_info   = $xref . '-' . $xref2 . '-' . $find;
+
+        $ER_struct  = Session::get('CCE_ERstruct');
+        // $ER_struct  = json_decode($_ER_struct);
+
+        foreach ($ER_struct as $n_s => $part) {
+        // 1 = "INDI:I64 - FAMs:F27 - FAMc:F28"
+            foreach ($part as $n_p => $line) {
+                if (str_contains($line, '-')) {
+                    $xrefs  = explode(' - ', $line);
+                    $xrefI  = str_replace('INDI:', '', $xrefs[0]);
+                    $individual  = Registry::individualFactory()->make($xrefI, $tree);
+                    $xrefFs = str_replace('FAMs:', '', $xrefs[1]);
+                    $xrefFc = str_replace('FAMc:', '', $xrefs[2]);
+                    switch ($option) {
+                        case 'INDI_vERs':
+                            $this->put_CartActs($tree, 'INDI_vERs', $opt_info);
+                            $this->addIndividualToCart($individual);
+                            break;
+
+                        case 'INDI_vERswp':
+                            $this->put_CartActs($tree, 'INDI_vERswp', $opt_info);
+                            $this->addAncestorsToCart($individual, 2);
+                            break;
+
+                        case 'INDI_vERsws':
+                            $this->put_CartActs($tree, 'INDI_vERsws', $opt_info);
+                            foreach ($individual->spouseFamilies() as $family) {
+                                $xrefF  = $family->xref();
+                                if ($xrefF == $xrefFs)
+                                    $this->addFamilyToCart($family);
+                            }
+                            break;
+                        case 'INDI_vERswc':
+                            $this->put_CartActs($tree, 'INDI_vERswc', $opt_info);
+                            foreach ($individual->spouseFamilies() as $family) {
+                                $xrefF  = $family->xref();
+                                if ($xrefF == $xrefFs)
+                                    $this->addFamilyAndChildrenToCart($family);
+                            }
+                            break;
+                        case 'INDI_vERswa':
+                            $this->put_CartActs($tree, 'INDI_vERswa', $opt_info);
+                            $this->addAncestorsToCart($individual, 2);
+                            foreach ($individual->spouseFamilies() as $family) {
+                                $xrefF  = $family->xref();
+                                if ($xrefF == $xrefFs)
+                                    $this->addFamilyAndChildrenToCart($family);
+                            }
+                            break;
+                    }
+                }
+            }
+        }
+
+    }
+
+    public function addERtoCart_vERpath(Tree $tree, string $xref, string $xref2, int $find, string $option): void
+    {
+        $opt_info   = $xref . '-' . $xref2 . '-' . $find;
+
+        // $ER_struct  = Session::get('CCE_ERstruct');
+        $vERpath    = Session::get('CCEvERdata-path');
+        // $ER_struct  = json_decode($_ER_struct);
+
+        $this->put_CartActs($tree, 'INDI_vERswr', $opt_info);
+
+        foreach ($vERpath as $n_s => $xref) {
+        // I68 | F29 | I66 | F28 | I64 | F27 | I3 | F1 | I1 | F2 ...
+        // down | INDI:I68 - FAMs:F29 - FAMc:___ | INDI:I66 - FAMs:F28 - FAMc:___ | INDI:I64 - FAMs:F27 - FAMc:___
+        // up | INDI:I3 - FAMs:___ - FAMc:F1 | INDI:I1 - FAMs:___ - FAMc:F2 | ...
+            $record = Registry::gedcomRecordFactory()->make($xref, $tree);
+            if ($record instanceof Individual) {
+                $individual  = Registry::individualFactory()->make($xref, $tree);
+                $this->addIndividualToCart($individual, false);
+            } else {
+                $family = Registry::familyFactory()->make($xref, $tree);
+                $this->addFamilyToCart($family, false);
+            }
+        }
+
+    }
+
 #endregion
 
 
@@ -907,7 +1151,7 @@ trait CCEaddActions
     /**
      * @param Family $family
      */
-    public function addFamilyToCart(Family $family): void
+    public function addFamilyToCart(Family $family, bool $do_media = true): void
     {
         // if ($addAct) 
             // $this-put_CartActs($family->tree(),"ADD_FAM~",  $family->xref());
@@ -917,7 +1161,8 @@ trait CCEaddActions
         }
         $this->addFamilyWithoutSpousesToCart($family);
 
-        $this->addMediaLinksToCart($family);
+        if ($do_media)
+            $this->addMediaLinksToCart($family);
 
         if ( $this->all_RecTypes) {                                // EW.H mod ...
             $this->addFamilyOtherRecordsToCart($family);
@@ -940,6 +1185,26 @@ trait CCEaddActions
         $this->addFamilyWithoutSpousesToCart($family);
 
         $this->addMediaLinksToCart($family);
+
+        if ( $this->all_RecTypes) {                                // EW.H mod ...
+            $this->addFamilyOtherRecordsToCart($family);
+        }
+    }
+    /**
+     * @param Family $family
+     */
+    public function addFamilyToCart_noSpouses(Family $family, bool $do_media = true): void
+    {
+        // // if ($addAct) 
+        //     // $this-put_CartActs($family->tree(),"ADD_FAM~",  $family->xref());
+
+        // foreach ($family->spouses() as $spouse) {
+        //     $this->addIndividualToCart($spouse);
+        // }
+        $this->addFamilyWithoutSpousesToCart($family);
+
+        if ($do_media)
+            $this->addMediaLinksToCart($family);
 
         if ( $this->all_RecTypes) {                                // EW.H mod ...
             $this->addFamilyOtherRecordsToCart($family);

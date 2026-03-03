@@ -16,12 +16,14 @@ namespace HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits;
 
 use Fisharebest\Webtrees\Gedcom;
 use Fisharebest\Webtrees\GedcomRecord;
+use Fisharebest\Webtrees\Individual;
 use Fisharebest\Webtrees\I18N;
 use Fisharebest\Webtrees\Note;
 use Fisharebest\Webtrees\Registry;
 use Fisharebest\Webtrees\Session;
 use Fisharebest\Webtrees\Tree;
 use Illuminate\Support\Collection;
+use Illuminate\Database\Query\JoinClause;
 use Illuminate\Database\Capsule\Manager as DB;
 
 /**
@@ -49,6 +51,43 @@ trait CCEdatabaseActions
             ->filter(GedcomRecord::accessFilter());
 
         return $query;
+    }
+
+    public function get_CCElistINDIdb(Tree $tree, array $xrefsI, string $galpha = '' ): Collection
+    {
+        $query = DB::table('individuals')
+            ->join('name', static function (JoinClause $join): void {
+                $join
+                    ->on('n_id', '=', 'i_id')
+                    ->on('n_file', '=', 'i_file');
+            })
+            ->where('i_file', '=', $tree->id())
+            ->select(['i_id AS xref', 'i_gedcom AS gedcom', 'n_givn', 'n_surn']);
+
+        $query->whereIn('i_id', $xrefsI);
+
+        $individuals = new Collection();
+
+        foreach ($query->get() as $row) {
+            $individual = Registry::individualFactory()->make($row->xref, $tree, $row->gedcom);
+            assert($individual instanceof Individual);
+
+            // The name from the database may be private - check the filtered list...
+            foreach ($individual->getAllNames() as $n => $name) {
+                if ($name['givn'] === $row->n_givn && $name['surn'] === $row->n_surn) {
+                    if ($galpha === '' || I18N::language()->initialLetter(I18N::language()->normalize(I18N::strtoupper($row->n_givn))) === $galpha) {
+                        $individual->setPrimaryName($n);
+                        // We need to clone $individual, as we may have multiple references to the
+                        // same individual in this list, and the "primary name" would otherwise
+                        // be shared amongst all of them.
+                        $individuals->push(clone $individual);
+                        break;
+                    }
+                }
+            }
+        }
+
+        return $individuals;
     }
 
     /**
@@ -125,6 +164,49 @@ trait CCEdatabaseActions
         ], [
             'setting_value' => $setting_value,
         ]);
+    }
+
+    /**
+     * Get a count of individuals with each initial letter
+     * 
+     *      derived from AbstractIndividualListModule->givenNameInitials()
+     *
+     * @param Collection    $individuals
+     *
+     * @return array<int>
+     */
+    protected function surnameInitials(Collection $individuals): array
+    {
+        $initials = [];
+
+        // Ensure our own language comes before others.
+        foreach (I18N::language()->alphabet() as $initial) {
+            $initials[$initial] = 0;
+        }
+
+        foreach ($individuals as $individual) {
+            $initial = I18N::language()->initialLetter(I18N::language()->normalize(I18N::strtoupper($individual->sortname())));
+
+            $initials[$initial] ??= 0;
+            $initials[$initial] += 1;
+        }
+
+        // Move specials to the end
+        $count_none = $initials[''] ?? 0;
+
+        if ($count_none > 0) {
+            unset($initials['']);
+            $initials[','] = $count_none;
+        }
+
+        $count_unknown = $initials['@'] ?? 0;
+
+        if ($count_unknown > 0) {
+            unset($initials['@']);
+            $initials['@'] = $count_unknown;
+        }
+
+        return $initials;
     }
 
 }

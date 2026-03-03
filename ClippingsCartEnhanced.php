@@ -61,6 +61,9 @@ use Aura\Router\Map;
 use Aura\Router\Route;
 use Aura\Router\RouterContainer;
 use Fisharebest\Webtrees\Auth;
+use Fisharebest\Webtrees\Contracts\UserInterface;
+use Fisharebest\Webtrees\Http\Exceptions\HttpAccessDeniedException;
+
 use Fisharebest\Webtrees\Family;
 use Fisharebest\Webtrees\Gedcom;
 use Fisharebest\Webtrees\GedcomRecord;
@@ -124,12 +127,12 @@ use Fisharebest\Webtrees\Module\ModuleConfigTrait;
 use Fisharebest\Webtrees\Module\ModuleMenuInterface;
 use Fisharebest\Webtrees\View;
 
-use Fisharebest\Webtrees\Module\ModuleInterface;
-use Fisharebest\Webtrees\Module\ModuleListInterface;
+use Cissee\Webtrees\Module\ExtendedRelationships\ExtendedRelationshipModule;
 
 use HuHwt\WebtreesMods\ClippingsCartEnhanced\CCEexportService;
-use HuHwt\WebtreesMods\ClippingsCartEnhanced\ListProcessor;
 use HuHwt\WebtreesMods\ClippingsCartEnhanced\ClippingsCartEnhancedModule;
+use HuHwt\WebtreesMods\ClippingsCartEnhanced\Module\VestaERadapter;
+use HuHwt\WebtreesMods\ClippingsCartEnhanced\Module\hhEFadapter;
 
 use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCEmodulesTrait;
 use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCEconfigTrait;
@@ -140,6 +143,7 @@ use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCEdatabaseActions;
 use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCEtagsActions;
 use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCEvizActions;
 use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCEcustomModuleConnect;
+use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCErecordActions;
 
 use HuHwt\WebtreesMods\TaggingServiceManager\TaggingServiceManager;
 use HuHwt\WebtreesMods\TaggingServiceManager\TaggingServiceManagerAdapter;
@@ -149,6 +153,7 @@ use HuHwt\WebtreesMods\TaggingServiceManager\TaggingServiceManagerAdapter;
 // control functions
 use stdClass;
 use Exception;
+
 use function array_filter;
 use function array_keys;
 use function array_map;
@@ -193,10 +198,7 @@ class ClippingsCartEnhanced extends ClippingsCartModule
         CCEmodulesTrait::customModuleLatestVersionUrl insteadof ModuleCustomTrait;
         CCEmodulesTrait::customModuleVersion insteadof ModuleCustomTrait;
         CCEmodulesTrait::customModuleSupportUrl insteadof ModuleCustomTrait;
-        CCEmodulesTrait::title insteadof ModuleCustomTrait;
-        CCEmodulesTrait::menuTitle insteadof ModuleCustomTrait;
-
-        CCEmodulesTrait::resourcesFolder insteadof ModuleCustomTrait;
+        // CCEmodulesTrait::resourcesFolder insteadof ModuleCustomTrait::resourcesFolder;
     }
     /** All constants and functions related to default ClippingsCartModule  */
     use CC_addActions;
@@ -207,7 +209,9 @@ class ClippingsCartEnhanced extends ClippingsCartModule
     }
     /** All constants and functions related to handling the Cart  */
     use CCEcartActions;
-
+    /** Record related functions  */
+    use CCErecordActions;
+    /** bundling all actions regarding DB::table */
     use CCEdatabaseActions;
     /** All constants and functions related to handling the Tags  */
     use CCEtagsActions;
@@ -231,12 +235,18 @@ class ClippingsCartEnhanced extends ClippingsCartModule
         $_name   = $this->name();
 
         $html_CSS = view("{$_name}::style", [
+            'path' => $this->assetUrl('css/CCE.css'),
+        ]);
+        $html_CSSta = view("{$_name}::style", [
             'path' => $this->assetUrl('css/CCEtable-actions.css'),
         ]);
-        $html_JSx = view("{$_name}::script", [
+        $html_JSta = view("{$_name}::script", [
             'path' => $this->assetUrl('js/CCEtable-actions.js'),
         ]);
-        $html_ = $html_CSS . " " . $html_JSx;
+        $html_JSca = view("{$_name}::script", [
+            'path' => $this->assetUrl('js/CCEchart-actions.js'),
+        ]);
+        $html_ = $html_CSS . " " . $html_CSSta . " " . $html_JSta . " " . $html_JSca;
 
         return $html_;
     }
@@ -291,7 +301,7 @@ class ClippingsCartEnhanced extends ClippingsCartModule
     ];
 
     // What are the options to delete records in the clippings cart?
-    private const EMPTY_FORCE   = 'Deleta all records';
+    private const EMPTY_FORCE   = 'Delete all records';
     private const EMPTY_ALL     = 'all records';
     private const EMPTY_SET     = 'set of records by type';
     private const EMPTY_CREATED = 'records created by action';
@@ -313,6 +323,7 @@ class ClippingsCartEnhanced extends ClippingsCartModule
         'Search-General'        => SearchGeneralPage::class,
         'SearchGeneralPage'     => SearchGeneralPage::class,
         'Search-Advanced'       => SearchAdvancedPage::class,
+        'ExtendedRelationship'  => ExtendedRelationshipModule::class,
     ];
 
     // Modules with lists: which DataTable to grep  - what kind of list
@@ -347,11 +358,15 @@ class ClippingsCartEnhanced extends ClippingsCartModule
                 // '3'  => [ 'action-type' => 'NOTE', 'action-pref' => 'SEARCH_G-', 'grep-id' => 'dt3jq' ]
                 ],
         'SearchGeneralPage'    => [
-            'IL' => [ 'action-type' => 'INDI-LIST', 'action-pref' => 'SEARCH_G-', 'grep-id' => 'dtILjq'
-                    , 'view' => 'individuals-table', 'table' => '.wt-table-individual' ],
-            'FL' => [ 'action-type' => 'FAM-LIST', 'action-pref' => 'SEARCH_G-', 'grep-id' => 'dtFLjq' 
-                    , 'view' => 'families-table', 'table' => '.wt-table-family' ],
-            ],
+                'IL' => [ 'action-type' => 'INDI-LIST', 'action-pref' => 'SEARCH_G-', 'grep-id' => 'dtILjq'
+                        , 'view' => 'individuals-table', 'table' => '.wt-table-individual' ],
+                'FL' => [ 'action-type' => 'FAM-LIST', 'action-pref' => 'SEARCH_G-', 'grep-id' => 'dtFLjq' 
+                        , 'view' => 'families-table', 'table' => '.wt-table-family' ],
+                ],
+        'ExtendedRelationship' => [
+                'ER' => [ 'action-type' => 'INDI-vERs', 'action-pref' => '⚶-', 'grep-id' => 'dtILjq'
+                        , 'view' => 'vesta-relationships', 'chart' => '.wt-relationship-chart' ]
+                ]
         ];
 
     // 
@@ -363,6 +378,14 @@ class ClippingsCartEnhanced extends ClippingsCartModule
         ],
         'INDI-LIST'           => [
                 '0'  => [ 'listType' => 'individual', 'clipAction' => 'clipIndividuals'],
+                '1'  => [ 'action-suff' => '', 'action-text' => 'add individuals to the clippings cart'],
+                '2'  => [ 'action-suff' => 'wp', 'action-text' => 'add individuals with parents to the clippings cart'],
+                '3'  => [ 'action-suff' => 'ws', 'action-text' => 'add individuals and spouses to the clippings cart'],
+                '4'  => [ 'action-suff' => 'wc', 'action-text' => 'add individuals and children to the clippings cart'],
+                '5'  => [ 'action-suff' => 'wa', 'action-text' => 'add individuals and all relations to the clippings cart'],
+        ],
+        'INDI-vERs'           => [
+                '0'  => [ 'listType' => 'individual', 'clipAction' => 'clip_vER'],
                 '1'  => [ 'action-suff' => '', 'action-text' => 'add individuals to the clippings cart'],
                 '2'  => [ 'action-suff' => 'wp', 'action-text' => 'add individuals with parents to the clippings cart'],
                 '3'  => [ 'action-suff' => 'ws', 'action-text' => 'add individuals and spouses to the clippings cart'],
@@ -425,6 +448,7 @@ class ClippingsCartEnhanced extends ClippingsCartModule
      */
     private const DO_DUMP_Ritems   = true;
 
+    private string $dump_dir = __DIR__ . DIRECTORY_SEPARATOR . '_doku';
     /**
      * Store the cart
      */
@@ -508,6 +532,18 @@ class ClippingsCartEnhanced extends ClippingsCartModule
      */
     private array $recordTypes;
 
+    /**
+     * executing ExtendedRelationships ...
+     * @var VestaERadapter $vERadapter
+     */
+    private VestaERadapter $vERadapter;
+
+    /**
+     * executing hh_ExtendedFamily ...
+     * @var VestaERadapter $hhEFadapter
+     */
+    private hhEFadapter    $hhEFadapter;
+
     /** 
      * ClippingsCartModule constructor.
      *
@@ -534,12 +570,15 @@ class ClippingsCartEnhanced extends ClippingsCartModule
         $this->levelDescendant      = PHP_INT_MAX;
         $this->exportFilenameDOWNL  = self::FILENAME_DOWNL;
         $this->exportFilenameVIZ    = self::FILENAME_VIZ;
-        $this->huh = '-' . json_decode('"\u210D"') . "&" . json_decode('"\u210D"') . "wt -" ;
+        $this->huh = '-' . json_decode('"\u210D"') . "&" . json_decode('"\u210D"') . "wt- " ;
         $this->huh_short = json_decode('"\u210D"');
         $this->huhwttam_checked     = false;
         $this->huhwtlin_checked     = false;
         $this->all_RecTypes         = true;
         $this->add_sNOTE            = false;
+        $this->vERadapter           = new VestaERadapter();
+        $this->hhEFadapter          = new hhEFadapter();
+
 
         // EW.H mod ... read TAM-Filename from Session, otherwise: Initialize
         if (Session::has('FILENAME_VIZ')) {
@@ -568,6 +607,10 @@ class ClippingsCartEnhanced extends ClippingsCartModule
             mkdir(self::CCEothersdir, 0755);
         }
 
+        if(!is_dir($this->dump_dir)){
+            //Directory does not exist, so lets create it.
+            mkdir($this->dump_dir, 0755);
+        }
     }
 
     /**
@@ -587,15 +630,15 @@ class ClippingsCartEnhanced extends ClippingsCartModule
      *
      * Show:            show records in clippings cart and allow deleting some of them
      *                  as defined in ROUTES_WITH_RECORDS
-     * AddRecord - according to actual class displayed on screen        unless otherwise stated -> CC_addActions.php
+     * AddRecord - according to actual class displayed on screen -> it will be handled in referenced module
      *      AddIndividual:   add individual (this record, parents, children, ancestors, descendants, ...)   -> CCEaddActions.php
      *      AddFamily:       add family record                                                              -> CCEaddActions.php
-     *      AddMedia:        add media record
-     *      AddLocation:     add location record
-     *      AddNote:         add shared note record
-     *      AddRepository:   add repository record
-     *      AddSource:       add source record
-     *      AddSubmitter:    add submitter record
+     *      AddMedia:        add media record                                                               -> CC_addActions.php
+     *      AddLocation:     add location record                                                            -> CC_addActions.php
+     *      AddNote:         add shared note record                                                         -> CC_addActions.php
+     *      AddRepository:   add repository record                                                          -> CC_addActions.php
+     *      AddSource:       add source record                                                              -> CC_addActions.php
+     *      AddSubmitter:    add submitter record                                                           -> CC_addActions.php
      *      FamilyList:      add collected XREFs                                              -> ClippingsCartEnhancedModule.php
      *      IndividualList:  add collected XREFs                                              -> ClippingsCartEnhancedModule.php
      *      Search-Advanced: add collected XREFs                                              -> ClippingsCartEnhancedModule.php
@@ -669,6 +712,7 @@ class ClippingsCartEnhanced extends ClippingsCartModule
             $submenus[] = $this->addMenuEmptyForce($tree);
             $submenus[] = $this->addMenuDeleteRecords($tree);
             $submenus[] = $this->addMenuExecuteAction($tree);
+            $submenus[] = $this->addMenuCCEList($tree);
         }
 
         return new Menu($this->title_short(), '#', 'menu-clippings CCE_Menue', ['rel' => 'nofollow'], $submenus);
@@ -728,7 +772,7 @@ class ClippingsCartEnhanced extends ClippingsCartModule
                     'module'      => $TSMname,
                     'action'      => 'TaggingService',
                     'tree'        => $tree->name(),
-                ]), 'menu-clippings-cart', ['rel' => 'nofollow']);
+                ]), 'menu-clippings-cart', ['rel' => 'nofollow', 'target' => '_blank']);
         } else {
             return null;
         }
@@ -743,21 +787,39 @@ class ClippingsCartEnhanced extends ClippingsCartModule
      */
     private function addMenuAddThisRecord (Tree $tree, Route $route, string $action, array $params): ?Menu    {
         $attributes = $route->attributes;
-        if (array_key_exists('xref', $attributes)) {
-            $xref = $attributes['xref'];
-            assert(is_string($xref));
+        if ($action != 'ExtendedRelationship') {
+            if (array_key_exists('xref', $attributes)) {
+                $xref = $attributes['xref'];
+                assert(is_string($xref));
+
+                return new Menu(I18N::translate('Add this record to the clippings cart'),
+                    route('module', [
+                        'module' => $this->name(),
+                        'action' => 'Add' . $action,
+                        'xref'   => $xref,
+                        'tree'   => $tree->name(),
+                    ]), 'menu-clippings-add', ['rel' => 'nofollow']);
+            } elseif ($params) {
+                return $this->addMenuAddOthers($tree, $route, $action, $params);
+            } else {
+                return null;
+            }
+        } else {
+            $ancestors  = $attributes['ancestors'];
+            $recursion  = $attributes['recursion'];
+            $xref       = $attributes['xref'];
+            $xref2      = $attributes['xref2'];
 
             return new Menu(I18N::translate('Add this record to the clippings cart'),
                 route('module', [
-                    'module' => $this->name(),
-                    'action' => 'Add' . $action,
-                    'xref'   => $xref,
-                    'tree'   => $tree->name(),
+                    'module'    => $this->name(),
+                    'action'    => 'Add' . $action,
+                    'xref'      => $xref,
+                    'xref2'     => $xref2,
+                    'ancestors' => $ancestors,
+                    'recursion' => $recursion,
+                    'tree'      => $tree->name(),
                 ]), 'menu-clippings-add', ['rel' => 'nofollow']);
-        } elseif ($params) {
-            return $this->addMenuAddOthers($tree, $route, $action, $params);
-        } else {
-            return null;
         }
     }
 
@@ -847,19 +909,93 @@ class ClippingsCartEnhanced extends ClippingsCartModule
                     if ($first_opt) {
                         $route_ajax = e(route(ClippingsCartEnhancedModule::class, ['module' => $this->name(), 'tree' => $tree->name()]), false);
                         $_menu = new Menu(I18N::translate($a_text),
-                        '#',
-                        'menu-clippings-add', ['rel' => 'nofollow', 'id' => $menu_opt, 'data-url' => $route_ajax,
-                                               'listType' => $listType, 'clipAction' => $clipAction, 'action-key' => $action_key,
-                                               'dt_id' => $dt_id, 'dt_grep' => $dt_grep]);
+                                          '#',
+                                         'menu-clippings-add',
+                                        ['rel' => 'nofollow', 'id' => $menu_opt, 'data-url' => $route_ajax, 'listType' => $listType, 
+                                                'clipAction' => $clipAction, 'action-key' => $action_key, 'dt_id' => $dt_id, 'dt_grep' => $dt_grep
+                                               ]
+                                          );
                         $first_opt = false;
                     } else {
                         $route_ajax = e(route(ClippingsCartEnhancedModule::class, ['module' => $this->name(), 'tree' => $tree->name()]));
                         $_menu_sm = new Menu(I18N::translate($a_text),
-                            '#',
-                            'menu-clippings-add', ['rel' => 'nofollow', 'id' => $menu_opt, 'data-url' => $route_ajax, 
-                                                   'listType' => $listType, 'clipAction' => $clipAction, 'action-key' => $action_key,
-                                                   'dt_id' => $dt_id, 'dt_grep' => $dt_grep]);
-                            $_menu = $_menu->addSubmenu($_menu_sm);
+                                             '#',
+                                            'menu-clippings-add',
+                                           ['rel' => 'nofollow', 'id' => $menu_opt, 'data-url' => $route_ajax, 'listType' => $listType, 
+                                                   'clipAction' => $clipAction, 'action-key' => $action_key, 'dt_id' => $dt_id, 'dt_grep' => $dt_grep
+                                                  ]
+                                             );
+                        $_menu = $_menu->addSubmenu($_menu_sm);
+    
+                    }
+                }
+            }
+        }
+        return $_menu;
+    }
+
+    private function addMenuAddOthersER(Tree $tree, Route $route, string $action, array $params): ?Menu {
+        $attributes = $route->attributes;
+        $ancestors  = $attributes['ancestors'];
+        $recursion  = $attributes['recursion'];
+        $xref       = $attributes['xref'];
+        $xref2      = $attributes['xref2'];
+
+        $first_opt  = true;
+        $menu_type = self::OTHER_MENUES[$action];
+        // 'ExtendedRelationshipModule'    => [
+        //         'ER' => [ 'action-type' => 'INDI-vERs', 'action-pref' => '⚶-', 'grep-id' => 'dtILjq'
+        //                 , 'view' => 'vesta-relationships', 'chart' => '.wt-relationship-chart' ]
+        foreach( $menu_type as $dt_id => $mparms) {
+            // 'INDI-vERs'           => [
+            //         '0'  => [ 'listType' => 'individual', 'clipAction' => 'clipRelations'],
+            //         '1'  => [ 'action-suff' => '', 'action-text' => 'add individuals to the clippings cart'],
+            //         '2'  => [ 'action-suff' => 'wp', 'action-text' => 'add individuals with parents to the clippings cart'],
+            $a_type     = $mparms['action-type'];
+            $a_pref     = $mparms['action-pref'];
+            // $dt_grep    = $mparms['grep-id'];
+            $listType   = '';
+            $clipAction = '';
+            $_menu      = new Menu('_NIX_');
+            $list_type  = self::OTHER_MENUES_TYPES[$a_type];
+            $CCE_doClass = new ClippingsCartEnhancedModule();
+            foreach($list_type as $lopt => $loparms) {
+                if ($lopt == '0') {
+                    $listType   = $loparms['listType'];
+                    $clipAction = $loparms['clipAction'];
+                } else {
+                    $a_suff = $loparms['action-suff'];
+                    $a_text = $loparms['action-text'];
+                    $action_key = $a_pref . $a_type . $a_suff;
+                    if ($first_opt) {
+                        $_menu = new Menu(I18N::translate($a_text),
+                                        route(ClippingsCartEnhancedModule::class, [
+                                                    // 'module'    => ClippingsCartEnhancedModule::class->name(),
+                                                    'action'    => $clipAction,
+                                                    'xref'      => $xref,
+                                                    'xref2'     => $xref2,
+                                                    'tree'      => $tree->name(),
+                                                    'listType'  => $listType,
+                                                    'action-key'=> $action_key,
+                                                    'ancestors' => $ancestors,
+                                                    'recursion' => $recursion,
+                                        ]), 'menu-clippings-add', ['rel' => 'nofollow']);
+                        $first_opt = false;
+                    } else {
+                        $route_ajax = e(route(ClippingsCartEnhancedModule::class, ['module' => $this->name(), 'tree' => $tree->name()]));
+                        $_menu_sm = new Menu(I18N::translate($a_text),
+                                            route(ClippingsCartEnhancedModule::class, [
+                                                        // 'module'    => ClippingsCartEnhancedModule::class,
+                                                        'action'    => $clipAction,
+                                                        'xref'      => $xref,
+                                                        'xref2'     => $xref2,
+                                                        'tree'      => $tree->name(),
+                                                        'listType'  => $listType,
+                                                        'action-key'=> $action_key, 
+                                                        'ancestors' => $ancestors,
+                                                        'recursion' => $recursion,
+                                            ]), 'menu-clippings-add', ['rel' => 'nofollow']);
+                        $_menu = $_menu->addSubmenu($_menu_sm);
     
                     }
                 }
@@ -924,10 +1060,29 @@ class ClippingsCartEnhanced extends ClippingsCartModule
     {
         return new Menu(I18N::translate('Execute an action on records in the clippings cart'),
             route('module', [
-                'module' => $this->name(),
-                'action' => 'Execute',
-                'tree' => $tree->name(),
-            ]), 'menu-clippings-download', ['rel' => 'nofollow']);
+                'module'    => $this->name(),
+                'action'    => 'Execute',
+                'tree'      => $tree->name(),
+            ]), 'menu-clippings-download', ['rel' => 'nofollow', 'target' => '_blank']);
+
+    }
+
+    /**
+     * @param Tree $tree
+     *
+     * @return Menu
+     */
+    private function addMenuCCElist(Tree $tree): Menu
+    {
+        $Theader_t  = I18N::translate('CCE-Individual');
+        return new Menu('', // I18N::translate('Show %s as list', $Theader_t),
+            route('module', [
+                'module'    => $this->name(),
+                'action'    => 'CCElist',
+                'tree'      => $tree->name(),
+                'type'      => 'Individual', 
+            ]), 'menu-list-indi CCEmenu-list-indi', ['rel' => 'nofollow', 'target' => '_blank', 'id' => 'CCE_menuINDIlist']);
+
     }
 
     /**
@@ -972,8 +1127,8 @@ class ClippingsCartEnhanced extends ClippingsCartModule
             'cArouteAjax'       => $cAroute_ajax,
             'cartXREFs'         => $this->cartXREFs,
             'tree'              => $tree,
-            'stylesheet'        => $this->assetUrl('css/cce.css'),
-            'javascript'        => $this->assetUrl('js/cce.js'),
+            'stylesheet'        => $this->assetUrl('css/CCE_ShowCart.css'),
+            'javascript'        => $this->assetUrl('js/CCE_ShowCart.js'),
         ]);
     }
 
@@ -1008,6 +1163,12 @@ class ClippingsCartEnhanced extends ClippingsCartModule
     {
         $tree = Validator::attributes($request)->tree();
         assert($tree instanceof Tree);
+
+        //accessibility check
+        $user = Validator::attributes($request)->user();
+        if (!$this->test_CCE_($tree, $user)) {
+            throw new HttpAccessDeniedException();
+        }
 
         $options = array();
 
@@ -1119,6 +1280,14 @@ class ClippingsCartEnhanced extends ClippingsCartModule
      */
     public function getExecuteAction(ServerRequestInterface $request): ResponseInterface
     {
+
+        //accessibility check
+        $tree = Validator::attributes($request)->tree();
+        $user = Validator::attributes($request)->user();
+        if (!$this->test_CCE_($tree, $user)) {
+            throw new HttpAccessDeniedException();
+        }
+        
         //dependency check
         if (!$this->huhwttam_checked) {
             $ok = class_exists("HuHwt\WebtreesMods\TAMchart\TAMaction", true);
@@ -1141,9 +1310,6 @@ class ClippingsCartEnhanced extends ClippingsCartModule
             }
             $this->huhwtlin_checked = true;
         }
-
-        $tree = Validator::attributes($request)->tree();
-        $user = Validator::attributes($request)->user();
 
         $wt_core = ' -> ' . I18N::translate('Webtrees standard action');
         $options_arr = array();
@@ -1455,7 +1621,7 @@ class ClippingsCartEnhanced extends ClippingsCartModule
                 $xrefi = $xrefs[$i];
                 $arr_items[$xrefi] = $r_items[$i];
             }
-            $this->dumpArray($arr_items, $exec . 'records');
+            $this->dumpArray($arr_items, $exec . 'records', SELF::VIZdir);
         }
 
         $r_string = implode("\n", $r_items);
@@ -1463,7 +1629,7 @@ class ClippingsCartEnhanced extends ClippingsCartModule
         $arr_string["gedcom"] = $r_string;
 
         // We want to have the gedcom as external file too
-        $this->dumpArray($arr_string,  $exec . 'gedcom');
+        $this->dumpArray($arr_string,  $exec . 'gedcom', SELF::VIZdir);
 
         /**
          *  ... the record objects must be transformed to json
@@ -1790,6 +1956,42 @@ class ClippingsCartEnhanced extends ClippingsCartModule
      *
      * @return ResponseInterface
      */
+    public function getCCElistAction(ServerRequestInterface $request) {
+        $tree           = Validator::attributes($request)->tree();
+
+        $accessLevel    = Auth::PRIV_HIDE;
+
+        $type           = Validator::queryParams($request)->string('type');
+
+        $XREFs          = [];
+        $individuals    = new Collection();
+        $initials       = [];
+
+        if ( $type == 'Individual') {
+            $xrefs = Session::get('CCE_LISTrecsINDI', '');
+            if ($xrefs > '') {
+                $XREFs = explode(';', $xrefs);
+            }
+            $individuals = $this->get_CCElistINDI($tree, $XREFs);
+
+            $initials             = $this->surnameInitials($individuals);
+
+        }
+
+        return $this->viewResponse('lists/CCElistINDI', [
+            'individuals' => $individuals,
+            'initials'    => $initials,
+            'title'       => I18N::translate('List of the Individuals in clippings cart'),
+            'tree'        => $tree,
+       ]);
+    }
+    /**
+     * save the cart-xrefs to file
+     *
+     * @param ServerRequestInterface $request
+     *
+     * @return ResponseInterface
+     */
     private function getCartSave(ServerRequestInterface $request): ResponseInterface
     {
         $tree = Validator::attributes($request)->tree();
@@ -2025,232 +2227,6 @@ class ClippingsCartEnhanced extends ClippingsCartModule
     }
 
     /**
-     * Count the records of each type in the clippings cart.
-     *
-     * @param Tree $tree
-     * @param array $recordTypes
-     *
-     * @return int[]
-     */
-    private function countRecordTypesInCart(Tree $tree, array $recordTypes): array
-    {
-        $records = $this->getRecordsInCart($tree);
-        $recordTypesCount = [];                  // type => count
-        $recordTypesCount['all'] = count($records);
-        foreach ($recordTypes as $key => $class) {
-            foreach ($records as $record) {
-                if ($record instanceof $class) {
-                    if (array_key_exists($key, $recordTypesCount)) {
-                        $recordTypesCount[$key]++;
-                    } else {
-                        $recordTypesCount[$key] = 1;
-                    }
-                }
-            }
-        }
-        return $recordTypesCount;
-    }
-
-    /**
-     * Collect the records of each type in the clippings cart.
-     * The order of the Xrefs in the cart results from the sequence of the calls
-     * during insertion and may be relevant for subsequent actions.
-     * On the other hand, the records must also be separated according to their
-     * origin and put in a defined order in this respect.
-     * For this reason, the records are not output directly, but are inserted
-     * into a structure that is predefined and specifies the sequence.
-     *
-     * @param Tree $tree
-     * @param array $recordTypes
-     *
-     * @return array    // string[] GedcomRecord []
-     */
-    private function collectRecordsInCart(Tree $tree, array $recordTypes): array
-    {
-        $records = $this->getRecordsInCart($tree);
-        $recordKeyTypes = array();                  // type => keys
-        foreach ($recordTypes as $key => $class) {
-            $recordKeyTypeXrefs = [];
-            foreach ($records as $record) {
-                if ($record instanceof $class) {
-                    $recordKeyTypeXrefs[] = $record;
-                }
-            }
-            if ( count($recordKeyTypeXrefs) > 0) {
-                $recordKeyTypes[strval($key) ] = $recordKeyTypeXrefs;
-            }
-        }
-        return $recordKeyTypes;
-    }
-
-    /**
-     * Get the records in the clippings cart. 
-     * There may be use cases where it makes sense to output the records sorted
-     * by their Xrefs, but for our purposes it is rather disadvantageous,
-     * so sorting is optional and disabled by default.
-     *
-     * @param Tree $tree
-     * @param bool $do_sort
-     *
-     * @return array
-     */
-    private function getRecordsInCart(Tree $tree, bool $do_sort=false): array
-    {
-        $xrefs = $this->get_CartXrefs($tree);
-        $records = array_map(static function (string $xref) use ($tree): ?GedcomRecord {
-            return Registry::gedcomRecordFactory()->make($xref, $tree);
-        }, $xrefs);
-
-        // some records may have been deleted after they were added to the cart, remove them
-        $records = array_filter($records);
-
-        if ($do_sort) {
-            // group and sort the records
-            uasort($records, static function (GedcomRecord $x, GedcomRecord $y): int {
-                return $x->tag() <=> $y->tag() ?: GedcomRecord::nameComparator()($x, $y);
-            });
-        }
-
-        return $records;
-    }
-
-    /**
-     * Get the XREF for the record in the clippings cart.
-     *
-     * @param GedcomRecord $record
-     *
-     * @return string 
-     */
-    private function getXref_fromRecord(GedcomRecord $record): string
-    {
-        $xref = $record->xref();
-        return $xref;
-    }
-
-    /**
-     * get GEDCOM records from array with XREFs ready to write them to a file
-     * and export media files to zip file
-     *
-     * @param Tree $tree
-     * @param array $xrefs
-     * @param int $access_level
-     *
-     * @return Collection
-     */
-    private function getRecordsForDownload(Tree $tree, array $xrefs, int $access_level): Collection
-    {
-        $records = new Collection();
-        foreach ($xrefs as $xref) {
-            $object = Registry::gedcomRecordFactory()->make($xref, $tree);
-            // The object may have been deleted since we added it to the cart ...
-            if ($object instanceof GedcomRecord) {
-                $record = $object->privatizeGedcom($access_level);
-                $record = $this->removeLinksToUnusedObjects($record, $xrefs);
-                $records->add($record);
-            }
-        }
-        return $records;
-    }
-
-    /**
-     * remove links to objects that aren't in the cart
-     * - the resulting gedcom shall not contain any references that are not also included in the cart
-     *   so that the gedcom is well formed as a continuum including all referenced informations
-     *
-     * @param string $record
-     * @param array $xrefs
-     *
-     * @return string
-     */
-    private function removeLinksToUnusedObjects(string $record, array $xrefs): string
-    {
-        preg_match_all('/\n1 ' . Gedcom::REGEX_TAG . ' @(' . Gedcom::REGEX_XREF . ')@(\n[2-9].*)*/', $record, $matches, PREG_SET_ORDER);
-        foreach ($matches as $match) {
-            if (!in_array($match[1], $xrefs, true)) {
-                $record = str_replace($match[0], '', $record);
-            }
-        }
-        preg_match_all('/\n2 ' . Gedcom::REGEX_TAG . ' @(' . Gedcom::REGEX_XREF . ')@(\n[3-9].*)*/', $record, $matches, PREG_SET_ORDER);
-        foreach ($matches as $match) {
-            if (!in_array($match[1], $xrefs, true)) {
-                $record = str_replace($match[0], '', $record);
-            }
-        }
-        preg_match_all('/\n3 ' . Gedcom::REGEX_TAG . ' @(' . Gedcom::REGEX_XREF . ')@(\n[4-9].*)*/', $record, $matches, PREG_SET_ORDER);
-        foreach ($matches as $match) {
-            if (!in_array($match[1], $xrefs, true)) {
-                $record = str_replace($match[0], '', $record);
-            }
-        }
-        return $record;
-    }
-
-    /**
-     * get GEDCOM records from array with XREFs ready to export them
-     * to Vizualisation-Modules - we want some references to be kept as 
-     * informations in graphs
-     *
-     * @param Tree $tree
-     * @param array $xrefs
-     * @param array $v_xrefs
-     * @param int $access_level
-     *
-     * @return Collection
-     */
-    private function getRecordsForVizualisation(Tree $tree, array $xrefs, array $v_xrefs, int $access_level): Collection
-    {
-        $records = new Collection();
-        foreach ($xrefs as $xref) {
-            $object = Registry::gedcomRecordFactory()->make($xref, $tree);
-            // The object may have been deleted since we added it to the cart ...
-            if ($object instanceof GedcomRecord) {
-                $record = $object->privatizeGedcom($access_level);
-                $record = $this->removeLinksToUnusedObjectsL23($record, $xrefs, $v_xrefs);
-                $records->add($record);
-            }
-        }
-        return $records;
-    }
-
-    /**
-     * remove links to objects that aren't in the cart
-     * - the resulting gedcom shall not contain any references that are not also included in the cart
-     *   so that the gedcom is well formed as a continuum including all referenced informations
-     * - BUT we want some informations to be holded so we have added the regarding xrefs to a second array
-     *   we have to check for too
-     *
-     * @param string $record
-     * @param array $xrefs
-     * @param array $v_xrefs
-     *
-     * @return string
-     */
-    private function removeLinksToUnusedObjectsL23(string $record, array $xrefs, array $v_xrefs): string
-    {
-        preg_match_all('/\n1 ' . Gedcom::REGEX_TAG . ' @(' . Gedcom::REGEX_XREF . ')@(\n[2-9].*)*/', $record, $matches, PREG_SET_ORDER);
-        foreach ($matches as $match) {
-            if (!in_array($match[1], $xrefs, true)) {
-                if( !in_array($match[1], $v_xrefs, true)) {
-                    $record = str_replace($match[0], '', $record);
-                }
-            }
-        }
-        preg_match_all('/\n2 ' . Gedcom::REGEX_TAG . ' @(' . Gedcom::REGEX_XREF . ')@(\n[3-9].*)*/', $record, $matches, PREG_SET_ORDER);
-        foreach ($matches as $match) {
-            if (!in_array($match[1], $xrefs, true)) {
-                $record = str_replace($match[0], '', $record);
-            }
-        }
-        preg_match_all('/\n3 ' . Gedcom::REGEX_TAG . ' @(' . Gedcom::REGEX_XREF . ')@(\n[4-9].*)*/', $record, $matches, PREG_SET_ORDER);
-        foreach ($matches as $match) {
-            if (!in_array($match[1], $xrefs, true)) {
-                $record = str_replace($match[0], '', $record);
-            }
-        }
-        return $record;
-    }
-
-    /**
      * Recursive function to traverse the tree and count the maximum ancestor generation
      *
      * @param Individual $individual
@@ -2391,11 +2367,21 @@ class ClippingsCartEnhanced extends ClippingsCartModule
 
         View::registerCustomView('::lists/CCEtable-IL-js', $this->name() . '::lists/CCEtable-IL-js');
         View::registerCustomView('::lists/CCEtable-FL-js', $this->name() . '::lists/CCEtable-FL-js');
+        View::registerCustomView('::lists/CCEtable-ER-js', $this->name() . '::lists/CCEtable-ER-js');
 
-        $CCEjs = $this->resourcesFolder() . 'js/CCEtable-actions.js';
-        Session::put('CCEtable-actions.js', $CCEjs);
+        $CCEjst = $this->resourcesFolder() . 'js/CCEtable-actions.js';
+        Session::put('CCEtable-actions.js', $CCEjst);
         $CCEcss = $this->resourcesFolder() . 'css/CCEtable-actions.css';
         Session::put('CCEtable-actions.css', $CCEcss);
+        $CCEjsc = $this->resourcesFolder() . 'js/CCEchart-actions.js';
+        Session::put('CCEtable-actions.js', $CCEjsc);
+
+        // Option List Individuals in cart - plain individuals-table
+        View::registerCustomView('::modals/CCElistXREFs', $this->name() . '::modals/CCElistXREFs');
+        View::registerCustomView('::icons/list-xrefs', $this->name(). '::icons/list-xrefs');
+        View::registerCustomView('::lists/CCElistINDI', $this->name() . '::lists/CCElistINDI');
+        View::registerCustomView('::icons/dummy', $this->name(). '::icons/dummy');
+        View::registerCustomView('::lists/CCElistINDItable', $this->name() . '::lists/CCElistINDItable');
         // Option Import/Export driven by menu
         View::registerCustomView('::csv_import_form', $this->name() . '::csv_import_form');
         View::registerCustomView('::save-cart', $this->name() . '::save-cart');
@@ -2419,6 +2405,7 @@ class ClippingsCartEnhanced extends ClippingsCartModule
         // Helpers
         View::registerCustomView('::modals/footer-continue-cancelCCE', $this->name() . '::modals/CCEfooter-continue-cancel');
         View::registerCustomView('::modals/footer-save-cancelCCE', $this->name() . '::modals/CCEfooter-save-cancel');
+        View::registerCustomView('::modals/footer-submit-cancelCCE', $this->name() . '::modals/CCEfooter-submit-cancel');
         View::registerCustomView('::modals/footer-checkedCCE', $this->name(). '::modals/CCEfooter-checked');
         View::registerCustomView('::modals/footer-backCCE', $this->name(). '::modals/CCEfooter-back');
 
@@ -2427,6 +2414,7 @@ class ClippingsCartEnhanced extends ClippingsCartModule
         View::registerCustomView('::icons/actions-filter', $this->name(). '::icons/actions-filter');
 
 
+        $vERok = class_exists(VestaERadapter::class, true);
 
         $this->TSMok = class_exists(TaggingServiceManager::class, true);
 
@@ -2438,22 +2426,6 @@ class ClippingsCartEnhanced extends ClippingsCartModule
         }
 
         Session::put('CCEclassName', $this->name());               // we need it later
-
-    }
-
-    /**
-     * dump array as json to text-file
-     * 
-     * @param array $theArray
-     */
-    public function dumpArray(array &$theArray, string $fileName)
-    {
-        //Encode the array into a JSON string.
-        $encodedString = json_encode($theArray);
-
-        //Save the JSON string to a text file.
-        $_fName = SELF::VIZdir . DIRECTORY_SEPARATOR . $fileName;
-        file_put_contents($_fName, $encodedString, LOCK_EX);
 
     }
 
@@ -2471,5 +2443,22 @@ class ClippingsCartEnhanced extends ClippingsCartModule
         Session::put($storeName, $encodedString);
 
     }
+
+        /**
+     * @param Tree              $tree
+     * @param UserInterface     $user
+     *
+     * @return bool
+     * 
+     * test if _huhwt-cce_ is accessible
+     */
+    private function test_CCE_ (Tree $tree, UserInterface $user) : bool
+    {
+        $retval =  $this->accessLevel($tree, 'Fisharebest\Webtrees\Module\ModuleMenuInterface') >= Auth::accessLevel($tree, $user);
+
+        return $retval;
+    }
+
+
 
 }

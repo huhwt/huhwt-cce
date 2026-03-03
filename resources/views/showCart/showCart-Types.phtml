@@ -12,6 +12,9 @@ use Fisharebest\Webtrees\I18N;
 use Fisharebest\Webtrees\View;
 use Fisharebest\Webtrees\Tree;
 
+use HuHwt\WebtreesMods\ClippingsCartEnhanced\ClippingsCartEnhanced;
+use HuHwt\WebtreesMods\ClippingsCartEnhanced\ClippingsCartEnhancedModule;
+
 /**
  * @var string              $module
  * @var array<GedcomRecord> $types
@@ -25,6 +28,12 @@ use Fisharebest\Webtrees\Tree;
  * @var Tree                $tree
  */
 
+$route_CCElistINDI  = route('module', [
+                        'module' => $module,
+                        'action' => 'CCElist',
+                        'tree' => $tree->name(),
+                        'type' => 'Individual'
+                        ])
 
 ?>
 
@@ -35,6 +44,7 @@ use Fisharebest\Webtrees\Tree;
         <?php $records = $recordTypes[$key]; ?>
         <?php $count = count($records); ?>
         <?php $Theader = 'CCE-' . $key; ?>
+        <?php $Theader_t = I18N::translate($Theader); ?>
         <table class="table wt-facts-table CCE-facts-table" style="display:none">
             <colgroup>
                 <col span="1" style="width: 30%;">
@@ -43,7 +53,14 @@ use Fisharebest\Webtrees\Tree;
             </colgroup>
             <thead>
                 <tr>
-                    <th name="<?= $Theader ?>" title="<?= $Ttitle ?>" class="CCE_Theader CCE_Rheader"><?= I18N::translate('Records') . ' - ' . I18N::translate($Theader) . ' (' . view('components/CCEbadge', ['count' => $count, 'total' => $count]) . ')'; ?></th>
+                    <th name="<?= $Theader ?>" title="<?= $Ttitle ?>" class="CCE_Theader CCE_Rheader">
+                        <div><?= I18N::translate('Records') . ' - ' . $Theader_t . ' (' . view('components/CCEbadge', ['count' => $count, 'total' => $count]) . ')'; ?></div>
+                        <?php if(( $key == 'Individual') && ($count > 0)): ?>
+                            <div action="<?= e(route(ClippingsCartEnhancedModule::class, ['module' => $module, 'action' => 'CCElistXREFs', 'tree' => $tree->name(), 'type' => $key])); ?>" title="<?= I18N::translate("Show %s as list", $Theader_t) ?>">
+                                <?= view('icons/list-xrefs', [ 'tree' => $tree, 'key' => $key, 'Theader_t' => $Theader_t ]); ?>
+                            </div>
+                        <?php endif ?>
+                    </th>
                     <th class="dontShow">...</th>
                     <th class="CCE_Theader"><?= I18N::translate('Action'); ?></th>
                 </tr>

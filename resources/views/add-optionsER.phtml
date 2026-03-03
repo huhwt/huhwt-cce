@@ -1,0 +1,76 @@
+<?php
+
+use Fisharebest\Webtrees\I18N;
+use Fisharebest\Webtrees\Tree;
+
+/**
+ * @var array<string,string> $options
+ * @var string               $xref
+ * @var string               $xref2
+ * @var string               $ancestors
+ * @var string               $title
+ * @var string               $called_by
+ * @var Tree                 $tree
+ * @var array                $vERdata
+ * @var array                $ER_struct
+ */
+
+    $show_path      = true;
+?>
+
+<h2 class="wt-page-title"><?= $title ?></h2>
+
+<form method="post" class="wt-page-options wt-page-options-clippings d-print-none">
+    <?= csrf_field() ?>
+    <input type="hidden" name="xref" value="<?= e($xref) ?>">
+    <input type="hidden" name="xref2" value="<?= e($xref2) ?>">
+    <input type="hidden" name="ancestors" value="<?= e($ancestors) ?>">
+    <input type="hidden" name="recursion" value="<?= e($recursion) ?>">
+
+    <div class="row form-group">
+        <div class="col-sm-3 col-form-label wt-page-options-label">
+            <?= I18N::translate('Add to the clippings cart') ?>
+        </div>
+        <div class="col-sm-9 wt-page-options-value">
+            <?= view('components/radios', ['name' => 'option', 'options' => $options, 'selected' => key($options)]) ?>
+        </div>
+    </div>
+
+    <div class="row form-group">
+        <div class="col-sm-3 wt-page-options-label"></div>
+        <div class="col-sm-9 wt-page-options-value">
+            <button type="submit" name="cce_button" class="btn btn-primary" value="continue">
+                <?= view('icons/save') ?>
+                <?= /* I18N: A button label. */ I18N::translate('continue') ?>
+            </button>
+
+            <button type="submit" name="cce_button" class="btn btn-secondary" value="back">
+                <?= view('icons/cancel') ?>
+                <?= /* I18N: A button label. */ I18N::translate('back') ?>
+            </button>
+        </div>
+    </div>
+</form>
+
+<?php if ($show_path):
+    $vERdata_struct     = $vERdata['vERstruct'];
+    if (is_array($vERdata)):           // [EW.H] debug option - show the processed path
+        $xtpath = join(' | ', $vERdata['path']); ?>
+        <div> <?= $xtpath ?></div>
+    <?php endif ?>
+    <div>&nbsp;</div>
+    <?php if (is_array($ER_struct)):           // [EW.H] debug option - show the processed path
+        foreach ($vERdata_struct as $n => $part) { 
+            $xtpath = join(' | ', $part); ?>
+            <div> <?= $xtpath ?></div>
+        <?php  } ?>
+    <?php endif ?>
+    <div>&nbsp;</div>
+    <?php if (is_array($ER_struct)):           // [EW.H] debug option - show the processed path
+        foreach ($ER_struct['parts'] as $n => $part) { 
+            $xtpath = join(' | ', $part); ?>
+            <div> <?= $xtpath ?></div>
+        <?php  } ?>
+    <?php endif ?>
+<?php endif ?>
+

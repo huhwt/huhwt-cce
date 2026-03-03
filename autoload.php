@@ -9,4 +9,5 @@ $loader->addPsr4('HuHwt\\WebtreesMods\\ClippingsCartEnhanced\\', __DIR__);
 $loader->addPsr4('HuHwt\\WebtreesMods\\ClippingsCartEnhanced\\', __DIR__ . '/resources');
 // $loader->addPsr4('HuHwt\\WebtreesMods\\ClippingsCartEnhanced\\modules\\', __DIR__ . '/views/modules');
 $loader->addPsr4('HuHwt\\WebtreesMods\\ClippingsCartEnhanced\\', __DIR__ . '/src');
+// $loader->addPsr4('HuHwt\\WebtreesMods\\ClippingsCartEnhanced\\', __DIR__ . '/Module');
 $loader->register();

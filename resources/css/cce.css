@@ -1,20 +1,11 @@
 /**
  * webtrees - clippings cart enhanced
  *
- * Copyright (C) 2024 huhwt. All rights reserved.
+ * Copyright (C) 2025 huhwt. All rights reserved.
  *
  * Icon converted via: https://base64.guru/converter/encode/image
  * Zusätzliche Steuerelemente Clippings Cart Enhanced
  */
-
-.cce-page-options {
-    display: flex;
-}
-.cce-page-options-value-r {
-    min-width: 80%;
-    text-align: right;
- 
-}
 
 .cce_buttongroup {
     display: flex;
@@ -53,11 +44,31 @@
     }
     .cce_button:hover {
         border: thin outset #fdfffd;
+        box-shadow: 3px 1px 3px var(--bs-teal);
         cursor: pointer;
     }
     .cce-fw {
         width: 3.2em !important;
     }
+
+.cce-wt-initials-list{
+    font-size: 1.15rem !important;
+}
+.cce-wt-initials-list-item + .wt-initials-list-item:before {
+    content: "|";
+}
+.cce-text-muted {
+    color: rgb(188,190,193) !important;
+}
+.cce_button.cce-initial.active {
+    color: blue !important;
+    font-size: 1.2rem;
+    font-weight: 800;
+}
+.cce_button.cce-initial {
+    width: 32px;
+    height: 32px;
+}
 
 .bPlus {
     content: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABYAAAAWCAYAAADEtGw7AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAEeSURBVEhLY2QgAtRP3/T/9O5VDP///WZQFuFmKC9MYpDVtsGrlwlK4wRnH3z6f/H0IbChIHD3zVeGS8cPgNn4AEGD/4MxiESA//9R+dgAQYPJBaMGwwHNDAanxY7py/8/unkZGN2/wfGPnEC///7H8PLlS4b/fyHJDQRE+DgYeAXFoDxIyoHpEeXlZAj1tmRg7F9/7v+uhd1AoX8QGSoADU5gUHz7/gPIJJwuSQHfvwMN5uLkADKJytlEA06gi2kXxlA+TnAGWFY0NzUy/Hr3BCrCwJDtrcPgk1qLV+9oBoGDYWgwKOoZ0RIPIyPBxETYYGMFPkZ9UzsGRiZWMB9U5+lZOoDZ+ABhq6EAVKaAsj8wpz4oDDRShArjAAwMAHA+ZOlwX6lRAAAAAElFTkSuQmCC');
@@ -68,210 +79,14 @@
     align-content: center;
 }
 
-.cce_disabled {
-    pointer-events: none;
-    cursor: default;
-    background-color: #efefef52 !important;
-}
-
-.cce-icon-basket{
-    content: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAASCAYAAABWzo5XAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsIAAA7CARUoSoAAAALWSURBVDhPrVRNTBNREH67pUtp1/5BG2Jr06a0TTkIh5qGCCmJlKR64G7ChcQUwWjlYIxXDySmF0/EHkAPHhoiwsEDHuSAgaZIaqAGIZGQECVYWmkLLf2h9XvLgnqwRuOXvJ15Mzvfm52Zt+R/gRGlgFAoJIlGo7a5uTnicDgub2xsXKpUKoKvsbExpVAoptPpdGZwcHDP7/fvCQ4RZ0Tj4+PnFhYWRpeWljzZbPagrq7OVC6Xz4tuwrJsHuIjwzAlq9XK9fb23hgZGXl34oVflGRzc9Mdj8ev63S6UWxvtrS0PEJwGLqwtFrthNFovIsDbu3v72cikcjtWCwmo7G/YGBg4H5PT88ncVsT/f39ge7u7uVgMNgsmn5khG+/olKplsVtTbhcrhUIx9ramv7EIhLNzMxYQGSSSqXzgvUPaG9vj0IcNzU1dZ5YUOyhoSG1wWC4mEqlHqNDD0C6KPpqoq+vLwyi+NTU1MPh4eE809HRsbi7uyu6/x4cxxGPxzPLoDvV01n5V9jt9lm2q6vrXkNDQx5tLaDYIQydMGhqtfot1muqy+Xyb9SHGuYwRxWNRvNMqVRuQSdOp/ONxWK5wwYCgSeYkSQIGJ/PN48XPtBgnudfIeAl1SUSybrZbJ7AXH1FcBHleGqz2SoymYzo9frnY2Nj62xbW1sGAdvVapXL5XI8sqCxhJ72M073IKNdI4VCQVtfX3+IBLYEO31gs4LrQNA5AlJq+i1QAvo5BNeIkidaW1u/ULtAhMq/pycWi8XmUqmUojpqYkB2BuElllUgYznsHOpUSSaTRVwTFgkk3G63QCTki1m6hls/nc/nDxEgOTo64tGAA7iOYVOhRiXon+G7AMmiNtuwGzHhs+Fw+CrlEDLCYK0iq1WcpoLkUXACnad7quNkKZYZDZBgMfTPAHsZ8gWNpzir6OTkpGtnZ6cTp4qW2gBhwmQyTXu93kNCCPkOIFn6vwb0YW8AAAAASUVORK5CYII=');
-    align-content: center;
-}
-
-.cce-icon-file{
-    content: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAASCAMAAABhEH5lAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAClUExURf///+vr7by9wbi5vbm5vr29wurr7PT09V9ldUBHXWFlc2BjcgAXRVFXauTk5t7f4QAYR+Hh4/39/fr6+vv7+4OHkQAAMlRabObm597e4RgqTunp64OGkQAAQFdcbejo6ejo6pqcpAABQCAxUAAAOI6Rmvb29+Xm5+rq65qdpG5ygP39/q6wtqyutK2vtfr6+/7+/qSmrW1xfgASRK6wtbe4vMrLzyYVOk4AAAAJcEhZcwAADsIAAA7CARUoSoAAAACCSURBVChTY8AOGJmYWViYWdmgXCBg5+Dk4ubm5uHlgwowMPALCAoJi4iIiolLQEUYJKWkQZSMrKycPFgAqEpKAUQpKimrqIIF4EJq6hqaWtpgEZgQEOhgCunSQgjqVCDQg6sCeQgI9A0MjQwgQlBvA4GxCUQEGjhAYGomAhVBBQwMAAQADOlgi5tvAAAAAElFTkSuQmCC');
-    align-content: center;
-}
-
-.cce-subheader {
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-start;
-    align-items: center;
-}
-    .cce-shb1 {
-        min-width: 30%;
-    }
-    .cce-shb2 {
-        display: flex;
-        flex-direction: row;
-        justify-content: space-evenly;
-        align-items: center;
-        min-width: 30%;
-    }
-
-.cce_thflex {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.cce-btn-w {
-    width: 100%;
-}
-.cce-btn:hover {
-    color: white;
+input.form-check-input[type=radio]:hover {
     box-shadow: 3px 1px 3px var(--bs-teal);
 }
-
-.cce-icon-group {
-    display: flex;
-    flex-direction: row;
+.dropdown-item.menu-list-indi.CCEmenu-list-indi {
+    visibility: none;
+    height: 0%;
+}
+.menu-list-indi.CCEmenu-list-indi::before {
+    content: none; /*-- url(webtrees/menu/list-indi.png); */
 }
 
-.cce-cb {
-    display: flex;
-    flex-direction: column;
-}
-    .cce-cbl {
-        display: flex;
-        flex-direction: row;
-    }
-    .cce-cbul>ul {
-        list-style-type: none;
-        margin-bottom: 0.5rem;
-        padding-left: 0;
-    }
-    .cce-cb-lblch {
-        background-color: #94BF13;
-        color: white;
-    }
-
-.cce-cb-lbl {
-    padding-left: 0.5rem;
-    border: 1px;
-    border-color: #94BF13;
-    border-radius: 0.25rem;
-}
-.cce-cb-lbl:hover {
-    background-color: #94BF13;
-}
-
-table + h4 {
-    margin-top: 2rem !important;
-}
-
-table {
-    table-layout: fixed;
-    width: 100%;
-}
-
-.CCE_Theader {
-    background-color: rgba(194, 194, 250, 0.623) !important;
-    text-align: left !important;
-    font-size: 1.1rem !important;
-}
-
-.is-hidden {
-    display: none;
-}
-
-.dontShow {
-    visibility: hidden;
-}
-
-.lineHalfHeight {
-    height: 0.5rem;
-}
-
-.outlineBlue {
-    border: 1px solid !important;
-    border-color: rgb(82, 82, 252) !important;
-}
-
-.CCEbadge {
-    display: inline-block;
-    border-radius: 0.375rem;
-    padding: 0.65em 0.35em;
-    font-size: 0.8rem;
-    text-align: center
-    }
-
-.CCEbg-secondary {
-    background-color: rgba(208, 208, 208, 0.9)!important
-}
-
-
-.CCEbadge.CCEhighlighted {
-    font-size: 0.9rem;
-}
-.CCEcolor1 {
-    color: blue;
-}
-.CCEcolor2 {
-    color: red;
-}
-.CCEcolor3 {
-    color: green;
-}
-.CCEcolor4 {
-    color: darkmagenta;
-}
-.CCEcolor5 {
-    color: darkturquoise;
-}
-.CCEcolor6 {
-    color: goldenrod;
-}
-
-div.CCEhighlightedF > span.CCEbadge{
-    font-size: 0.9rem !important;
-}
-td.CCEhighlightedF > span.CCEbadge{
-    font-size: 0.9rem !important;
-}
-div.CCEcolorF1>span.b-filter{
-    border-color: blue !important;
-    border-width: 2px;
-}
-div.CCEcolorF2>span.b-filter {
-    border-color: red !important;
-    border-width: 2px;
-}
-div.CCEcolorF3>span.b-filter {
-    border-color: green !important;
-    border-width: 2px;
-}
-div.CCEcolorF4>span.b-filter {
-    border-color: darkmagenta !important;
-    border-width: 2px;
-}
-div.CCEcolorF5>span.b-filter {
-    border-color: darkturquoise !important;
-    border-width: 2px;
-}
-div.CCEcolorF6>span.b-filter {
-    border-color: goldenrod !important;
-    border-width: 2px;
-}
-
-.b-filter {
-    border-width: 0px;
-    border-radius: 0.375rem;
-    border-style: double;
-}
-
-.CCEpopup {
-    display: block;
-    border: 2px dashed darkblue;
-    margin: 10px 5px 10px 5px;
-    font-size: 1.2em;
-    font-weight: 500;
-    background-color: mediumaquamarine;
-    position: absolute;
-    top: 5%;
-    left: 40%;
-    min-width: 310px;
-    z-index: 199;
-}
-
-.col-sm-0 {
-    flex: 0 0 auto;
-    width: 0.33333333%;
-}
-
-[dir] .form-control::file-selector-button {
-    background-color: var(--bs-tertiary-color) !important;
-}

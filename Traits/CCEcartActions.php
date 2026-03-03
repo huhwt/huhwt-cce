@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits;
 
+use Illuminate\Support\Collection;
 use Fisharebest\Webtrees\I18N;
 use Fisharebest\Webtrees\Session;
 use Fisharebest\Webtrees\Tree;
@@ -229,37 +230,6 @@ trait CCEcartActions
             }
         }
         return $_caActions;
-    }
-
-    /**
-     * Collect the keys of the records of each type in the clippings cart.
-     * The order of the Xrefs in the cart results from the order of
-     * the calls during insertion and is not further separated according to
-     * their origin.
-     * This function distributes the Xrefs according to their origin to a predefined structure.
-     *
-     * @param Tree $tree
-     * @param array $recordTypes
-     *
-     * @return array    // string[] string[]
-     */
-    private function collectRecordKeysInCart(Tree $tree, array $recordTypes): array
-    {
-        $records = $this->getRecordsInCart($tree);
-        $recordKeyTypes = array();                  // type => keys
-        foreach ($recordTypes as $key => $class) {
-            $recordKeyTypeXrefs = [];
-            foreach ($records as $record) {
-                if ($record instanceof $class) {
-                    $xref = $this->getXref_fromRecord($record);
-                    $recordKeyTypeXrefs[] = $xref;
-                }
-            }
-            if ( count($recordKeyTypeXrefs) > 0) {
-                $recordKeyTypes[strval($key) ] = $recordKeyTypeXrefs;
-            }
-        }
-        return $recordKeyTypes;
     }
 
     /**
@@ -530,5 +500,163 @@ trait CCEcartActions
         $SinfoJson = json_encode($Sinfo);
         return $SinfoJson;
     }
+
+    /**
+     * Count the records of each type in the clippings cart.
+     *
+     * @param Tree $tree
+     * @param array $recordTypes
+     *
+     * @return int[]
+     */
+    private function countRecordTypesInCart(Tree $tree, array $recordTypes): array
+    {
+        $records = $this->getRecordsInCart($tree);
+        $recordTypesCount = [];                  // type => count
+        $recordTypesCount['all'] = count($records);
+        foreach ($recordTypes as $key => $class) {
+            foreach ($records as $record) {
+                if ($record instanceof $class) {
+                    if (array_key_exists($key, $recordTypesCount)) {
+                        $recordTypesCount[$key]++;
+                    } else {
+                        $recordTypesCount[$key] = 1;
+                    }
+                }
+            }
+        }
+        return $recordTypesCount;
+    }
+
+    /**
+     * Collect the records of each type in the clippings cart.
+     * The order of the Xrefs in the cart results from the sequence of the calls
+     * during insertion and may be relevant for subsequent actions.
+     * On the other hand, the records must also be separated according to their
+     * origin and put in a defined order in this respect.
+     * For this reason, the records are not output directly, but are inserted
+     * into a structure that is predefined and specifies the sequence.
+     *
+     * @param Tree $tree
+     * @param array $recordTypes
+     *
+     * @return array    // string[] GedcomRecord []
+     */
+    private function collectRecordsInCart(Tree $tree, array $recordTypes): array
+    {
+        $records = $this->getRecordsInCart($tree);
+        $recordKeyTypes = array();                  // type => keys
+        foreach ($recordTypes as $key => $class) {
+            $recordKeyTypeXrefs = [];
+            foreach ($records as $record) {
+                if ($record instanceof $class) {
+                    $recordKeyTypeXrefs[] = $record;
+                }
+            }
+            if ( count($recordKeyTypeXrefs) > 0) {
+                $recordKeyTypes[strval($key) ] = $recordKeyTypeXrefs;
+            }
+        }
+        return $recordKeyTypes;
+    }
+
+    /**
+     * Collect the keys of the records of each type in the clippings cart.
+     * The order of the Xrefs in the cart results from the order of
+     * the calls during insertion and is not further separated according to
+     * their origin.
+     * This function distributes the Xrefs according to their origin to a predefined structure.
+     *
+     * @param Tree $tree
+     * @param array $recordTypes
+     *
+     * @return array    // string[] string[]
+     */
+    private function collectRecordKeysInCart(Tree $tree, array $recordTypes): array
+    {
+        $records = $this->getRecordsInCart($tree);
+        $recordKeyTypes = array();                  // type => keys
+        foreach ($recordTypes as $key => $class) {
+            $recordKeyTypeXrefs = [];
+            foreach ($records as $record) {
+                if ($record instanceof $class) {
+                    $xref = $this->getXref_fromRecord($record);
+                    $recordKeyTypeXrefs[] = $xref;
+                }
+            }
+            if ( count($recordKeyTypeXrefs) > 0) {
+                $recordKeyTypes[strval($key) ] = $recordKeyTypeXrefs;
+            }
+        }
+        return $recordKeyTypes;
+    }
+
+    /**
+     * Get the records in the clippings cart. 
+     * There may be use cases where it makes sense to output the records sorted
+     * by their Xrefs, but for our purposes it is rather disadvantageous,
+     * so sorting is optional and disabled by default.
+     *
+     * @param Tree $tree
+     * @param bool $do_sort
+     *
+     * @return array
+     */
+    private function getRecordsInCart(Tree $tree, bool $do_sort=false): array
+    {
+        $xrefs = $this->get_CartXrefs($tree);
+        $records = array_map(static function (string $xref) use ($tree): ?GedcomRecord {
+            return Registry::gedcomRecordFactory()->make($xref, $tree);
+        }, $xrefs);
+
+        // some records may have been deleted after they were added to the cart, remove them
+        $records = array_filter($records);
+
+        if ($do_sort) {
+            // group and sort the records
+            uasort($records, static function (GedcomRecord $x, GedcomRecord $y): int {
+                return $x->tag() <=> $y->tag() ?: GedcomRecord::nameComparator()($x, $y);
+            });
+        }
+
+        return $records;
+    }
+
+    private function get_CCElistINDI(Tree $tree, array $xrefsI) : Collection
+    {
+        $records = array_map(static function (string $xref) use ($tree): ?GedcomRecord {
+            return Registry::gedcomRecordFactory()->make($xref, $tree);
+        }, $xrefsI);
+
+        // some records may have been deleted after they were added to the cart, remove them
+        $records = array_filter($records);
+
+        $individuals = new Collection();
+
+        foreach ($records as $row) {
+            $individual = Registry::individualFactory()->make($row->xref(), $tree, $row->gedcom());
+            assert($individual instanceof Individual);
+
+            $individuals->push(clone $individual);
+        }
+
+        return $individuals;
+    }
+
+
+    /**
+     * Get the XREF for the record in the clippings cart.
+     *
+     * @param GedcomRecord $record
+     *
+     * @return string 
+     */
+    private function getXref_fromRecord(GedcomRecord $record): string
+    {
+        $xref = $record->xref();
+        return $xref;
+    }
+
+
 
 }

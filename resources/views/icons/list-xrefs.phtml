@@ -1,0 +1,35 @@
+<?php
+
+/**
+ * webtrees - clippings cart enhanced
+ *
+ * Copyright (C) 2026 huhwt. All rights reserved.
+ *
+ */
+
+use Fisharebest\Webtrees\GedcomRecord;
+use Fisharebest\Webtrees\I18N;
+use Fisharebest\Webtrees\Registry;
+use Fisharebest\Webtrees\View;
+use Fisharebest\Webtrees\Tree;
+
+use HuHwt\WebtreesMods\ClippingsCartEnhanced\ClippingsCartEnhancedModule;
+
+/**
+ * @var Tree                $tree
+ * @var string              $key
+ * @var string              $Theader_t
+ */
+
+    $route = route(ClippingsCartEnhancedModule::class, ['tree' => $tree->name(), 'action' => 'CCElist', 'type' => $key]);
+
+?>
+
+<div class="input-group">
+    <?php $id = Registry::idFactory()->id(); ?>
+    <button name="CCE_btnList" class="btn btn-secondary cce-btn" type="button" data-bs-toggle="modal" data-bs-backdrop="static" data-bs-target="#wt-ajax-modal" data-wt-href="<?= e($route) ?>" data-wt-select-id="<?= $id ?>" >
+        <span class="fa-solid fa-list cce-icon-list" title="<?= I18N::translate('Show %s as list', $Theader_t); ?>">
+        </span>
+    </button>
+</div>
+<?php

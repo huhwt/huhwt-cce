@@ -20,6 +20,9 @@ msgstr "Ersatz für das ursprüngliche \"Sammelbehälter\"-Modul."
 msgid "Clippings cart enhanced"
 msgstr "Sammelbehälter"
 
+msgid "Clippings cart"
+msgstr "Sammelbehälter"
+
 msgid "Webtrees standard action"
 msgstr "Webtrees Standard Aktion"
 
@@ -37,6 +40,9 @@ msgstr "Datensätze im %s "
 
 msgid "Add this record to the clippings cart"
 msgstr "Zum Sammelbehälter hinzufügen"
+
+msgid "Add these records to the clippings cart"
+msgstr "Einträge zum Sammelbehälter hinzufügen"
 
 msgid "%1$s and her ancestors (up to %2$s generations)"
 msgstr "%1$s und ihre Vorfahren (bis zu %2$s Generationen)"
@@ -118,6 +124,12 @@ msgstr "Quellen-Verzeichnis"
 
 msgid "CCE-Submitter"
 msgstr "Einsender"
+
+msgid "Show %s as list"
+msgstr "Zeige %s als Liste"
+
+msgid "List of the Individuals in clippings cart"
+msgstr "Liste der Personen im Sammelbehälter"
 
 msgid "Delete all records, a set of records of the same type, or selected records"
 msgstr "Löschen aller Datensätze insgesamt, oder aller eines Typs, oder nach Auswahl"
@@ -208,6 +220,9 @@ msgstr "Familien und Personen zum Sammelbehälter hinzufügen"
 
 msgid "add families and individuals with parents to the clippings cart"
 msgstr "Familien und Personen mit Eltern zum Sammelbehälter hinzufügen"
+
+msgid "add individuals with direct relations to the clippings cart"
+msgstr "Personen mit direkten Beziehungen zum Sammelbehälter hinzufügen"
 
 msgid "add individuals to the clippings cart"
 msgstr "Personen zum Sammelbehälter hinzufügen"
@@ -397,6 +412,12 @@ msgstr "Es wurde keine Datei ausgewählt."
 
 msgid "Defaults for saving Clippings Cart XREFs to local CSV file"
 msgstr "Standardeinstellungen für das Speichern von Sammelbehälter-XREFs in einer lokalen CSV-Datei"
+
+msgid "Add relationships between %1$s and %2$s to the clippings cart"
+msgstr "Beziehungen zwischen %1$s und %2$s zum Sammelbehälter hinzufügen"
+
+msgid "Show only individuals with surname beginning with “%s”"
+msgstr "Nur Personen anzeigen deren Nachnamen mit „%s“ beginnen"
 
 msgid ""
 msgstr ""

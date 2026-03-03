@@ -48,18 +48,21 @@ This module covers all clipping actions covered in the Webtrees standard. This h
 * In 'Individual List' mode, parents and descendants can also be adopted alternatively or completely as required.
 * In 'Family List' mode, families with their parents can also be adopted as required.
 
-[huhwt-xtv](https://github.com/huhwt/huhwt-xtv) (Tree view extended) and [huhwt-mtv](https://github.com/huhwt-mtv) (Multi-tree view for admin action "Check duplicates") can now also be adopted into the clipping basket.
+[huhwt-xtv](https://github.com/huhwt/huhwt-xtv) (Tree view extended / XTV) and [huhwt-mtv](https://github.com/huhwt-mtv) (Multi-tree view for admin action "Check duplicates" / MTV) can now also be adopted into the Clippings cart. From XTV there will only be transferred those entries actually visible in the chart.
+
+From release 2.2.5.0 on, it is also possible to transfer entries from the modules 'Vesta Extended Relationships'(https://cissee.de/) as well as 'Extended family'(https://github.com/hartenthaler/hh_extended_family/) to the Clippings cart.
 
 The clipping actions carried out are displayed as an additional overview. Each clipping action done by CCE will be identified (example: INDI\~I1 -> Individual I1 Action:'Only this record' - INDI_ANCESTOR_FAMILIES\~I1 Action: 'This Person, his ancestors and their families'). You can filter the collected entries according to these actions. Each action can be undone individually.
 
-If you have performed more than one clipping action, it is likely that not all entries were equally attracted by each action; there is a pattern of differently combined actions. These combinations can be used as an additional filter. 
+If you have performed more than one clipping action, it is likely that not all entries were equally attracted by each action; there is a pattern of differently combined actions. These combinations can be used as an additional filter.
+
+Actually visible Individuals can also be displayed as a list, just like in the 'Individual List' module, complemented by a filter for the surname's initial letter.
 
 The content represented by the XREFs can be used in various ways.
 
-An action initiated by the user can take place on the represented content in the clippings cart, such as
-* the export to a GEDCOM zip file, as in the actual clippings cart module
+An action initiated by the user can take place on the represented content in the Clippings cart, such as
+* the export to a GEDCOM zip file, as in the actual Clippings cart module
 * the export to file in plain textual GEDCOM
-* the display in list form with the options of sorting and filtering this list (tbd)
 * the transfer to new functions that visualize this data or analyze it statistically.
   * Such a function could be for example a link-node-diagram like [TAM](https://github.com/huhwt/huhwt-wttam) (Topographic Attribute Map) or [LIN/Lineage](https://github.com/huhwt/huhwt-wtlin).
 * the transfer to new function [TSM](https://github.com/huhwt/huhwt-tsm) (Tagging Service Manager) providing the capability to handle appropriately structured 'Shared Notes' at a high abstract level.
@@ -67,29 +70,29 @@ An action initiated by the user can take place on the represented content in the
 * the transfer to an other custom module:
   * [ExtendedImportExport](https://github.com/Jefferson49/ExtendedImportExport) with lots of options for filtering or modifying Gedcom content. 
 
-The [TAM], [LIN] and [TSM] functions are provided as their own independent modules.
+The [TAM], [LIN], and [TSM] functions are provided as separate modules, although they can only be used from within CCE.
 
-However, you can perform actions with the content of the clipping cart itself (XREFs and clipping actions):
+Finally, you can also perform actions with the contents of the clipping cart itself (XREFs and clipping actions):
 
-You can store it completely as file on the server side (file location is defined by Tree-Name and User-ID, you may choose your own name). Saved files may be reloaded and added to the actual cart's content.
+You can store it completely as a file on the server side (file location is defined by Tree-Name and User-ID, you may choose your own name). Saved files may be reloaded and added to the actual cart's content. (Only XREFs currently known in the system are accepted for the entry in the Clippings cart.)
 
 For special purposes, you may sometimes need simple flat lists, just the XREFs without any deeper structures, for further processing in a spreadsheet.
 
 Such lists can also be created, but only downloaded to the local system and imported from there. They are generated in CSV format. The relevant parameters for this are primarily stored in the module settings. In addition to the XREF, the tag type (INDI/FAM etc.) and the sort name are also specified for more detailed identification.
-* The character encoding is generally UTF-8. If you want to further process such a CSV list in EXCEL, you should explicitly define the encoding in a new empty worksheet using the ‘Data | From Text/CSV’ Ribbon function, as EXCEL expects the data in ANSI when you use the ‘Double-click’ or ‘Open with’ functions, which could cause some characters to be displayed incorrectly. 'UTF-8' is at the very end of the code page options.
+* The character encoding is generally UTF-8. If you want to further process such a CSV list in EXCEL, you should explicitly define the encoding in a new empty worksheet using the ‘Data | From Text/CSV’ Ribbon function, as EXCEL expects the data in ANSI when you use the ‘Double-click’ or ‘Open with’ functions, which could cause some characters in the names to be displayed incorrectly. 'UTF-8' is at the very end of the code page options.
 
-For importing, the list can actually only contain some XREFs - only one, if any, the first import field is used. The code page isn't important, as the positions of the relevant characters are complementary for Western European languages. (However, so far only Western European languages are expected).
-* Only XREFs currently known in the system are accepted for the entry in the clippings cart.
+For importing, the list can actually only contain some XREFs - only the first import field, carrying the XREF, is used, any others will be ignored. The code page isn't really important, as the positions of the relevant characters are complementary.
+* Only XREFs currently known in the system are accepted for the entry in the Clippings cart.
 
-This module can be operated in addition to the other 'Clippings Cart' functions or replace them completely.
+This module can be operated in addition to the other 'Clippings cart' modules or replace them completely.
 
 ~~~
-CAVEAT: Clippings of other 'Clippings Cart' functions can't be precisely identified because of missing references, they will get a generic identifier.
+CAVEAT: Clippings of other 'Clippings cart' modules will be handled properly, but can't be precisely identified because of missing references, they will get a generic identifier.
 ~~~
 
 ---
 
-  Note: Since webtrees-2.1.18 the Family-/IndividualListModule are working properly again. Nevertheless there is a recommended modification in webtrees core module 'app/Module/AbstractIndividualListModule.php'. It's reasoned by a hard-coded overdefinition for the 'lists/surnames-table' in a vesta-Module ...
+  Note: There is a recommended modification in webtrees core module 'app/Module/AbstractIndividualListModule.php'. It's reasoned by a hard-coded overdefinition for the 'lists/surnames-table' in a vesta-Module ...
 
 line 360 - old:
 ~~~

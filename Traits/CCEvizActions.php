@@ -107,4 +107,31 @@ trait CCEvizActions
         return $ret;
     }
 
+    /**
+     * dump array as json to text-file
+     * 
+     * @param array $theArray
+     */
+    public function dumpArray(array &$theArray, string $fileName, string $dirPath)
+    {
+        //Encode the array into a JSON string.
+        $encodedString = json_encode($theArray);
+
+        $this->write_dump($encodedString, $fileName, $dirPath);
+    }
+
+    /**
+     * dump array as json to text-file
+     * 
+     * @param string $encodedString
+     */
+    public function write_dump(string $encodedString, string $fileName, string $dirPath)
+    {
+        //Save the JSON string to a text file.
+        $_fName = $dirPath . DIRECTORY_SEPARATOR . $fileName;
+        file_put_contents($_fName, $encodedString, LOCK_EX);
+
+    }
+
+
 }
