@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: hh 2.0.19\n"
 "Report-Msgid-Bugs-To: hermann@hartenthaler.de\n"
 "POT-Creation-Date: 2021-11-21 12:57+0200\n"
-"PO-Revision-Date: 2025-10-31 10:23+0100\n"
+"PO-Revision-Date: 2025-11-05 06:43+0100\n"
 "Last-Translator: TheDutchJewel <thedutchjewel@gmail.com>\n"
 "Language-Team: \n"
 "Language: nl\n"
@@ -20,6 +20,9 @@ msgstr "Vervanging voor de originele 'Stamboomknipsel'-module."
 
 msgid "Clippings cart enhanced"
 msgstr "Uitgebreide stamboomknipsels"
+
+msgid "Webtrees standard action"
+msgstr "webtrees-standaardactie"
 
 msgid "Add records from your family tree to the clippings cart and execute an action on them."
 msgstr "Voeg records uit uw stamboom toe aan de knipselverzameling en voer er een actie op uit."
