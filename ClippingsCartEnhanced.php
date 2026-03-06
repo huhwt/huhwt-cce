@@ -1128,7 +1128,7 @@ class ClippingsCartEnhanced extends ClippingsCartModule
             'cartXREFs'         => $this->cartXREFs,
             'tree'              => $tree,
             'stylesheet'        => $this->assetUrl('css/CCE_ShowCart.css'),
-            'javascript'        => $this->assetUrl('js/CCE_ShowCart.js'),
+            'javascript'        => $this->assetUrl('js/CCE_ShowCart-actions.js'),
         ]);
     }
 

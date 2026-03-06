@@ -1727,7 +1727,7 @@ use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCErecordActions;
             $cAct = $cartAct;
         }
         // the XREFs
-        $xrefs = Validator::queryParams($request)->string('xrefs', '');
+        $xrefs = Validator::parsedBody($request)->string('xrefs', '');
 
         if ($xrefs > '') {
             $XREFs = explode(';', $xrefs);

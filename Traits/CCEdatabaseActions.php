@@ -209,4 +209,35 @@ trait CCEdatabaseActions
         return $initials;
     }
 
+    /**
+     * copied from LinkedRecordService
+     * 
+     * siehe auch UnconnectedPage
+     * 
+     * @return Collection<int,Individual>
+     */
+    public function linkedIndividuals(GedcomRecord $record, string|null $link_type = null): Collection
+    {
+        $query = DB::table('individuals')
+            ->join('link', static function (JoinClause $join): void {
+                $join
+                    ->on('l_file', '=', 'i_file')
+                    ->on('l_from', '=', 'i_id');
+            })
+            ->where('i_file', '=', $record->tree()->id())
+            ->where('l_to', '=', $record->xref());
+
+        if ($link_type !== null) {
+            $query->where('l_type', '=', $link_type);
+        }
+
+        return $query
+            ->distinct()
+            ->select(['individuals.*'])
+            ->get()
+            ->map(Registry::individualFactory()->mapper($record->tree()))
+            ->filter(GedcomRecord::accessFilter());
+    }
+
+
 }
