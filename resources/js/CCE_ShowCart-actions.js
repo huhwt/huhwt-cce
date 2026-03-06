@@ -281,7 +281,9 @@ function execCA_delete(delem, XREFs) {
         _url = _url.replace('&amp;','&');
     }
     _url = _url + '&action=' + encodeURIComponent(action) + '&cartact=' + encodeURIComponent(cartAct);
+
     jQuery.ajax({
+        type: 'POST',
         url: _url,
         dataType: 'json',
         data: 'xrefs=' + XREFs.join(';'),
