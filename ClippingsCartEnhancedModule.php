@@ -1382,9 +1382,11 @@ use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCErecordActions;
 
         $part           = Validator::queryParams($request)->string('part');
 
+        // we'll have to rebuild the calling url ...
+        // index.php?route=/tree/{tree}/individual/{xref}/{name}#tab-_hh_extended_family_
         $called_by      = Session::pull('hhEF-act-route');
         $url            = Validator::attributes($request)->string('base_url');
-        $redUri         = $url . $called_by;
+        $redUri         = $url . '/' . 'index.php?route=' . $called_by . '#tab-_hh_extended_family_';
         // $server         = $_SERVER['SERVER_NAME'];
         // $request_scheme = $_SERVER['REQUEST_SCHEME'];
         // $redUri         = $request_scheme . '://' . $server . $called_by;
@@ -1395,7 +1397,7 @@ use HuHwt\WebtreesMods\ClippingsCartEnhanced\Traits\CCErecordActions;
 
         $Cinfo          = json_decode($this->count_CartTreeXrefsReport($tree, $xrefsCold));
         $Cinfo_message  = $Cinfo[2] . ' <---> ' . $Cinfo[3];
-        $Cinfo_message  = I18N::translate('Clippings cart') . ' : ' . $Cinfo_message;
+        $Cinfo_message  = 'CCE - ' . I18N::translate('Clippings cart') . ' : ' . $Cinfo_message;
         FlashMessages::addMessage($Cinfo_message);
 
         return redirect($redUri);

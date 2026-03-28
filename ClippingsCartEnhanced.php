@@ -235,7 +235,7 @@ class ClippingsCartEnhanced extends ClippingsCartModule
         $_name   = $this->name();
 
         $html_CSS = view("{$_name}::style", [
-            'path' => $this->assetUrl('css/CCE.css'),
+            'path' => $this->assetUrl('css/CCE_main.css'),
         ]);
         $html_CSSta = view("{$_name}::style", [
             'path' => $this->assetUrl('css/CCEtable-actions.css'),
@@ -540,7 +540,7 @@ class ClippingsCartEnhanced extends ClippingsCartModule
 
     /**
      * executing hh_ExtendedFamily ...
-     * @var VestaERadapter $hhEFadapter
+     * @var hhEFadapter    $hhEFadapter
      */
     private hhEFadapter    $hhEFadapter;
 

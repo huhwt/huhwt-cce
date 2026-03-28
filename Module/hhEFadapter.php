@@ -1,11 +1,11 @@
 <?php
 
 /**
- * HuH Extensions for webtrees - Treeview-Extended
- * Interactive Treeview with add-ons
- * Copyright (C) 2025 EW.Heinrich
+ * HuH Extensions for webtrees - clippings cart enhanced
  * 
- * Adapter to Vesta Extended Relationships
+ * Copyright (C) 2026 EW.Heinrich
+ * 
+ * Adapter to Extended Family
  */
 
 declare(strict_types=1);
@@ -35,17 +35,6 @@ use function view;
 use Throwable;
 
 class hhEFadapter {
-
-    private const TYPES_OF_RECORDS = [
-        'Individual' => Individual::class,
-        'Family'     => Family::class,
-    ];
-
-    private array $vERdata = [];
-
-    private array $vER_struct = [];
-
-    private Tree $tree;
 
     public function __construct() {
     }

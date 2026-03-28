@@ -122,8 +122,8 @@ trait CCEaddActions
             'record'        => $family,
             'title'         => $title,
             'tree'          => $tree,
-            'stylesheet'    => $this->assetUrl('css/CCE.css'),
-            'javascript'    => $this->assetUrl('js/CCE.js'),
+            'stylesheet'    => $this->assetUrl('css/CCE_main.css'),
+            'javascript'    => $this->assetUrl('js/CCE_main.js'),
         ]);
     }
 
@@ -264,8 +264,8 @@ trait CCEaddActions
             'generations' => $generations,
             'title'       => $title,
             'tree'        => $tree,
-            'stylesheet'    => $this->assetUrl('css/CCE.css'),
-            'javascript'    => $this->assetUrl('js/CCE.js'),
+            'stylesheet'    => $this->assetUrl('css/CCE_main.css'),
+            'javascript'    => $this->assetUrl('js/CCE_main.js'),
     ]);
     }
     /**
@@ -382,8 +382,8 @@ trait CCEaddActions
             'record'        => $note,
             'title'         => $title,
             'tree'          => $tree,
-            'stylesheet'    => $this->assetUrl('css/CCE.css'),
-            'javascript'    => $this->assetUrl('js/CCE.js'),
+            'stylesheet'    => $this->assetUrl('css/CCE_main.css'),
+            'javascript'    => $this->assetUrl('js/CCE_main.js'),
         ]);
     }
 
